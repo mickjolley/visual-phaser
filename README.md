@@ -1,6 +1,6 @@
 # visual-phaser
 Visual_Phaser.py automatically downloads chromosome images and data from GEDmatch's 
-One-to-One Comparisons.
+One-to-One Comparisons and stores them in a .xlsx file.
 
 @author: mick jolley (email: mickj1948@gmail.com)
 
