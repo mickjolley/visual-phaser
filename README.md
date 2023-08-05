@@ -1,10 +1,10 @@
 # visual-phaser
-Visual_Phaser automatically downloads chromosome images and data from GEDmatch's 
+Visual_Phaser.py automatically downloads chromosome images and data from GEDmatch's 
 One-to-One Comparisons.
 
 @author: mick jolley (email: mickj1948@gmail.com)
 
-Visual_Phaser automatically downloads a GEDmatch One-to-One Autosomal match between
+Visual_Phaser.py automatically downloads a GEDmatch One-to-One Autosomal match between
 individuals. The results are pasted into an .xlsx file which can be read by
 Excel 2010, Libre Office or similar spreadsheet application. The result is in a format 
 which allows you to start manual phasing immediately. No additional manipulations are 
