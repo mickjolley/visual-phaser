@@ -1,111 +1,141 @@
 # visual-phaser
 
-1. Overview
+1. Introduction
 
-  Visual Phaser is a specialized Python-based tool that automates the process of "phasing" 
-  and comparing genetic markers  across multiple individuals. It identifies HIR (Half Identical
-  Regions), FIR (Fully Identical Regions) and NIRs (Non Identical Regions), generating
-  detailed Excel reports and visual chromosome maps.
+  Visual Phaser New V21super.py is a specialized bioinformatics application designed for
+  genetic genealogy. It analyzes raw autosomal DNA files to identify and visualize 
+  shared segments (Half-Identical Regions (HIRs), Fully-Identical Regions
+  (FIRs) and Non-Identical regions (NIRs)) between siblings, cousins, and other relatives.
 
-  Key Features:
-   * Hybrid Architecture: Uses Multiprocessing for heavy genetic calculations and
-     Multithreading for fast file I/O and image generation.
-   * Broad Compatibility: Supports raw DNA data from AncestryDNA, 23andMe, and other
-     major providers.
-   * Visual Output: Automatically generates and embeds chromosome visualizations directly
-     into Excel worksheets.
+  The software produces a comprehensive Excel (.xlsx) workbook featuring color-coded
+  chromosomal maps and detailed segment data tables.
 
   ---
 
-2. Data Requirements
+2. System Requirements & Installation
 
-   Raw DNA Files:
-      Must be placed in a single directory. Files must tab-delimited .txt files
-      following the naming convention:
-                                          Company_Name_raw_dna.txt.
-      Examples: Ancestry_John_raw_dna.txt, FTDNA_Sue_raw_dna.txt
-      Either rename your ,txt files or, if they are in .csv format use either
-                                        ancestry_csv_to_tab_converter_V1.exe or
-                                        non_ancestry_csv_to_tab_converter_V1.exe 
-     to convert them. Make sure to fill in the blanks in the appropriate configuration files 
-     (ACTTC_config_V1exe.json or  NACTTC_config_V1exe.json respectively).
+  Prerequisites
+   - Python >=3.8, <3.14
+   - Required Libraries:
+           numpy pandas pillow openpyxl
 
-  Genetic Map:
-     A file named min_map.txt containing Centimorgan (cM) mapping data for
-     chromosomes.
+  Project Structure 
+   - Visual_Phaser_New_V21superplus.py: The main execution engine.
+   - VPnew_config_V21super.py: The configuration and parameter file.
+   - min_map.txt: (Required) A genetic map file mapping physical positions (Mb) to
+     genetic distances (cM).
 
   ---
 
-  Configuration (VPnew_config_V21super.json)
-     The behavior of the script is entirely controlled by the .json configuration file. Note that 
-     double quotation marks only can be used. In addition “true” and “false” must be lower 
-     case. The congiguration file MUST be in the same folder as the .exe file.
+3. Data Preparation
 
-      Path Settings
-      * FILES_PATH: The directory containing your raw DNA .txt files.
-      * WORKING_DIRECTORY: The folder where the output Excel file and temporary images
-        will be stored.
-      * MAP_PATH: The directory containing min_map.txt.
+  DNA File Format (PCV)
+  The software expects tab-delimited .txt files in a format often referred to as
+  "PixelChromosomeView" (PCV).
+   - Naming Convention: Files must contain the person's name followed by _raw_dna
+     - Example: Barb_raw_dna.txt, Jan_raw_dna.txt.
+     - .csv files can be converted to .txt files with ancestry_to_tab_converter.py
+       or non_ancestry_to_tab_converter.py as the case may be.
+   - Supported Sources: Specifically optimized for AncestryDNA , 23andMe and other            
+      non- Ancestry exports.
 
-  Analysis Groups
-    * SIBLINGS: A list of names for sibling comparison (e.g., ["Barb", "Jan", "Pat"]).
-    * COUSINS: A list of names for cousin comparison. If populated, the tool looks for an
-       existing Excel file to update.
-    * PHASED_FILES / EVIL_TWINS: Advanced files for phased data comparisons. These are
-      created by “Phased_Kit_Maker_V5.exe” and its configuration file “PKMconfig_V5exe.json”. 
-      The default character is “X”, but anything can be used. Make sure the same character is
-      entered in the Visual Phaser configuration file NO_CALL option.
-
-  Technical Thresholds
-    * HIR_CUTOFF / FIR_CUTOFF: The minimum cM length required to qualify as a match
-      (default: 7 for HIR, 1 for FIR).
-    * HIR_SNP_MIN / FIR_SNP_MIN: The minimum number of SNPs required for a valid
-      segment (defaults 200 and 75 respectively).
-    * RESOLUTION: The level of detail in the visual bars (default = 1).
-    * NO_CALL: The character used for missing data in your phased and evil twin files. 
+  Genetic Map (min_map.txt)
+  Place this file in your designated MAP_PATH. This is used to accurately calculate 
+  the length of shared segments in centiMorgans.
 
   ---
 
-3. Operation
+4. Configuration Guide
 
-   1. Prepare your data: Ensure your raw DNA files are named correctly.
-   2. Configure: Update VPnew_config_V21super.json with your file paths and names.
-   3. Run the script by double clicking on it.
-   4. Monitor Output: The CLI will display progress for each chromosome.
-   5. Finalize: Once finished, the script will prompt you to enter “q” to exit. Your Excel file will
-       be  ready in the WORKING_DIRECTORY.
+  All settings are managed within VPnew_config_V21super.py.
+
+  Primary Paths
+   - FILES_PATH: The folder containing your raw DNA .txt files.
+   - WORKING_DIRECTORY: The folder where the Excel report and temporary images will be
+     saved.
+   - MAP_PATH: The folder containing min_map.txt.
+
+  Comparison Lists
+   - SIBLINGS: A list of individuals to be compared against one another.
+   - PHASED_FILES: Names of phased files (usually derived from parent/child
+     comparisons).
+   - COUSINS: Individuals to be compared against the sibling list in an existing
+     project.
+   - EVIL_TWINS: Specialized files representing the non-matching side of a phased
+     individual.
+
+  Genetic Cutoffs
+   - HIR_CUTOFF: Minimum segment length (in cM) for Half-Identical segments (Default:
+     7 cM).
+   - FIR_CUTOFF: Minimum segment length (in cM) for Fully-Identical segments (Default:
+     1 cM).
+   - REPAIR_FILES: (True/False) Enables smoothing logic to bridge small gaps caused by
+     bad SNPs.
+
+  Display & Scaling
+   - RESOLUTION: Scaling factor for the visual plot. 1 is default; 10 provides 10x
+     detail.
+   - SCALE_FACTOR: This depends on the display reso;ution. Adjusts the column width
+     in Excel to ensure visual blocks align with data. Manual adjust to line up
+     recombination points correctly. This only has to be done once.
+   - CHROM_TRUE_SIZE: If True, visual blocks are proportional to the physical length
+     of the chromosome.
+   - LINEAR_CHROMOSOME: If True, a linear chromosome is displayed. Regions where   
+     there is no data are shown in grey.
+  ---
+
+5. Software Operation
+
+  Execution Phases
+   1. DNA Loading: The system scans your FILES_PATH and loads data for all listed
+      individuals using multithreading.
+   2. Genetic Analysis: Chromosomes are distributed across CPU cores
+      (multiprocessing). The system identifies matches and calculates cM lengths.
+   3. Image Generation: PNG images are created for each match pair.
+   4. Excel Merging: Data and images are compiled into a final workbook.
 
   ---
 
-4. Understanding the Results
+6. Understanding the Output
 
-  The tool produces an Excel workbook (.xlsx) with a sheet for each chromosome (Chr1–
-  Chr23).
+  The output is an Excel file named according to your EXCEL_FILE_NAME setting. Each
+  chromosome (1–23/X) has its own tab.
 
-  The Visualization Area
-   * Limegreen (Fully Identical): Indicates both chromosomes match (FIR).
-   * Yellow (Half Identical): Indicates one chromosome matches (HIR).
-   * Crimson (No Match): Indicates no matching alleles.
-   * Blue Bar (Underneath): Represents the identified HIR segment.
-   * Orange Bar (Underneath): Represents the identified FIR segment.
+   Graphical Plot (The Image)
+   - Top Half (SNP Details):
+       - Yellow: Half-match (One chromosome matches).
+       - Limegreen: Full-match (Both chromosomes match).
+       - Crimson: No match.
+       - Grey: No data.
+   - Bottom Half (Segment Blocks):
+       - Blue Bar: Confirmed HIR segment.
+       - Orange Bar: Confirmed FIR segment.
 
-  Tables & Data
-   * Segment Tables: Columns B–F contain the Start/Finish positions (Mb), Start/Finish cM,
-     and total cM/SNP counts for every detected match.
-   * Recombination Points: If AUTO_REC_PNTS is enabled, the tool will mark the exact
-     positions where genetic crossovers occurred.
+  Data Tables
+  Tables list each segment's start and end positions (Mb), the number of SNPs in the
+  segment, and the genetic length (cM).
+
+  Recombination Points (ARP)
+  If AUTO_REC_PNTS is enabled, the bottom of each sheet will display Column Width
+  data. These represent segments of DNA between crossover points. The AUTO_RP_ASSIGN
+  feature attempts to attribute these segments to specific siblings based on matching
+  patterns.
 
   ---
-  © 2026 Mick Jolley. Optimized for high-speed genetic analysis.
 
+7. Technical Architecture
 
+  For developers and power users:
+   - Hybrid Concurrent Architecture:
+     - multiprocessing: Used for heavy genetic number-crunching on a
+       per-chromosome basis.
+     - ThreadPoolExecutor: Used for I/O operations (reading files from disk) and
+       concurrent image generation using the Pillow library.
+   - Vectorization: Uses NumPy and Pandas for rapid allele comparison across millions
+     of rows, significantly outperforming standard Python loops.
 
-
-
-
-
-
-
+  ---
+  © 2026 Mick Jolley | Support: mickj1948@gmail.com
 
 
 
