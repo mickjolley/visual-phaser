@@ -2,7 +2,7 @@
 
 1. Introduction
 
-  Visual Phaser New V21super.py is a specialized bioinformatics application designed for
+  Visual_Phaser_New_V21superplus.py is a specialized bioinformatics application designed for
   genetic genealogy. It analyzes raw autosomal DNA files to identify and visualize 
   shared segments (Half-Identical Regions (HIRs), Fully-Identical Regions
   (FIRs) and Non-Identical regions (NIRs)) between siblings, cousins, and other relatives.
