@@ -2,7 +2,7 @@
 
 1. Introduction
 
-  Visual_Phaser_New_V21superplus.py is a specialized bioinformatics application designed for
+  Visual_Phaser.V1.0.py is a specialized bioinformatics application designed for
   genetic genealogy. It analyzes raw autosomal DNA files to identify and visualize 
   shared segments (Half-Identical Regions (HIRs), Fully-Identical Regions
   (FIRs) and Non-Identical regions (NIRs)) between siblings, cousins, and other relatives.
@@ -20,8 +20,8 @@
            numpy pandas pillow openpyxl
 
   Project Structure 
-   - Visual_Phaser_New_V21superplus.py: The main execution engine.
-   - VPnew_config_V21super.py: The configuration and parameter file.
+   - Visual_Phaser.V1.0.py: The main execution engine.
+   - VP_configV1.py: The configuration and parameter file.
    - min_map.txt: (Required) A genetic map file mapping physical positions (Mb) to
      genetic distances (cM).
 
@@ -47,7 +47,7 @@
 
 4. Configuration Guide
 
-  All settings are managed within VPnew_config_V21super.py.
+  All settings are managed within VP_configV1.py.
 
   Primary Paths
    - FILES_PATH: The folder containing your raw DNA .txt files.
