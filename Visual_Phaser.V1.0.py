@@ -471,7 +471,7 @@ def paste_tables(ws, dx, ds, pair_name, fir_tables, show_no_matches):
         data.drop('pair', axis=1, inplace=True)
         line = find_next_line(ws, 2, 2)
         if len(data) > 0:
-             ws.cell(line, 2).value = title
+            ws.cell(line, 2).value = title
         for i, col in enumerate(data.columns):
             c = ws.cell(line + 1, 2 + i)
             c.value, c.alignment, c.border = col, align, border
