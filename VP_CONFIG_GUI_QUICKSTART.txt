@@ -6,27 +6,21 @@ INSTALLATION (First Time)
 ------------------------
 
 1. Open Command Prompt / Terminal
-2. Navigate to the visual-phaser directory:
-   cd C:\Users\rjs\Documents\GitHub\Daverz\visual-phaser
+2. Navigate to the visual-phaser directory, such as:
+   cd C:\Users\r<user>>\Documents\GitHub\visual-phaser
 
-3. Install wxPython (required only once):
-   pip install -r requirements-gui.txt
-
-   OR install manually:
-   pip install wxPython
+3. Install wxPython:
+   pip install wxPython>=4.0.0
 
 
 LAUNCHING THE GUI
 -----------------
 
 Method 1: Simple Launch
-   python VP_Config_GUI_Launcher.py
-
-Method 2: Direct Run
    python VP_Config_GUI.py
 
-Method 3: With Config File
-   python VP_Config_GUI_Launcher.py VP_configV1.py
+Method 2: With Config File
+   python VP_Config_GUI.py VP_configV1.py
 
 
 USING THE GUI
@@ -57,6 +51,9 @@ USING THE GUI
    - Click "Reset to Defaults" button
    - Reloads the values from the currently open config file
 
+6. Run
+   - Click "Save Configuration" button if modifications have been made
+   - Click the "Run" button to run the main program
 
 FIELDS ORGANIZED BY CATEGORY
 -----------------------------
@@ -137,8 +134,7 @@ A: Make sure you're in the correct directory when launching
 FILES IN THIS PACKAGE
 ---------------------
 
-VP_Config_GUI.py              - Main GUI application (900 lines)
-VP_Config_GUI_Launcher.py     - Entry point script
+VP_Config_GUI.py              - Main GUI application and entry point
 VP_Config_Resources.py        - Resources & field definitions
 VP_Config_GUI_README.md       - Full documentation
 requirements-gui.txt          - Python dependencies
@@ -153,7 +149,7 @@ Visual Phaser Config GUI v1.0
 
 Built with: wxPython 4.0+, Python 3.7+
 Methodology: boa-constructor (modular wxPython development)
-Repository: https://github.com/Daverz/visual-phaser
+Repository: https://github.com/mickjolley/visual-phaser
 
 
 NEED HELP?
@@ -161,6 +157,6 @@ NEED HELP?
 
 1. Check VP_Config_GUI_README.md for detailed documentation
 2. Hover over any field for context-sensitive help via tooltip
-3. Visit: https://github.com/Daverz/visual-phaser
+3. Visit: https://github.com/mickjolley/visual-phaser
 
 ================================================================================

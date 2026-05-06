@@ -293,10 +293,10 @@ FIELD_SECTIONS = {
 APP_TITLE = 'Visual Phaser Configuration Editor'
 APP_VERSION = '1.0'
 APP_DESCRIPTION = 'GUI Configuration Editor for Visual Phaser VP_configV1.py'
-APP_AUTHOR = 'Mick Jolley'
+APP_AUTHOR = 'Ray Schumacher, Mick Jolley'
 APP_EMAIL = 'mickj1948@gmail.com'
 APP_COPYRIGHT = '© 2026 Mick Jolley'
-APP_WEBSITE = 'https://github.com/Daverz/visual-phaser'
+APP_WEBSITE = 'https://github.com/mickjolley/visual-phaser'
 
 # Messages
 MSG_LOAD_SUCCESS = 'Configuration loaded successfully'

@@ -68,69 +68,66 @@ def create(parent):
     return VPConfigBoaFrame(parent)
 
 
-[wxID_VPCONFIGBOAFRAME, wxID_VPCONFIGBOAFRAMEACTIONSSPACERPANEL, 
- wxID_VPCONFIGBOAFRAMEARPTOLERANCELABEL, 
- wxID_VPCONFIGBOAFRAMEARPTOLERANCESPIN, wxID_VPCONFIGBOAFRAMEAUTORECPNTSCOMBO, 
- wxID_VPCONFIGBOAFRAMEAUTORECPNTSLABEL, 
- wxID_VPCONFIGBOAFRAMEAUTORPASSIGNCOMBO, 
- wxID_VPCONFIGBOAFRAMEAUTORPASSIGNLABEL, wxID_VPCONFIGBOAFRAMEBOOLPANEL, 
- wxID_VPCONFIGBOAFRAMEBROWSEFILESPATHBUTTON, 
- wxID_VPCONFIGBOAFRAMEBROWSEMAPPATHBUTTON, 
- wxID_VPCONFIGBOAFRAMEBROWSEWORKINGDIRBUTTON, 
- wxID_VPCONFIGBOAFRAMECHROMOSOMESLABEL, wxID_VPCONFIGBOAFRAMECHROMOSOMESTEXT, 
- wxID_VPCONFIGBOAFRAMECHROMTRUESIZECOMBO, 
- wxID_VPCONFIGBOAFRAMECHROMTRUESIZELABEL, wxID_VPCONFIGBOAFRAMECONFIGBOOK, 
- wxID_VPCONFIGBOAFRAMECOUSINSLABEL, wxID_VPCONFIGBOAFRAMECOUSINSTEXT, 
- wxID_VPCONFIGBOAFRAMEEVILTWINSCLEARBUTTON, 
- wxID_VPCONFIGBOAFRAMEEVILTWINSLABEL, 
- wxID_VPCONFIGBOAFRAMEEVILTWINSSELECTBUTTON, 
- wxID_VPCONFIGBOAFRAMEEVILTWINSSPACERPANEL, 
- wxID_VPCONFIGBOAFRAMEEVILTWINSTEXT, wxID_VPCONFIGBOAFRAMEEXCELFILENAMELABEL, 
- wxID_VPCONFIGBOAFRAMEEXCELFILENAMETEXT, wxID_VPCONFIGBOAFRAMEFILESPANEL, 
- wxID_VPCONFIGBOAFRAMEFILESPATHLABEL, wxID_VPCONFIGBOAFRAMEFILESPATHTEXT, 
- wxID_VPCONFIGBOAFRAMEFIRCUTOFFLABEL, wxID_VPCONFIGBOAFRAMEFIRCUTOFFSPIN, 
- wxID_VPCONFIGBOAFRAMEFIRSNPMINLABEL, wxID_VPCONFIGBOAFRAMEFIRSNPMINSPIN, 
- wxID_VPCONFIGBOAFRAMEFIRTABLESCOMBO, wxID_VPCONFIGBOAFRAMEFIRTABLESLABEL, 
- wxID_VPCONFIGBOAFRAMEFREEZECOLUMNLABEL, 
- wxID_VPCONFIGBOAFRAMEFREEZECOLUMNTEXT, wxID_VPCONFIGBOAFRAMEHIRCUTOFFLABEL, 
- wxID_VPCONFIGBOAFRAMEHIRCUTOFFSPIN, wxID_VPCONFIGBOAFRAMEHIRSNPMINLABEL, 
- wxID_VPCONFIGBOAFRAMEHIRSNPMINSPIN, wxID_VPCONFIGBOAFRAMELINEARCHROMCOMBO, 
- wxID_VPCONFIGBOAFRAMELINEARCHROMLABEL, wxID_VPCONFIGBOAFRAMELINUXFONTLABEL, 
- wxID_VPCONFIGBOAFRAMELINUXFONTTEXT, wxID_VPCONFIGBOAFRAMELOADBUTTON, 
- wxID_VPCONFIGBOAFRAMEMAPPATHLABEL, wxID_VPCONFIGBOAFRAMEMAPPATHTEXT, 
- wxID_VPCONFIGBOAFRAMEMERGEFILESCOMBO, wxID_VPCONFIGBOAFRAMEMERGEFILESLABEL, 
- wxID_VPCONFIGBOAFRAMEMMDISTLABEL, wxID_VPCONFIGBOAFRAMEMMDISTSPIN, 
- wxID_VPCONFIGBOAFRAMENOCALLLABEL, wxID_VPCONFIGBOAFRAMENOCALLTEXT, 
- wxID_VPCONFIGBOAFRAMENUMERICPANEL, wxID_VPCONFIGBOAFRAMEPATHSPANEL, 
- wxID_VPCONFIGBOAFRAMEPHASEDFILESCLEARBUTTON, 
- wxID_VPCONFIGBOAFRAMEPHASEDFILESLABEL, 
- wxID_VPCONFIGBOAFRAMEPHASEDFILESSELECTBUTTON, 
- wxID_VPCONFIGBOAFRAMEPHASEDFILESSPACERPANEL, 
- wxID_VPCONFIGBOAFRAMEPHASEDFILESTEXT, 
- wxID_VPCONFIGBOAFRAMEPROGRAMOUTPUTLABEL, 
- wxID_VPCONFIGBOAFRAMEPROGRAMOUTPUTTEXT, 
- wxID_VPCONFIGBOAFRAMEREPAIRFILESCOMBO, wxID_VPCONFIGBOAFRAMEREPAIRFILESLABEL, 
- wxID_VPCONFIGBOAFRAMERESETBUTTON, wxID_VPCONFIGBOAFRAMERESOLUTIONLABEL, 
- wxID_VPCONFIGBOAFRAMERESOLUTIONSPIN, wxID_VPCONFIGBOAFRAMERUNBUTTON, 
- wxID_VPCONFIGBOAFRAMESAVEBUTTON, wxID_VPCONFIGBOAFRAMESCALEFACTORLABEL, 
- wxID_VPCONFIGBOAFRAMESCALEFACTORTEXT, wxID_VPCONFIGBOAFRAMESCALEONCOMBO, 
- wxID_VPCONFIGBOAFRAMESCALEONLABEL, 
- wxID_VPCONFIGBOAFRAMESHOWMATCHPAIRPROGRESSCOMBO, 
- wxID_VPCONFIGBOAFRAMESHOWMATCHPAIRPROGRESSLABEL, 
- wxID_VPCONFIGBOAFRAMESHOWNOMATCHESCOMBO, 
- wxID_VPCONFIGBOAFRAMESHOWNOMATCHESLABEL, wxID_VPCONFIGBOAFRAMESHOWTIMESCOMBO, 
- wxID_VPCONFIGBOAFRAMESHOWTIMESLABEL, wxID_VPCONFIGBOAFRAMESIBLINGSLABEL, 
- wxID_VPCONFIGBOAFRAMESIBLINGSTEXT, wxID_VPCONFIGBOAFRAMESTATICLINE1, 
- wxID_VPCONFIGBOAFRAMESTATUSBAR, wxID_VPCONFIGBOAFRAMETITLETEXT, 
- wxID_VPCONFIGBOAFRAMEWORKINGDIRECTORYLABEL, 
- wxID_VPCONFIGBOAFRAMEWORKINGDIRTEXT, wxID_VPCONFIGBOAFRAMEXFIRCUTOFFLABEL, 
- wxID_VPCONFIGBOAFRAMEXFIRCUTOFFSPIN, wxID_VPCONFIGBOAFRAMEXHIRCUTOFFLABEL, 
- wxID_VPCONFIGBOAFRAMEXHIRCUTOFFSPIN, 
-] = [wx.NewIdRef() for _init_ctrls in range(91)]
+[wxID_VPCONFIGBOAFRAME, wxID_VPCONFIGBOAFRAMEACTIONSSPACERPANEL,
+ wxID_VPCONFIGBOAFRAMEARPTOLERANCELABEL,
+ wxID_VPCONFIGBOAFRAMEARPTOLERANCESPIN, wxID_VPCONFIGBOAFRAMEAUTORECPNTSCOMBO,
+ wxID_VPCONFIGBOAFRAMEAUTORECPNTSLABEL,
+ wxID_VPCONFIGBOAFRAMEAUTORPASSIGNCOMBO,
+ wxID_VPCONFIGBOAFRAMEAUTORPASSIGNLABEL, wxID_VPCONFIGBOAFRAMEBOOLPANEL,
+ wxID_VPCONFIGBOAFRAMEBROWSEFILESPATHBUTTON,
+ wxID_VPCONFIGBOAFRAMEBROWSEMAPPATHBUTTON,
+ wxID_VPCONFIGBOAFRAMEBROWSEWORKINGDIRBUTTON,
+ wxID_VPCONFIGBOAFRAMECHROMOSOMESLABEL, wxID_VPCONFIGBOAFRAMECHROMOSOMESTEXT,
+ wxID_VPCONFIGBOAFRAMECHROMTRUESIZECOMBO,
+ wxID_VPCONFIGBOAFRAMECHROMTRUESIZELABEL, wxID_VPCONFIGBOAFRAMECLOSEBUTTON,
+ wxID_VPCONFIGBOAFRAMECONFIGBOOK, wxID_VPCONFIGBOAFRAMECOUSINSLABEL,
+ wxID_VPCONFIGBOAFRAMECOUSINSTEXT, wxID_VPCONFIGBOAFRAMEEVILTWINSLABEL,
+ wxID_VPCONFIGBOAFRAMEEVILTWINSSPACERPANEL,
+ wxID_VPCONFIGBOAFRAMEEVILTWINSTEXT, wxID_VPCONFIGBOAFRAMEEXCELFILENAMELABEL,
+ wxID_VPCONFIGBOAFRAMEEXCELFILENAMETEXT, wxID_VPCONFIGBOAFRAMEFILESPANEL,
+ wxID_VPCONFIGBOAFRAMEFILESPATHLABEL, wxID_VPCONFIGBOAFRAMEFILESPATHTEXT,
+ wxID_VPCONFIGBOAFRAMEFIRCUTOFFLABEL, wxID_VPCONFIGBOAFRAMEFIRCUTOFFSPIN,
+ wxID_VPCONFIGBOAFRAMEFIRSNPMINLABEL, wxID_VPCONFIGBOAFRAMEFIRSNPMINSPIN,
+ wxID_VPCONFIGBOAFRAMEFIRTABLESCOMBO, wxID_VPCONFIGBOAFRAMEFIRTABLESLABEL,
+ wxID_VPCONFIGBOAFRAMEFREEZECOLUMNLABEL,
+ wxID_VPCONFIGBOAFRAMEFREEZECOLUMNTEXT, wxID_VPCONFIGBOAFRAMEHIRCUTOFFLABEL,
+ wxID_VPCONFIGBOAFRAMEHIRCUTOFFSPIN, wxID_VPCONFIGBOAFRAMEHIRSNPMINLABEL,
+ wxID_VPCONFIGBOAFRAMEHIRSNPMINSPIN, wxID_VPCONFIGBOAFRAMELINEARCHROMCOMBO,
+ wxID_VPCONFIGBOAFRAMELINEARCHROMLABEL, wxID_VPCONFIGBOAFRAMELINUXFONTLABEL,
+ wxID_VPCONFIGBOAFRAMELINUXFONTTEXT, wxID_VPCONFIGBOAFRAMELOADBUTTON,
+ wxID_VPCONFIGBOAFRAMEMAPPATHLABEL, wxID_VPCONFIGBOAFRAMEMAPPATHTEXT,
+ wxID_VPCONFIGBOAFRAMEMERGEFILESCOMBO, wxID_VPCONFIGBOAFRAMEMERGEFILESLABEL,
+ wxID_VPCONFIGBOAFRAMEMMDISTLABEL, wxID_VPCONFIGBOAFRAMEMMDISTSPIN,
+ wxID_VPCONFIGBOAFRAMENOCALLLABEL, wxID_VPCONFIGBOAFRAMENOCALLTEXT,
+ wxID_VPCONFIGBOAFRAMENUMERICPANEL, wxID_VPCONFIGBOAFRAMEPATHSPANEL,
+ wxID_VPCONFIGBOAFRAMEPHASEDFILESLABEL,
+ wxID_VPCONFIGBOAFRAMEPHASEDFILESSPACERPANEL,
+ wxID_VPCONFIGBOAFRAMEPHASEDFILESTEXT,
+ wxID_VPCONFIGBOAFRAMEPROGRAMOUTPUTCLEARBUTTON,
+ wxID_VPCONFIGBOAFRAMEPROGRAMOUTPUTLABEL,
+ wxID_VPCONFIGBOAFRAMEPROGRAMOUTPUTTEXT,
+ wxID_VPCONFIGBOAFRAMEREPAIRFILESCOMBO, wxID_VPCONFIGBOAFRAMEREPAIRFILESLABEL,
+ wxID_VPCONFIGBOAFRAMERESETBUTTON, wxID_VPCONFIGBOAFRAMERESOLUTIONLABEL,
+ wxID_VPCONFIGBOAFRAMERESOLUTIONSPIN, wxID_VPCONFIGBOAFRAMERUNBUTTON,
+ wxID_VPCONFIGBOAFRAMESAVEBUTTON, wxID_VPCONFIGBOAFRAMESCALEFACTORLABEL,
+ wxID_VPCONFIGBOAFRAMESCALEFACTORTEXT, wxID_VPCONFIGBOAFRAMESCALEONCOMBO,
+ wxID_VPCONFIGBOAFRAMESCALEONLABEL,
+ wxID_VPCONFIGBOAFRAMESHOWMATCHPAIRPROGRESSCOMBO,
+ wxID_VPCONFIGBOAFRAMESHOWMATCHPAIRPROGRESSLABEL,
+ wxID_VPCONFIGBOAFRAMESHOWNOMATCHESCOMBO,
+ wxID_VPCONFIGBOAFRAMESHOWNOMATCHESLABEL, wxID_VPCONFIGBOAFRAMESHOWTIMESCOMBO,
+ wxID_VPCONFIGBOAFRAMESHOWTIMESLABEL, wxID_VPCONFIGBOAFRAMESIBLINGSLABEL,
+ wxID_VPCONFIGBOAFRAMESIBLINGSTEXT, wxID_VPCONFIGBOAFRAMESTATICLINE1,
+ wxID_VPCONFIGBOAFRAMESTATUSBAR, wxID_VPCONFIGBOAFRAMETITLETEXT,
+ wxID_VPCONFIGBOAFRAMEWORKINGDIRECTORYLABEL,
+ wxID_VPCONFIGBOAFRAMEWORKINGDIRTEXT, wxID_VPCONFIGBOAFRAMEXFIRCUTOFFLABEL,
+ wxID_VPCONFIGBOAFRAMEXFIRCUTOFFSPIN, wxID_VPCONFIGBOAFRAMEXHIRCUTOFFLABEL,
+ wxID_VPCONFIGBOAFRAMEXHIRCUTOFFSPIN,
+] = [wx.NewIdRef() for _init_ctrls in range(89)]
 
 
-[wxID_VPCONFIGBOAFRAMEEXITITEM, wxID_VPCONFIGBOAFRAMELOADITEM, 
- wxID_VPCONFIGBOAFRAMESAVEITEM, 
+[wxID_VPCONFIGBOAFRAMEEXITITEM, wxID_VPCONFIGBOAFRAMELOADITEM,
+ wxID_VPCONFIGBOAFRAMESAVEITEM,
 ] = [wx.NewIdRef() for _init_coll_fileMenu_Items in range(3)]
 
 [wxID_VPCONFIGBOAFRAMEABOUTITEM] = [wx.NewIdRef() for _init_coll_helpMenu_Items in range(1)]
@@ -140,80 +137,80 @@ class VPConfigBoaFrame(wx.Frame):
         # generated method, don't edit
 
         parent.Add(self.resolutionLabel, 0, border=5,
-              flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL)
+              flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
         parent.Add(self.resolutionSpin, 0, border=5, flag=wx.ALL)
         parent.Add(self.arpToleranceLabel, 0, border=5,
-              flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL)
+              flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
         parent.Add(self.arpToleranceSpin, 0, border=5, flag=wx.ALL)
         parent.Add(self.hirCutoffLabel, 0, border=5,
-              flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL)
+              flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
         parent.Add(self.hirCutoffSpin, 0, border=5, flag=wx.ALL)
         parent.Add(self.firCutoffLabel, 0, border=5,
-              flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL)
+              flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
         parent.Add(self.firCutoffSpin, 0, border=5, flag=wx.ALL)
         parent.Add(self.xHirCutoffLabel, 0, border=5,
-              flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL)
+              flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
         parent.Add(self.xHirCutoffSpin, 0, border=5, flag=wx.ALL)
         parent.Add(self.xFirCutoffLabel, 0, border=5,
-              flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL)
+              flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
         parent.Add(self.xFirCutoffSpin, 0, border=5, flag=wx.ALL)
         parent.Add(self.hirSnpMinLabel, 0, border=5,
-              flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL)
+              flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
         parent.Add(self.hirSnpMinSpin, 0, border=5, flag=wx.ALL)
         parent.Add(self.firSnpMinLabel, 0, border=5,
-              flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL)
+              flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
         parent.Add(self.firSnpMinSpin, 0, border=5, flag=wx.ALL)
         parent.Add(self.mmDistLabel, 0, border=5,
-              flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL)
+              flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
         parent.Add(self.mmDistSpin, 0, border=5, flag=wx.ALL)
         parent.Add(self.scaleFactorLabel, 0, border=5,
-              flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL)
+              flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
         parent.Add(self.scaleFactorText, 0, border=5, flag=wx.ALL | wx.EXPAND)
 
     def _init_coll_boolGridSizer_Items(self, parent):
         # generated method, don't edit
 
         parent.Add(self.showNoMatchesLabel, 0, border=5,
-              flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL)
+              flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
         parent.Add(self.showNoMatchesCombo, 0, border=5, flag=wx.ALL)
         parent.Add(self.chromTrueSizeLabel, 0, border=5,
-              flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL)
+              flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
         parent.Add(self.chromTrueSizeCombo, 0, border=5, flag=wx.ALL)
         parent.Add(self.linearChromLabel, 0, border=5,
-              flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL)
+              flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
         parent.Add(self.linearChromCombo, 0, border=5, flag=wx.ALL)
         parent.Add(self.mergeFilesLabel, 0, border=5,
-              flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL)
+              flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
         parent.Add(self.mergeFilesCombo, 0, border=5, flag=wx.ALL)
         parent.Add(self.autoRecPntsLabel, 0, border=5,
-              flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL)
+              flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
         parent.Add(self.autoRecPntsCombo, 0, border=5, flag=wx.ALL)
         parent.Add(self.autoRpAssignLabel, 0, border=5,
-              flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL)
+              flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
         parent.Add(self.autoRpAssignCombo, 0, border=5, flag=wx.ALL)
         parent.Add(self.repairFilesLabel, 0, border=5,
-              flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL)
+              flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
         parent.Add(self.repairFilesCombo, 0, border=5, flag=wx.ALL)
         parent.Add(self.firTablesLabel, 0, border=5,
-              flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL)
+              flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
         parent.Add(self.firTablesCombo, 0, border=5, flag=wx.ALL)
         parent.Add(self.scaleOnLabel, 0, border=5,
-              flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL)
+              flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
         parent.Add(self.scaleOnCombo, 0, border=5, flag=wx.ALL)
         parent.Add(self.showTimesLabel, 0, border=5,
-              flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL)
+              flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
         parent.Add(self.showTimesCombo, 0, border=5, flag=wx.ALL)
         parent.Add(self.showMatchPairProgressLabel, 0, border=5,
-              flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL)
+              flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
         parent.Add(self.showMatchPairProgressCombo, 0, border=5, flag=wx.ALL)
         parent.Add(self.freezeColumnLabel, 0, border=5,
-              flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL)
+              flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
         parent.Add(self.freezeColumnText, 0, border=5, flag=wx.ALL)
         parent.Add(self.noCallLabel, 0, border=5,
-              flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL)
+              flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
         parent.Add(self.noCallText, 0, border=5, flag=wx.ALL)
         parent.Add(self.linuxFontLabel, 0, border=5,
-              flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL)
+              flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
         parent.Add(self.linuxFontText, 0, border=5, flag=wx.ALL | wx.EXPAND)
 
     def _init_coll_actionsSizer_Items(self, parent):
@@ -224,6 +221,7 @@ class VPConfigBoaFrame(wx.Frame):
         parent.Add(self.resetButton, 0, border=8, flag=wx.LEFT)
         parent.Add(self.actionsSpacerPanel, 1, border=0, flag=wx.EXPAND)
         parent.Add(self.runButton, 0, border=0, flag=wx.RIGHT)
+        parent.Add(self.closeButton, 0, border=8, flag=wx.LEFT)
 
     def _init_coll_numericSizer_Items(self, parent):
         # generated method, don't edit
@@ -242,11 +240,11 @@ class VPConfigBoaFrame(wx.Frame):
               flag=wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND)
         parent.Add(self.phasedFilesButtonsSizer, 0, border=8,
               flag=wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND)
-        parent.Add(self.phasedFilesText, 1, border=8,
+        parent.Add(self.phasedFilesText, 0, border=8,
               flag=wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND)
         parent.Add(self.evilTwinsButtonsSizer, 0, border=8,
               flag=wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND)
-        parent.Add(self.evilTwinsText, 1, border=8,
+        parent.Add(self.evilTwinsText, 0, border=8,
               flag=wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND)
         parent.Add(self.cousinsSizer, 0, border=8,
               flag=wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND)
@@ -330,14 +328,14 @@ class VPConfigBoaFrame(wx.Frame):
 
         self.filesPathRowSizer = wx.BoxSizer(orient=wx.HORIZONTAL)
         self.filesPathRowSizer.Add(self.filesPathLabel, 0, border=5,
-              flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL)
+              flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
         self.filesPathRowSizer.Add(self.filesPathText, 0, border=5, flag=wx.ALL)
         self.filesPathRowSizer.Add(self.browseFilesPathButton, 0, border=5,
               flag=wx.ALL)
 
         self.workingDirectoryRowSizer = wx.BoxSizer(orient=wx.HORIZONTAL)
         self.workingDirectoryRowSizer.Add(self.workingDirectoryLabel, 0,
-              border=5, flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL)
+              border=5, flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
         self.workingDirectoryRowSizer.Add(self.workingDirText, 0, border=5,
               flag=wx.ALL)
         self.workingDirectoryRowSizer.Add(self.browseWorkingDirButton, 0,
@@ -345,7 +343,7 @@ class VPConfigBoaFrame(wx.Frame):
 
         self.mapPathRowSizer = wx.BoxSizer(orient=wx.HORIZONTAL)
         self.mapPathRowSizer.Add(self.mapPathLabel, 0, border=5,
-              flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL)
+              flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
         self.mapPathRowSizer.Add(self.mapPathText, 0, border=5, flag=wx.ALL)
         self.mapPathRowSizer.Add(self.browseMapPathButton, 0, border=5,
               flag=wx.ALL)
@@ -357,23 +355,11 @@ class VPConfigBoaFrame(wx.Frame):
 
         self.phasedFilesButtonsSizer = wx.BoxSizer(orient=wx.HORIZONTAL)
         self.phasedFilesButtonsSizer.Add(self.phasedFilesLabel, 0, border=5,
-              flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL)
-        self.phasedFilesButtonsSizer.Add(self.phasedFilesSpacerPanel, 1,
-              border=0, flag=wx.EXPAND)
-        self.phasedFilesButtonsSizer.Add(self.phasedFilesSelectButton, 0,
-              border=5, flag=wx.ALL)
-        self.phasedFilesButtonsSizer.Add(self.phasedFilesClearButton, 0,
-              border=5, flag=wx.ALL)
+              flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
 
         self.evilTwinsButtonsSizer = wx.BoxSizer(orient=wx.HORIZONTAL)
         self.evilTwinsButtonsSizer.Add(self.evilTwinsLabel, 0, border=5,
-              flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL)
-        self.evilTwinsButtonsSizer.Add(self.evilTwinsSpacerPanel, 1, border=0,
-              flag=wx.EXPAND)
-        self.evilTwinsButtonsSizer.Add(self.evilTwinsSelectButton, 0, border=5,
-              flag=wx.ALL)
-        self.evilTwinsButtonsSizer.Add(self.evilTwinsClearButton, 0, border=5,
-              flag=wx.ALL)
+              flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
 
         self.cousinsSizer = wx.BoxSizer(orient=wx.VERTICAL)
         self.cousinsSizer.Add(self.cousinsLabel, 0, border=5, flag=wx.ALL)
@@ -393,7 +379,7 @@ class VPConfigBoaFrame(wx.Frame):
 
         self.excelFileSizer = wx.BoxSizer(orient=wx.HORIZONTAL)
         self.excelFileSizer.Add(self.excelFileNameLabel, 0, border=5,
-              flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL)
+              flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
         self.excelFileSizer.Add(self.excelFileNameText, 0, border=5,
               flag=wx.ALL)
 
@@ -414,10 +400,10 @@ class VPConfigBoaFrame(wx.Frame):
         # generated method, don't edit
         wx.Frame.__init__(self, id=wxID_VPCONFIGBOAFRAME,
               name='VPConfigBoaFrame', parent=prnt, pos=wx.Point(401, 98),
-              size=wx.Size(771, 760), style=wx.DEFAULT_FRAME_STYLE,
+              size=wx.Size(771, 641), style=wx.DEFAULT_FRAME_STYLE,
               title='Visual Phaser Configuration Editor')
         self._init_utils()
-        self.SetClientSize(wx.Size(755, 721))
+        self.SetClientSize(wx.Size(755, 602))
         self.SetMenuBar(self.menuBar)
         self.Bind(wx.EVT_MENU, self.OnLoadConfigMenu,
               id=wxID_VPCONFIGBOAFRAMELOADITEM)
@@ -437,11 +423,12 @@ class VPConfigBoaFrame(wx.Frame):
 
         self.configBook = wx.Notebook(id=wxID_VPCONFIGBOAFRAMECONFIGBOOK,
               name='configBook', parent=self, pos=wx.Point(8, 8),
-              size=wx.Size(739, 664), style=0)
+              size=wx.Size(739, 545), style=0)
+        self.configBook.SetToolTip('configBook')
 
         self.pathsPanel = wx.Panel(id=wxID_VPCONFIGBOAFRAMEPATHSPANEL,
               name='pathsPanel', parent=self.configBook, pos=wx.Point(0, 0),
-              size=wx.Size(731, 636), style=wx.TAB_TRAVERSAL)
+              size=wx.Size(731, 517), style=wx.TAB_TRAVERSAL)
 
         self.titleText = wx.StaticText(id=wxID_VPCONFIGBOAFRAMETITLETEXT,
               label='Visual Phaser Configuration Settings', name='titleText',
@@ -456,6 +443,7 @@ class VPConfigBoaFrame(wx.Frame):
         self.filesPathText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMEFILESPATHTEXT,
               name='filesPathText', parent=self.pathsPanel, pos=wx.Point(156,
               58), size=wx.Size(439, 21), style=0, value='')
+        self.filesPathText.SetToolTip('Path to where the raw DNA files are.')
 
         self.browseFilesPathButton = wx.Button(id=wxID_VPCONFIGBOAFRAMEBROWSEFILESPATHBUTTON,
               label='Browse...', name='browseFilesPathButton',
@@ -473,6 +461,7 @@ class VPConfigBoaFrame(wx.Frame):
         self.workingDirText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMEWORKINGDIRTEXT,
               name='workingDirText', parent=self.pathsPanel, pos=wx.Point(156,
               89), size=wx.Size(419, 21), style=0, value='')
+        self.workingDirText.SetToolTip('Path to where the Excel file will be created, or already exists.')
 
         self.browseWorkingDirButton = wx.Button(id=wxID_VPCONFIGBOAFRAMEBROWSEWORKINGDIRBUTTON,
               label='Browse...', name='browseWorkingDirButton',
@@ -489,6 +478,7 @@ class VPConfigBoaFrame(wx.Frame):
         self.mapPathText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMEMAPPATHTEXT,
               name='mapPathText', parent=self.pathsPanel, pos=wx.Point(156,
               120), size=wx.Size(419, 21), style=0, value='')
+        self.mapPathText.SetToolTip('Select the path to min_map.txt if not the default.')
 
         self.browseMapPathButton = wx.Button(id=wxID_VPCONFIGBOAFRAMEBROWSEMAPPATHBUTTON,
               label='Browse...', name='browseMapPathButton',
@@ -499,7 +489,7 @@ class VPConfigBoaFrame(wx.Frame):
 
         self.filesPanel = wx.Panel(id=wxID_VPCONFIGBOAFRAMEFILESPANEL,
               name='filesPanel', parent=self.configBook, pos=wx.Point(0, 0),
-              size=wx.Size(731, 636), style=wx.TAB_TRAVERSAL)
+              size=wx.Size(731, 517), style=wx.TAB_TRAVERSAL)
 
         self.siblingsLabel = wx.StaticText(id=wx.ID_ANY,
               label='Siblings (comma-separated)', name='siblingsLabel',
@@ -509,9 +499,10 @@ class VPConfigBoaFrame(wx.Frame):
         self.siblingsText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMESIBLINGSTEXT,
               name='siblingsText', parent=self.filesPanel, pos=wx.Point(8, 25),
               size=wx.Size(715, 60), style=wx.TE_MULTILINE, value='')
+        self.siblingsText.SetToolTip("Example: '****','****','****'")
 
         self.phasedFilesLabel = wx.StaticText(id=wx.ID_ANY,
-              label='Phased Files (one per line)', name='phasedFilesLabel',
+              label='Phased Files  (comma-separated)', name='phasedFilesLabel',
               parent=self.filesPanel, pos=wx.Point(8, 93), size=wx.Size(154,
               17), style=0)
 
@@ -519,76 +510,48 @@ class VPConfigBoaFrame(wx.Frame):
               name='phasedFilesSpacerPanel', parent=self.filesPanel,
               pos=wx.Point(162, 93), size=wx.Size(1, 1), style=wx.NO_BORDER)
 
-        self.phasedFilesSelectButton = wx.Button(id=wxID_VPCONFIGBOAFRAMEPHASEDFILESSELECTBUTTON,
-              label='Select Files', name='phasedFilesSelectButton',
-              parent=self.filesPanel, pos=wx.Point(163, 93), size=wx.Size(80,
-              23), style=0)
-        self.phasedFilesSelectButton.Bind(wx.EVT_BUTTON,
-              self.OnSelectPhasedFilesButton,
-              id=wxID_VPCONFIGBOAFRAMEPHASEDFILESSELECTBUTTON)
-
-        self.phasedFilesClearButton = wx.Button(id=wxID_VPCONFIGBOAFRAMEPHASEDFILESCLEARBUTTON,
-              label='Clear', name='phasedFilesClearButton',
-              parent=self.filesPanel, pos=wx.Point(243, 93), size=wx.Size(75,
-              23), style=0)
-        self.phasedFilesClearButton.Bind(wx.EVT_BUTTON,
-              self.OnClearPhasedFilesButton,
-              id=wxID_VPCONFIGBOAFRAMEPHASEDFILESCLEARBUTTON)
-
         self.phasedFilesText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMEPHASEDFILESTEXT,
               name='phasedFilesText', parent=self.filesPanel, pos=wx.Point(8,
-              124), size=wx.Size(715, 303), style=wx.TE_MULTILINE, value='')
+              118), size=wx.Size(715, 60), style=wx.TE_MULTILINE, value='')
+        self.phasedFilesText.SetToolTip("Example: '****','****','****'")
 
         self.evilTwinsLabel = wx.StaticText(id=wx.ID_ANY,
-              label='Evil Twins (one per line)', name='evilTwinsLabel',
-              parent=self.filesPanel, pos=wx.Point(8, 435), size=wx.Size(146,
+              label='Evil Twins  (comma-separated)', name='evilTwinsLabel',
+              parent=self.filesPanel, pos=wx.Point(8, 186), size=wx.Size(146,
               17), style=0)
 
         self.evilTwinsSpacerPanel = wx.Panel(id=wxID_VPCONFIGBOAFRAMEEVILTWINSSPACERPANEL,
               name='evilTwinsSpacerPanel', parent=self.filesPanel,
               pos=wx.Point(154, 435), size=wx.Size(1, 1), style=wx.NO_BORDER)
 
-        self.evilTwinsSelectButton = wx.Button(id=wxID_VPCONFIGBOAFRAMEEVILTWINSSELECTBUTTON,
-              label='Select Files', name='evilTwinsSelectButton',
-              parent=self.filesPanel, pos=wx.Point(155, 435), size=wx.Size(80,
-              23), style=0)
-        self.evilTwinsSelectButton.Bind(wx.EVT_BUTTON,
-              self.OnSelectEvilTwinsButton,
-              id=wxID_VPCONFIGBOAFRAMEEVILTWINSSELECTBUTTON)
-
-        self.evilTwinsClearButton = wx.Button(id=wxID_VPCONFIGBOAFRAMEEVILTWINSCLEARBUTTON,
-              label='Clear', name='evilTwinsClearButton',
-              parent=self.filesPanel, pos=wx.Point(235, 435), size=wx.Size(75,
-              23), style=0)
-        self.evilTwinsClearButton.Bind(wx.EVT_BUTTON,
-              self.OnClearEvilTwinsButton,
-              id=wxID_VPCONFIGBOAFRAMEEVILTWINSCLEARBUTTON)
-
         self.evilTwinsText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMEEVILTWINSTEXT,
               name='evilTwinsText', parent=self.filesPanel, pos=wx.Point(8,
-              466), size=wx.Size(715, 0), style=wx.TE_MULTILINE, value='')
+              211), size=wx.Size(715, 60), style=wx.TE_MULTILINE, value='')
+        self.evilTwinsText.SetToolTip("Example: '****','****','****'")
 
         self.cousinsLabel = wx.StaticText(id=wx.ID_ANY,
               label='Cousins (comma-separated)', name='cousinsLabel',
-              parent=self.filesPanel, pos=wx.Point(8, 466), size=wx.Size(152,
+              parent=self.filesPanel, pos=wx.Point(8, 279), size=wx.Size(152,
               17), style=0)
 
         self.cousinsText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMECOUSINSTEXT,
-              name='cousinsText', parent=self.filesPanel, pos=wx.Point(8, 483),
+              name='cousinsText', parent=self.filesPanel, pos=wx.Point(8, 296),
               size=wx.Size(715, 60), style=wx.TE_MULTILINE, value='')
+        self.cousinsText.SetToolTip("Example: '****','****','****'")
 
         self.chromosomesLabel = wx.StaticText(id=wx.ID_ANY,
               label='Chromosomes (comma-separated)', name='chromosomesLabel',
-              parent=self.filesPanel, pos=wx.Point(8, 551), size=wx.Size(187,
+              parent=self.filesPanel, pos=wx.Point(8, 364), size=wx.Size(187,
               17), style=0)
 
         self.chromosomesText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMECHROMOSOMESTEXT,
               name='chromosomesText', parent=self.filesPanel, pos=wx.Point(8,
-              568), size=wx.Size(715, 60), style=wx.TE_MULTILINE, value='')
+              381), size=wx.Size(715, 60), style=wx.TE_MULTILINE, value='')
+        self.chromosomesText.SetToolTip('If empty, all chromosomes will be analyzed.\\nOtherwise: 1,2,3')
 
         self.boolPanel = wx.Panel(id=wxID_VPCONFIGBOAFRAMEBOOLPANEL,
               name='boolPanel', parent=self.configBook, pos=wx.Point(0, 0),
-              size=wx.Size(731, 636), style=wx.TAB_TRAVERSAL)
+              size=wx.Size(731, 517), style=wx.TAB_TRAVERSAL)
 
         self.showNoMatchesLabel = wx.StaticText(label='SHOW_NO_MATCHES',
               name='showNoMatchesLabel', parent=self.boolPanel, pos=wx.Point(13,
@@ -694,7 +657,7 @@ class VPConfigBoaFrame(wx.Frame):
 
         self.numericPanel = wx.Panel(id=wxID_VPCONFIGBOAFRAMENUMERICPANEL,
               name='numericPanel', parent=self.configBook, pos=wx.Point(0, 0),
-              size=wx.Size(731, 636), style=wx.TAB_TRAVERSAL)
+              size=wx.Size(731, 517), style=wx.TAB_TRAVERSAL)
 
         self.resolutionLabel = wx.StaticText(label='RESOLUTION',
               name='resolutionLabel', parent=self.numericPanel, pos=wx.Point(13,
@@ -793,16 +756,26 @@ class VPConfigBoaFrame(wx.Frame):
         self.excelFileNameText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMEEXCELFILENAMETEXT,
               name='excelFileNameText', parent=self.pathsPanel,
               pos=wx.Point(156, 157), size=wx.Size(400, 21), style=0, value='')
+        self.excelFileNameText.SetToolTip('First part only: no ".xlsx"')
 
         self.programOutputLabel = wx.StaticText(id=wx.ID_ANY,
               label='Program output:', name='programOutputLabel',
               parent=self.pathsPanel, pos=wx.Point(8, 190), size=wx.Size(140,
               17), style=0)
 
+        self.programOutputClearButton = wx.Button(id=wxID_VPCONFIGBOAFRAMEPROGRAMOUTPUTCLEARBUTTON,
+              label='Clear', name='programOutputClearButton',
+              parent=self.pathsPanel, pos=wx.Point(156, 186),
+              size=wx.Size(75, 23), style=0)
+        self.programOutputClearButton.Bind(wx.EVT_BUTTON,
+              self.OnClearProgramOutputButton,
+              id=wxID_VPCONFIGBOAFRAMEPROGRAMOUTPUTCLEARBUTTON)
+
         self.programOutputText = wx.TextCtrl(id=wx.ID_ANY,
               name='programOutputText', parent=self.pathsPanel, pos=wx.Point(8,
-              208), size=wx.Size(715, 420),
+              208), size=wx.Size(715, 260),
               style=wx.TE_MULTILINE | wx.TE_READONLY, value='')
+        self.programOutputText.SetToolTip('Output of the main program will appear here after "Run" is clicked.')
 
         self.freezeColumnLabel = wx.StaticText(label='FREEZE_COLUMN',
               name='freezeColumnLabel', parent=self.boolPanel, pos=wx.Point(13,
@@ -829,36 +802,45 @@ class VPConfigBoaFrame(wx.Frame):
               416), size=wx.Size(500, 21), style=0, value='')
 
         self.staticLine1 = wx.StaticLine(id=wxID_VPCONFIGBOAFRAMESTATICLINE1,
-              name='staticLine1', parent=self, pos=wx.Point(0, 680),
+              name='staticLine1', parent=self, pos=wx.Point(0, 561),
               size=wx.Size(755, 2), style=0)
 
         self.loadButton = wx.Button(id=wxID_VPCONFIGBOAFRAMELOADBUTTON,
               label='Load Configuration', name='loadButton', parent=self,
-              pos=wx.Point(8, 690), size=wx.Size(110, 23), style=0)
+              pos=wx.Point(8, 571), size=wx.Size(110, 23), style=0)
         self.loadButton.Bind(wx.EVT_BUTTON, self.OnLoadButton,
               id=wxID_VPCONFIGBOAFRAMELOADBUTTON)
 
         self.saveButton = wx.Button(id=wxID_VPCONFIGBOAFRAMESAVEBUTTON,
               label='Save Configuration', name='saveButton', parent=self,
-              pos=wx.Point(126, 690), size=wx.Size(110, 23), style=0)
+              pos=wx.Point(126, 571), size=wx.Size(110, 23), style=0)
         self.saveButton.Bind(wx.EVT_BUTTON, self.OnSaveButton,
               id=wxID_VPCONFIGBOAFRAMESAVEBUTTON)
 
         self.resetButton = wx.Button(id=wxID_VPCONFIGBOAFRAMERESETBUTTON,
               label='Reload Defaults', name='resetButton', parent=self,
-              pos=wx.Point(244, 690), size=wx.Size(110, 23), style=0)
+              pos=wx.Point(244, 571), size=wx.Size(110, 23), style=0)
         self.resetButton.Bind(wx.EVT_BUTTON, self.OnResetButton,
               id=wxID_VPCONFIGBOAFRAMERESETBUTTON)
 
         self.actionsSpacerPanel = wx.Panel(id=wxID_VPCONFIGBOAFRAMEACTIONSSPACERPANEL,
-              name='actionsSpacerPanel', parent=self, pos=wx.Point(354, 690),
-              size=wx.Size(283, 23), style=wx.NO_BORDER)
+              name='actionsSpacerPanel', parent=self, pos=wx.Point(354, 571),
+              size=wx.Size(165, 23), style=wx.NO_BORDER)
 
         self.runButton = wx.Button(id=wxID_VPCONFIGBOAFRAMERUNBUTTON,
-              label='Run', name='runButton', parent=self, pos=wx.Point(637,
-              690), size=wx.Size(110, 23), style=0)
+              label='Run', name='runButton', parent=self, pos=wx.Point(519,
+              571), size=wx.Size(110, 23), style=0)
+        self.runButton.SetToolTip('Click "Save Configuration" button if modifications have been made!')
+        self.runButton.SetBackgroundColour(wx.Colour(0, 255, 0))
         self.runButton.Bind(wx.EVT_BUTTON, self.OnRunButton,
               id=wxID_VPCONFIGBOAFRAMERUNBUTTON)
+
+        self.closeButton = wx.Button(id=wxID_VPCONFIGBOAFRAMECLOSEBUTTON,
+              label='Close', name='closeButton', parent=self, pos=wx.Point(637,
+              571), size=wx.Size(110, 23), style=0)
+        self.closeButton.SetBackgroundColour(wx.Colour(255, 0, 0))
+        self.closeButton.Bind(wx.EVT_BUTTON, self.OnCloseButton,
+              id=wxID_VPCONFIGBOAFRAMECLOSEBUTTON)
 
         self._init_coll_configBook_Pages(self.configBook)
 
@@ -936,16 +918,6 @@ class VPConfigBoaFrame(wx.Frame):
         try:
             if dialog.ShowModal() == wx.ID_OK:
                 control.SetValue(dialog.GetPath())
-        finally:
-            dialog.Destroy()
-
-    def _choose_files(self, control):
-        dialog = wx.FileDialog(self, 'Select Files',
-              wildcard='All files (*.*)|*.*',
-              style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST | wx.FD_MULTIPLE)
-        try:
-            if dialog.ShowModal() == wx.ID_OK:
-                control.SetValue('\n'.join(dialog.GetFilenames()))
         finally:
             dialog.Destroy()
 
@@ -1056,18 +1028,6 @@ class VPConfigBoaFrame(wx.Frame):
     def OnBrowseMapPathButton(self, event):
         self._choose_directory('Select folder containing min_map.txt', self.mapPathText)
 
-    def OnSelectPhasedFilesButton(self, event):
-        self._choose_files(self.phasedFilesText)
-
-    def OnClearPhasedFilesButton(self, event):
-        self.phasedFilesText.SetValue('')
-
-    def OnSelectEvilTwinsButton(self, event):
-        self._choose_files(self.evilTwinsText)
-
-    def OnClearEvilTwinsButton(self, event):
-        self.evilTwinsText.SetValue('')
-
     def OnLoadConfigMenu(self, event):
         self.OnLoadButton(event)
 
@@ -1079,9 +1039,8 @@ class VPConfigBoaFrame(wx.Frame):
 
     def OnAboutMenu(self, event):
         dialog = wx.MessageDialog(self,
-              'Visual Phaser Config Editor\n\n'
-              'Boa-managed frame using standard wx controls for Frame Designer editing.',
-              'About VP Config GUI Boa', wx.OK | wx.ICON_INFORMATION)
+              'Visual Phaser Config Editor',
+              'About VP Config GUI', wx.OK | wx.ICON_INFORMATION)
         try:
             dialog.ShowModal()
         finally:
@@ -1104,6 +1063,12 @@ class VPConfigBoaFrame(wx.Frame):
     def OnResetButton(self, event):
         self.LoadConfig()
 
+    def OnClearProgramOutputButton(self, event):
+        self.programOutputText.SetValue('')
+
+    def OnCloseButton(self, event):
+        self.Close(True)
+
     def _stream_process_output(self, process, script_name):
         try:
             for line in iter(process.stdout.readline, ''):
@@ -1118,6 +1083,7 @@ class VPConfigBoaFrame(wx.Frame):
             wx.CallAfter(self._set_status, 'Run failed: %s' % error)
 
     def OnRunButton(self, event):
+        self.configBook.SetSelection(0)
         script_dir = os.path.dirname(__file__)
         pattern = os.path.join(script_dir, 'Visual_Phaser.V*.py')
         candidates = sorted(glob.glob(pattern))
@@ -1167,5 +1133,10 @@ class VPConfigBoaApp(wx.App):
 if __name__ == '__main__':
     app = wx.App(False)
     frame = create(None)
+    if len(sys.argv) > 1:
+        config_path = sys.argv[1]
+        if os.path.exists(config_path):
+                frame.config_path = config_path
+                frame.LoadConfig()
     frame.Show(True)
     app.MainLoop()

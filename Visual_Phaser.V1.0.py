@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-Visual_Phaser.V1.0.py performs comparisons between siblings and cousins and 
+Visual_Phaser.V1.0.py performs comparisons between siblings and cousins and
 stores the results in a .xlsx file.
 
-© 2026 Mick Jolley (mickj1948@gmail.com) 
+© 2026 Mick Jolley (mickj1948@gmail.com)
 
 Optimized for speed using a Hybrid Multiprocessing + Multithreading Architecture.
 - Multiprocessing: Distributes chromosome analysis across CPU cores.
@@ -26,6 +26,9 @@ from collections import Counter
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import multiprocessing
 import threading
+from typing import Any, cast
+from openpyxl.cell.cell import Cell
+from openpyxl.drawing.image import Image as XLImage
 
 # Re-import all config variables from the external configuration file
 from VP_configV1 import (
@@ -79,19 +82,19 @@ def load_individual_dna(ind, files_path, no_call_val):
                     df["allele2"] = df["allele_pair"].str[1]
                     df.drop(columns=["allele_pair"], inplace=True)
                     df["chromosome"] = df["chromosome"].replace({"X": "23", "XY": "23"}).astype(str)
-                
+
                 # Clean chromosome data: keep numeric only (1-22) and X (mapped to 23)
                 df = df[~df["chromosome"].isin(["Y", "MT"])]
                 df = df[df["chromosome"].str.isnumeric()]
                 df["chromosome"] = df["chromosome"].astype(int)
-                
+
                 # Filter for valid genetic letters or the designated no-call value
                 valid_alleles = {"A", "T", "C", "G", no_call_val}
                 df = df[df["allele1"].isin(valid_alleles)]
-                
+
                 return ind, df.sort_values(by='position').reset_index(drop=True)
             except Exception as e:
-                print(f"Error loading {this_file}: {e}")
+                print(f"Error loading {this_file}: {e}", flush=True)
                 return ind, None
     return ind, None
 
@@ -105,7 +108,7 @@ def apply_conditions_vectorized(al1x, al2x, al1y, al2y, no_call_val):
     cond_nc = (al1x == no_call_val) | (al1y == no_call_val)
     cond_crimson = (al1x == al2x) & (al1y == al2y) & (al1x != al1y)
     cond_limegreen = ((al1x == al1y) & (al2x == al2y)) | ((al1x == al2y) & (al2x == al1y))
-    
+
     res = np.full(al1x.shape, 'yellow', dtype=object)
     res[cond_limegreen] = 'limegreen'
     res[cond_crimson] = 'crimson'
@@ -122,7 +125,7 @@ def scan_genomes_optimized(dm, chrom, hir_cutoff, fir_cutoff, hir_snp_min, fir_s
     matches = dm["match"].values
     positions = dm["position"].values
     length = len(matches)
-    
+
     dx, ds = [], []
     nmms = 0
     segflag = fflag = False
@@ -166,7 +169,7 @@ def scan_genomes_optimized(dm, chrom, hir_cutoff, fir_cutoff, hir_snp_min, fir_s
                         if dcm > fir_cutoff:
                             ds.append({"Chr": chrom, "Start Mb": fstpos, "Finish Mb": fpos, "No. SNPs": fsnps, "Length (cM)": round(dcm, 1)})
                     fflag, fsnps = False, 0
-                
+
                 nmms += 1
                 if nmms == 1:
                     mmpos = p
@@ -191,7 +194,7 @@ def scan_genomes_optimized(dm, chrom, hir_cutoff, fir_cutoff, hir_snp_min, fir_s
         dcm = get_dcm(fstpos, fpos)
         if dcm > fir_cutoff:
             ds.append({"Chr": chrom, "Start Mb": fstpos, "Finish Mb": fpos, "No. SNPs": fsnps, "Length (cM)": round(dcm, 1)})
-            
+
     return pd.DataFrame(dx), pd.DataFrame(ds)
 
 def repair_files_optimized(dm, fir_snp_min, mm_dist):
@@ -205,13 +208,13 @@ def repair_files_optimized(dm, fir_snp_min, mm_dist):
     firs = fir_snp_min // 2
     is_limegreen = (matches == 'limegreen')
     new_matches = matches.copy()
-    
+
     # Smooth limegreen gaps
     for i in range(firs + 1, length - firs - 1):
         if matches[i] in ('crimson', 'yellow'):
             if np.all(is_limegreen[i-firs : i]) and np.all(is_limegreen[i+1 : i+firs]):
                 new_matches[i] = 'limegreen'
-                
+
     # Identify and reassign isolated crimson SNPs
     crimson_idx = np.where(new_matches == 'crimson')[0]
     if len(crimson_idx) > 0:
@@ -225,7 +228,7 @@ def repair_files_optimized(dm, fir_snp_min, mm_dist):
                 isolated = False
             if isolated:
                 new_matches[crimson_idx[i]] = 'yellow'
-                
+
     dm['match'] = new_matches
     return dm
 
@@ -246,7 +249,7 @@ def get_dplot_optimized(q, dtot, dxtot, dstot, pair_name, chrom_true_size, resol
     matches, positions = dtot.iloc[:, q+1].values, dtot['position'].values
     num_bins = len(dtot) // div + 1
     dplot_matches, dplot_positions = np.full(num_bins, 'grey', dtype=object), np.zeros(num_bins)
-    
+
     # Binning logic: majority/priority voting for bin color
     for b in range(num_bins):
         start, end = b * div, min((b + 1) * div, len(dtot))
@@ -296,10 +299,12 @@ def thread_chromosome(chrom, match_pairs, individuals, files_path, map_positions
     Orchestrates DNA loading, matching, smoothing, and image preparation.
     Executed in parallel for each chromosome.
     """
+    print(f"Analyzing chromosome{chrom}...", flush=True)
+
     # Step 1: DNA Loading. Uses threading to parallelize disk reads.
     with cache_lock:
         missing_inds = [ind for ind in individuals if ind not in worker_dna_cache]
-    
+
     if missing_inds:
         with ThreadPoolExecutor(max_workers=min(len(missing_inds), 8)) as threads:
             load_results = threads.map(lambda ind: load_individual_dna(ind, files_path, config_params['NO_CALL']), missing_inds)
@@ -307,39 +312,39 @@ def thread_chromosome(chrom, match_pairs, individuals, files_path, map_positions
                 for ind, dna_df in load_results:
                     if dna_df is not None:
                         worker_dna_cache[ind] = dna_df
-            
+
     hir_cutoff = config_params['X_HIR_CUTOFF'] if chrom == 23 else config_params['HIR_CUTOFF']
     fir_cutoff = config_params['X_FIR_CUTOFF'] if chrom == 23 else config_params['FIR_CUTOFF']
-    
+
     dtot_parts, tables_data = [], []
     dxtot, dstot = pd.DataFrame(), pd.DataFrame()
-    
+
     # Step 2: Genetic Analysis (CPU-bound)
     for pair in match_pairs:
         pair_name = f"{pair[0]}-{pair[1]}"
         dna1, dna2 = worker_dna_cache.get(pair[0]), worker_dna_cache.get(pair[1])
         if dna1 is None or dna2 is None:
             continue
-        
+
         # Merge individual DNA data on common genetic markers
-        dm = pd.merge(dna1[dna1['chromosome'] == chrom], dna2[dna2['chromosome'] == chrom], 
+        dm = pd.merge(dna1[dna1['chromosome'] == chrom], dna2[dna2['chromosome'] == chrom],
                       on=("rsid", "chromosome", "position"), suffixes=('_1', '_2'))
         if len(dm) == 0:
             continue
-        
+
         # Vectorized matching and optional repair
-        dm["match"] = apply_conditions_vectorized(dm["allele1_1"].values, dm["allele2_1"].values, 
-                                                 dm["allele1_2"].values, dm["allele2_2"].values, 
+        dm["match"] = apply_conditions_vectorized(dm["allele1_1"].values, dm["allele2_1"].values,
+                                                 dm["allele1_2"].values, dm["allele2_2"].values,
                                                  config_params['NO_CALL'])
-        
+
         if config_params['REPAIR_FILES']:
             dm = repair_files_optimized(dm, config_params['FIR_SNP_MIN'], config_params['MM_DIST'])
-            
+
         # Extract HIR and FIR segments
-        dx, ds = scan_genomes_optimized(dm, chrom, hir_cutoff, fir_cutoff, config_params['HIR_SNP_MIN'], 
-                                       config_params['FIR_SNP_MIN'], config_params['MM_DIST'], 
+        dx, ds = scan_genomes_optimized(dm, chrom, hir_cutoff, fir_cutoff, config_params['HIR_SNP_MIN'],
+                                       config_params['FIR_SNP_MIN'], config_params['MM_DIST'],
                                        map_positions, map_cms)
-        
+
         tables_data.append((pair_name, dx, ds))
         dx['pair'], ds['pair'] = pair_name, pair_name
         dxtot = pd.concat([dxtot, dx], ignore_index=True)
@@ -348,7 +353,7 @@ def thread_chromosome(chrom, match_pairs, individuals, files_path, map_positions
 
     if not dtot_parts:
         return None
-    
+
     # Combine all pair matches into a single chromosome master table
     dtot = dtot_parts[0]
     for part in dtot_parts[1:]:
@@ -359,23 +364,23 @@ def thread_chromosome(chrom, match_pairs, individuals, files_path, map_positions
     all_rps, all_rnames, pair_images = [], [], []
     wdir = config_params['WORKING_DIRECTORY'] + "/"
     last_dplot_len = 0
-    
+
     with ThreadPoolExecutor(max_workers=4) as image_threads:
         for q, pair in enumerate(match_pairs):
             pair_name = f"{pair[0]}-{pair[1]}"
             if pair_name not in dtot.columns:
                 continue
-            
-            dplot, rps, rnames = get_dplot_optimized(q, dtot, dxtot, dstot, pair_name, config_params['CHROM_TRUE_SIZE'], 
-                                                   config_params['RESOLUTION'], config_params['LINEAR_CHROMOSOME'], 
+
+            dplot, rps, rnames = get_dplot_optimized(q, dtot, dxtot, dstot, pair_name, config_params['CHROM_TRUE_SIZE'],
+                                                   config_params['RESOLUTION'], config_params['LINEAR_CHROMOSOME'],
                                                    chr_len, siblings)
             all_rps.extend(rps)
             all_rnames.extend(rnames)
             last_dplot_len = len(dplot)
-            
+
             if q == 0 and config_params['SCALE_ON']:
                 image_threads.submit(get_scale_img, dplot, chrom, wdir)
-                
+
             image_threads.submit(get_image_file, dplot, pair_name, chrom, wdir)
             pair_images.append((pair_name, len(dplot)))
 
@@ -405,7 +410,7 @@ def get_scale_img(dplot, chrom, wdir):
         fnt, fnt1 = ImageFont.truetype("/System/Library/Fonts/Supplemental/Arial.ttf", 13), ImageFont.truetype("/System/Library/Fonts/Supplemental/Arial.ttf", 10)
     else:
         fnt, fnt1 = ImageFont.truetype(LINUX_FONT_STRING, 13), ImageFont.truetype(LINUX_FONT_STRING, 10)
-    
+
     positions = dplot['position'].values
     for i, snp in enumerate(positions):
         if i % 50 == 0:
@@ -421,11 +426,11 @@ def do_arp_main(ws, rps_list, rnames_list, dplot_len, siblings, auto_rp_assign, 
     Sets Excel column widths based on recombination block lengths.
     """
     rcomb_list = list(zip(rps_list, rnames_list))
-    next_line = find_next_line(ws, 7, 3) 
+    next_line = find_next_line(ws, 7, 3)
     arp_row = next_line + len(siblings) * 3
     rps_list = sorted(list(set(rps_list)))
     rps_list = [0] + rps_list + [dplot_len - 1]
-    
+
     rpsf = []
     arp_tol = arp_tolerance * resolution
     for num in rps_list:
@@ -487,20 +492,20 @@ def paste_tables(ws, dx, ds, pair_name, fir_tables, show_no_matches):
 def paste_image_main(fflag, ws, pair_name, chrom, q, wdir, cousins, scale_on, show_no_matches, dxtot_pairs, im_width, dplot_len):
     """Inserts the generated DNA match images into the Excel worksheet."""
     if q == 0 and not cousins and scale_on:
-        ws.add_image(openpyxl.drawing.image.Image(f"{wdir}scale {chrom}.png"), ws.cell(1, 8).coordinate)
+        ws.add_image(XLImage(f"{wdir}scale {chrom}.png"), ws.cell(1, 8).coordinate)
     if not show_no_matches and pair_name not in dxtot_pairs:
         return
     if len(pair_name) > ws.column_dimensions["G"].width:
         ws.column_dimensions["G"].width = len(pair_name) + 2
-    
-    img = openpyxl.drawing.image.Image(f"{wdir}{pair_name} {chrom}.png")
+
+    img = XLImage(f"{wdir}{pair_name} {chrom}.png")
     if cousins:
         # Scale image if working with cousins in an existing file
         img.width = img.width * im_width / dplot_len
         if fflag[chrom]:
             next_line = find_next_line(ws, 7, 3)
             fflag[chrom] = False
-        else:    
+        else:
             next_line = find_next_line(ws, 7, 2)
     else:
         # Normal sibling placement (offset by 2 rows from previous)
@@ -535,7 +540,7 @@ def add_chroms(ws, col, siblings, auto_rec_pnts):
             # Magenta and Neon Green background indicators
             ws.cell(next_line + w * 3, i).fill = PatternFill("solid", fgColor="FF00FF")
             ws.cell(next_line + 1 + w * 3, i).fill = PatternFill("solid", fgColor="98FF00")
-    
+
     # Legend color markers
     fills = [("FF00FF", 3), ("98FF00", 4), ("00FFFF", 6), ("FFCC00", 7), ("FF00FF", 9), ("FFCC00", 10), ("00FFFF", 12), ("98FF00", 13)]
     for color, row in fills:
@@ -556,7 +561,7 @@ if __name__ == "__main__":
     individuals = list(set(SIBLINGS) | set(PHASED_FILES) | set(EVIL_TWINS) | set(COUSINS))
     missing_individuals = [ind for ind in individuals if not any(ind + "_raw" in f for f in os.listdir(FILES_PATH))]
     if missing_individuals:
-        print(f"\nDNA file(s) not found for: {', '.join(missing_individuals)}.")
+        print(f"\nDNA file(s) not found for: {', '.join(missing_individuals)}.", flush=True)
         sys.exit()
 
     # Load or create the Excel workbook
@@ -597,26 +602,34 @@ if __name__ == "__main__":
     }
 
     chrom_list = CHROMOSOMES if CHROMOSOMES else list(range(1, 24))
-    print(f"\nProcessing {len(chrom_list)} chromosomes using Threads and Multiprocessing...\nThis will take a few seconds. Please be patient...\n")
+    print(f"\nProcessing {len(chrom_list)} chromosomes using Threads and Multiprocessing...\nThis will take a few seconds. Please be patient...\n", flush=True)
 
     # STEP 4: Parallel Processing Loop
     with ThreadPoolExecutor(max_workers=multiprocessing.cpu_count()) as executor:
-        futures = {executor.submit(thread_chromosome, c, match_pairs, individuals, FILES_PATH, 
+        futures = {executor.submit(thread_chromosome, c, match_pairs, individuals, FILES_PATH,
                    dmap_source[dmap_source["Chromosome"] == c].sort_values("Position")["Position"].values,
-                   dmap_source[dmap_source["Chromosome"] == c].sort_values("Position")["cM"].values, 
+                   dmap_source[dmap_source["Chromosome"] == c].sort_values("Position")["cM"].values,
                    chr_lens[c-1], SIBLINGS, config_params): c for c in chrom_list}
+
+        chromosome_results = {}
 
         for future in as_completed(futures):
             res = future.result()
             if not res:
                 continue
-            chrom = res['chrom']
-            print(f"Chromosome {chrom} analyzed. Merging into Excel...")
-            
+            chromosome_results[res['chrom']] = res
+
+        for chrom in sorted(chrom_list):
+            res = chromosome_results.get(chrom)
+            if not res:
+                continue
+            print(f"Chromosome {chrom} now merging into Excel...", flush=True)
+
             # Select or create the worksheet for this chromosome
             if COUSINS:
                 ws = wb[f"Chr{chrom}"]
-                im_width, last_col = ws._images[1].width if len(ws._images) > 1 else 100, ws.max_column - 1
+                ws_images = cast(list[Any], getattr(ws, "_images", []))
+                im_width, last_col = (ws_images[1].width if len(ws_images) > 1 else 100), ws.max_column - 1
             else:
                 ws = wb.create_sheet(f"Chr{chrom}")
                 ws.cell(1,1).value, ws.cell(2,1).value = RESOLUTION, ARP_TOLERANCE
@@ -624,25 +637,27 @@ if __name__ == "__main__":
                 if AUTO_REC_PNTS:
                     ws.cell(5,1).value = 1
                 im_width = 0
-            
+
             ws.freeze_panes = f"{cl(cs(FREEZE_COLUMN)+1)}1"
             format_sheet(ws)
-            
+
             # Write data tables and images to Excel
             for p_name, dx, ds in res['tables']:
                 paste_tables(ws, dx, ds, p_name, FIR_TABLES, SHOW_NO_MATCHES)
 
             fflag = [True] * 24
-            
+
             for q, (p_name, dplot_len) in enumerate(res['pair_images']):
                 paste_image_main(fflag, ws, p_name, chrom, q, wdir, COUSINS, SCALE_ON, SHOW_NO_MATCHES, res['dxtot_pairs'], im_width, dplot_len)
-            
+
             # Post-processing: Add Recombination Points and Formatting
             if not COUSINS:
                 if AUTO_REC_PNTS:
                     rps_list, rnames_list, dplot_len = res['arp_info']
                     last_col = do_arp_main(ws, rps_list, rnames_list, dplot_len, SIBLINGS, AUTO_RP_ASSIGN, RESOLUTION, SCALE_FACTOR, ARP_TOLERANCE)
-                    ws.cell(3,1).value = last_col
+                    line_cell = ws.cell(3, 1)
+                    if isinstance(line_cell, Cell):
+                        line_cell.value = last_col
                     add_chroms(ws, last_col, SIBLINGS, AUTO_REC_PNTS)
                     add_borders(ws, last_col)
                 else:
@@ -650,13 +665,21 @@ if __name__ == "__main__":
                     add_borders(ws, 50)
             else:
                 add_borders(ws, last_col if AUTO_REC_PNTS else 50)
-                
-    # Sort worksheets so Chr1 comes before Chr2, etc.
-    wb._sheets.sort(key=lambda ws: ws.title)      
+
+    # Sort worksheets in numeric chromosome order (Chr1, Chr2, ..., Chr23).
+    def _sheet_sort_key(title):
+        if title.startswith("Chr") and title[3:].isdigit():
+            return (0, int(title[3:]))
+        return (1, title)
+
+    sorted_titles = sorted((ws.title for ws in wb.worksheets), key=_sheet_sort_key)
+    for idx, title in enumerate(sorted_titles):
+        target_sheet = wb[title]
+        wb.move_sheet(target_sheet, idx - wb.index(target_sheet))
 
     # Final Save and Cleanup
     wb.save(xlname)
     delete_images(wdir)
     total_time = time.time() - start_time
-    print(f"\nTotal elapsed time = {total_time//60:.0f} min {total_time % 60: .0f} sec.")
-    print("\nFinished")
+    print(f"\nTotal elapsed time = {total_time//60:.0f} min {total_time % 60: .0f} sec.", flush=True)
+    print("\nFinished", flush=True)

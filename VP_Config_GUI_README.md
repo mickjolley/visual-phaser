@@ -10,7 +10,7 @@ A wxPython-based graphical user interface for editing the Visual Phaser `VP_conf
   - `MAP_PATH` - Map file directory
 
 - **File Management**:
-  - Add/remove `PHASED_FILES` and `EVIL_TWINS` using file selectors
+  - Edit `PHASED_FILES` and `EVIL_TWINS` as list-style text entries
   - Edit `SIBLINGS`, `COUSINS`, and `CHROMOSOMES` as comma-separated lists
   - Set `EXCEL_FILE_NAME` for output
 
@@ -38,7 +38,7 @@ A wxPython-based graphical user interface for editing the Visual Phaser `VP_conf
 
 1. Install wxPython:
 ```bash
-pip install wxPython
+pip install wxPython>=4.0.0
 ```
 
 2. Navigate to the visual-phaser directory:
@@ -52,12 +52,12 @@ cd path/to/visual-phaser
 
 From command line:
 ```bash
-python VP_Config_GUI_Launcher.py
+python VP_Config_GUI.py
 ```
 
-Or directly:
+With an optional config file path:
 ```bash
-python VP_Config_GUI.py
+python VP_Config_GUI.py path/to/VP_configV1.py
 ```
 
 ### Using the GUI
@@ -73,7 +73,7 @@ python VP_Config_GUI.py
      - **Text fields**: Enter text values
      - **Dropdowns**: Select True/False for boolean options
      - **Spin controls**: Adjust numeric values
-     - **File selectors**: Choose multiple files for lists
+    - **Multiline text fields**: Enter list values directly for `PHASED_FILES` and `EVIL_TWINS`
 
 3. **Get Help**:
    - Hover over any field to see its tooltip
@@ -88,30 +88,22 @@ python VP_Config_GUI.py
    - Click "Reset to Defaults" to reload original values
    - Your edits must be saved first to see the saved values
 
+6. Run
+   - Click "Save Configuration" button if modifications have been made
+  - Click the "Run" button to run the main program
+  - The app switches to the Paths tab and streams STDIO into Program output
+  - Use the Program output "Clear" button to clear the output box
+
 ## File Structure
 
-- **VP_Config_GUI.py** - Main GUI application (uses wxPython ScrolledPanel)
-- **VP_Config_GUI_Launcher.py** - Entry point script for launching the application
-- **VP_Config_Resources.py** - Resource definitions, field metadata, and tooltips (boa-constructor pattern)
-- **VP_configV1.py** - Original configuration file (edited by the GUI)
+- **VP_Config_GUI.py** - Main GUI application and entry point script
+- **VP_configV1.py** - Configuration file edited by the GUI
+- **VP_Config_Resources.py** - Additional project resources
 
-## Boa Constructor Methodology
+## Notes
 
-This GUI follows the boa-constructor pattern for modular wxPython development:
-
-- **Separation of Concerns**:
-  - GUI logic in VP_Config_GUI.py
-  - Resource definitions in VP_Config_Resources.py
-  - Launcher script for application entry
-
-- **Resource Management**:
-  - All tooltips, labels, and field definitions centralized in Resources
-  - Easy to maintain, localize, or modify without changing GUI code
-  - Field metadata includes type, constraints, and defaults
-
-- **Extensibility**:
-  - Add new fields by updating FIELD_DEFINITIONS and FIELD_SECTIONS in Resources
-  - New field types can be added by creating corresponding Create*Control methods
+- The current GUI implementation is in `VP_Config_GUI.py`.
+- It supports loading a local `VP_configV1.py` at startup, or a custom path via CLI argument.
 
 ## Configuration Parameters Reference
 
@@ -168,7 +160,7 @@ This GUI follows the boa-constructor pattern for modular wxPython development:
 
 On Windows, if wxPython installation fails:
 ```bash
-pip install --upgrade wxPython
+pip install --upgrade wxPython>=4.0.0
 ```
 
 On macOS, you may need to install from source:
@@ -197,18 +189,10 @@ sudo dnf install python3-wxpython
 
 ## Development Notes
 
-### Adding New Configuration Fields
-
-1. Add field definition to `FIELD_DEFINITIONS` in VP_Config_Resources.py
-2. Add field to appropriate section in `FIELD_SECTIONS`
-3. (Optional) Add Create*Control method in VP_Config_GUI.py if using new control type
-4. Update LoadConfig and OnSaveConfig methods if using new control type
-
 ### Customizing UI
 
-- Modify WINDOW_WIDTH and WINDOW_HEIGHT in VP_Config_Resources.py
-- Change PADDING and font sizes for UI layout
-- Update APP_TITLE, APP_VERSION in Resources for branding
+- Update layout/control code directly in `VP_Config_GUI.py`
+- Update tooltips and config mapping in `VP_Config_GUI.py`
 
 ## License
 
@@ -216,4 +200,4 @@ sudo dnf install python3-wxpython
 
 ## Support
 
-For issues or suggestions, visit: https://github.com/Daverz/visual-phaser
+For issues or suggestions, visit: https://github.com/mickjolley/visual-phaser

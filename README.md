@@ -3,7 +3,7 @@
 1. Introduction
 
   Visual_Phaser.V1.0.py is a specialized bioinformatics application designed for
-  genetic genealogy. It analyzes raw autosomal DNA files to identify and visualize 
+  genetic genealogy. It analyzes raw autosomal DNA files to identify and visualize
   shared segments (Half-Identical Regions (HIRs), Fully-Identical Regions
   (FIRs) and Non-Identical regions (NIRs)) between siblings, cousins, and other relatives.
 
@@ -19,7 +19,7 @@
    - Required Libraries:
            numpy pandas pillow openpyxl
 
-  Project Structure 
+  Project Structure
    - Visual_Phaser.V1.0.py: The main execution engine.
    - VP_configV1.py: The configuration and parameter file.
    - min_map.txt: (Required) A genetic map file mapping physical positions (Mb) to
@@ -34,13 +34,14 @@
   "PixelChromosomeView" (PCV).
    - Naming Convention: Files must contain the person's name followed by _raw_dna
      - Example: Barb_raw_dna.txt, Jan_raw_dna.txt.
-     - .csv files can be converted to .txt files with ancestry_to_tab_converter.py
-       or non_ancestry_to_tab_converter.py as the case may be.
-   - Supported Sources: Specifically optimized for AncestryDNA , 23andMe and other            
+     - .csv files can be converted to .txt files with
+       converter/ancestry_csv_to_tab_converter_V1.py or
+       converter/non_ancestry_csv_to_tab_converter_V1.py.
+   - Supported Sources: Specifically optimized for AncestryDNA , 23andMe and other
       non- Ancestry exports.
 
   Genetic Map (min_map.txt)
-  Place this file in your designated MAP_PATH. This is used to accurately calculate 
+  Place this file in your designated MAP_PATH. This is used to accurately calculate
   the length of shared segments in centiMorgans.
 
   ---
@@ -80,7 +81,7 @@
      recombination points correctly. This only has to be done once.
    - CHROM_TRUE_SIZE: If True, visual blocks are proportional to the physical length
      of the chromosome.
-   - LINEAR_CHROMOSOME: If True, a linear chromosome is displayed. Regions where   
+   - LINEAR_CHROMOSOME: If True, a linear chromosome is displayed. Regions where
      there is no data are shown in grey.
   ---
 

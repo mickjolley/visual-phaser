@@ -106,16 +106,16 @@ NO_CALL: Character assigned to a no-call IN PHASED FILES.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 # Path to DNA files.
-FILES_PATH = r'*********'
+FILES_PATH = 'C:\\Users\\rjs\\AppData\\Local\\DNA_phasing\\DNA_files'
 
 # Path to .xlsx file.
-WORKING_DIRECTORY = r"*********"
+WORKING_DIRECTORY = 'C:\\Users\\rjs\\AppData\\Local\\DNA_phasing\\DNA_files\\tmp'
 
 # Path to min_map.txt file.
-MAP_PATH = r"*********"
+MAP_PATH = 'C:\\Users\\rjs\\AppData\\Local\\DNA_phasing\\DNA_files'
 
 # SIBLINGS to be compared. Make sure that no two files share the same name.
-SIBLINGS = ['****','****','****','****']
+SIBLINGS = ['Diane', 'Tom', 'Ray']
 
 # Phased files to be compared to each other.
 PHASED_FILES = []
@@ -130,7 +130,7 @@ COUSINS = []
 CHROMOSOMES = []
 
 # Excel file name. Leave ".xlsx" out.
-EXCEL_FILE_NAME = '*******'
+EXCEL_FILE_NAME = 'gui_test'
 
 # Suppress no-matches. Set to True if display of no-matches is desired.
 SHOW_NO_MATCHES = True
@@ -168,7 +168,7 @@ REPAIR_FILES = True
 
 # The column width per pixel factor. This may need adjustment depending on
 #  the display resolution.
-SCALE_FACTOR = .1355
+SCALE_FACTOR = 0.1355
 
 # HIR Minimum segment length (cM). The default is 7.
 HIR_CUTOFF = 7
@@ -193,7 +193,7 @@ FREEZE_COLUMN = 'A'
 
 # Linux font string. An alternative is:
 # "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf" 
-LINUX_FONT_STRING = "*/fonts/truetype/family/DejaVuSerif-Bold.ttf"
+LINUX_FONT_STRING = '*/fonts/truetype/family/DejaVuSerif-Bold.ttf'
 
 # Elapsed times are shown for each step.
 SHOW_TIMES = True
