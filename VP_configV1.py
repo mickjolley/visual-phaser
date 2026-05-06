@@ -106,16 +106,16 @@ NO_CALL: Character assigned to a no-call IN PHASED FILES.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 # Path to DNA files.
-FILES_PATH = 'C:\\Users\\rjs\\AppData\\Local\\DNA_phasing\\DNA_files'
+FILES_PATH = r'*******'
 
 # Path to .xlsx file.
-WORKING_DIRECTORY = 'C:\\Users\\rjs\\AppData\\Local\\DNA_phasing\\DNA_files\\tmp'
+WORKING_DIRECTORY = r'*******'
 
 # Path to min_map.txt file.
-MAP_PATH = 'C:\\Users\\rjs\\AppData\\Local\\DNA_phasing\\DNA_files'
+MAP_PATH = r'********'
 
 # SIBLINGS to be compared. Make sure that no two files share the same name.
-SIBLINGS = ['Diane', 'Tom', 'Ray']
+SIBLINGS = ['****','****','****']
 
 # Phased files to be compared to each other.
 PHASED_FILES = []
@@ -130,7 +130,7 @@ COUSINS = []
 CHROMOSOMES = []
 
 # Excel file name. Leave ".xlsx" out.
-EXCEL_FILE_NAME = 'gui_test'
+EXCEL_FILE_NAME = '********'
 
 # Suppress no-matches. Set to True if display of no-matches is desired.
 SHOW_NO_MATCHES = True
