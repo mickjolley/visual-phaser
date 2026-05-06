@@ -299,7 +299,7 @@ def thread_chromosome(chrom, match_pairs, individuals, files_path, map_positions
     Orchestrates DNA loading, matching, smoothing, and image preparation.
     Executed in parallel for each chromosome.
     """
-    print(f"Analyzing chromosome{chrom}...", flush=True)
+    print(f"Analyzing chromosome {chrom}...", flush=True)
 
     # Step 1: DNA Loading. Uses threading to parallelize disk reads.
     with cache_lock:

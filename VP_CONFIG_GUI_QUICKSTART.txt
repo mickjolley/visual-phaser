@@ -33,7 +33,7 @@ USING THE GUI
 
 2. EDIT SETTINGS
    Paths:        Click "Browse..." buttons to select folders
-   Files:        Use "Select Files" or type comma-separated names
+   Files:        Use "Select Files" or type names as comma-separated, one-per-line, or mixed entries
    Boolean:      Choose True/False from dropdown
    Numbers:      Use up/down spinners or type values
    Text:         Type directly in text fields
@@ -65,8 +65,8 @@ PATHS AND DIRECTORIES:
 
 FILE MANAGEMENT:
   • SIBLINGS            - DNA sample files to compare (2 minimum)
-  • PHASED_FILES        - Pre-phased comparison files
-  • EVIL_TWINS          - Files to compare with siblings
+   • PHASED_FILES        - Pre-phased comparison files (comma-separated, one-per-line, or mixed)
+   • EVIL_TWINS          - Files to compare with siblings (comma-separated, one-per-line, or mixed)
   • COUSINS             - Cousin relationship names
   • CHROMOSOMES         - Which chromosomes (1-23, or blank for all)
   • EXCEL_FILE_NAME     - Name for output file

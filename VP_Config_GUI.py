@@ -16,9 +16,9 @@ TOOLTIPS = {
     'FILES_PATH': 'Path to folder where the DNA files are stored.',
     'WORKING_DIRECTORY': 'Folder where the .xlsx and .py files will be stored.',
     'MAP_PATH': 'Path to folder containing min_map.txt.',
-    'SIBLINGS': 'Comma-separated sibling file names in PCV format.',
-    'PHASED_FILES': 'One file name per line for phased files.',
-    'EVIL_TWINS': 'One file name per line for evil twin files.',
+    'SIBLINGS': 'Comma-separated sibling names in PCV format.',
+    'PHASED_FILES': 'Comma-separated phased names in PCV format.',
+    'EVIL_TWINS': 'Comma-separated sevil twin names in PCV format.',
     'COUSINS': 'Comma-separated cousin names.',
     'CHROMOSOMES': 'Comma-separated chromosome numbers. Leave empty for all.',
     'EXCEL_FILE_NAME': 'Name of the output workbook without .xlsx.',
@@ -329,7 +329,8 @@ class VPConfigBoaFrame(wx.Frame):
         self.filesPathRowSizer = wx.BoxSizer(orient=wx.HORIZONTAL)
         self.filesPathRowSizer.Add(self.filesPathLabel, 0, border=5,
               flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
-        self.filesPathRowSizer.Add(self.filesPathText, 0, border=5, flag=wx.ALL)
+        self.filesPathRowSizer.Add(self.filesPathText, 0, border=5,
+              flag=wx.ALL)
         self.filesPathRowSizer.Add(self.browseFilesPathButton, 0, border=5,
               flag=wx.ALL)
 
@@ -460,12 +461,12 @@ class VPConfigBoaFrame(wx.Frame):
 
         self.workingDirText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMEWORKINGDIRTEXT,
               name='workingDirText', parent=self.pathsPanel, pos=wx.Point(156,
-              89), size=wx.Size(419, 21), style=0, value='')
+              89), size=wx.Size(439, 21), style=0, value='')
         self.workingDirText.SetToolTip('Path to where the Excel file will be created, or already exists.')
 
         self.browseWorkingDirButton = wx.Button(id=wxID_VPCONFIGBOAFRAMEBROWSEWORKINGDIRBUTTON,
               label='Browse...', name='browseWorkingDirButton',
-              parent=self.pathsPanel, pos=wx.Point(583, 89), size=wx.Size(90,
+              parent=self.pathsPanel, pos=wx.Point(603, 89), size=wx.Size(90,
               23), style=0)
         self.browseWorkingDirButton.Bind(wx.EVT_BUTTON,
               self.OnBrowseWorkingDirectoryButton,
@@ -477,12 +478,12 @@ class VPConfigBoaFrame(wx.Frame):
 
         self.mapPathText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMEMAPPATHTEXT,
               name='mapPathText', parent=self.pathsPanel, pos=wx.Point(156,
-              120), size=wx.Size(419, 21), style=0, value='')
+              120), size=wx.Size(439, 21), style=0, value='')
         self.mapPathText.SetToolTip('Select the path to min_map.txt if not the default.')
 
         self.browseMapPathButton = wx.Button(id=wxID_VPCONFIGBOAFRAMEBROWSEMAPPATHBUTTON,
               label='Browse...', name='browseMapPathButton',
-              parent=self.pathsPanel, pos=wx.Point(583, 120), size=wx.Size(90,
+              parent=self.pathsPanel, pos=wx.Point(603, 120), size=wx.Size(90,
               23), style=0)
         self.browseMapPathButton.Bind(wx.EVT_BUTTON, self.OnBrowseMapPathButton,
               id=wxID_VPCONFIGBOAFRAMEBROWSEMAPPATHBUTTON)
@@ -755,7 +756,7 @@ class VPConfigBoaFrame(wx.Frame):
 
         self.excelFileNameText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMEEXCELFILENAMETEXT,
               name='excelFileNameText', parent=self.pathsPanel,
-              pos=wx.Point(156, 157), size=wx.Size(400, 21), style=0, value='')
+              pos=wx.Point(156, 157), size=wx.Size(439, 21), style=0, value='')
         self.excelFileNameText.SetToolTip('First part only: no ".xlsx"')
 
         self.programOutputLabel = wx.StaticText(id=wx.ID_ANY,
@@ -766,7 +767,7 @@ class VPConfigBoaFrame(wx.Frame):
         self.programOutputClearButton = wx.Button(id=wxID_VPCONFIGBOAFRAMEPROGRAMOUTPUTCLEARBUTTON,
               label='Clear', name='programOutputClearButton',
               parent=self.pathsPanel, pos=wx.Point(156, 186),
-              size=wx.Size(75, 23), style=0)
+              size=wx.Size(75, 21), style=0)
         self.programOutputClearButton.Bind(wx.EVT_BUTTON,
               self.OnClearProgramOutputButton,
               id=wxID_VPCONFIGBOAFRAMEPROGRAMOUTPUTCLEARBUTTON)
@@ -921,11 +922,32 @@ class VPConfigBoaFrame(wx.Frame):
         finally:
             dialog.Destroy()
 
+    def _strip_wrapping_quotes(self, item):
+        cleaned = item.strip()
+        while len(cleaned) >= 2 and (
+              (cleaned[0] == '"' and cleaned[-1] == '"') or
+              (cleaned[0] == "'" and cleaned[-1] == "'")
+        ):
+              cleaned = cleaned[1:-1].strip()
+        return cleaned
+
     def _split_comma_list(self, value):
-        return [item.strip() for item in value.replace('\n', ',').split(',') if item.strip()]
+        result = []
+        for item in value.replace('\n', ',').split(','):
+              cleaned = self._strip_wrapping_quotes(item)
+              if cleaned:
+                    result.append(cleaned)
+        return result
 
     def _split_line_list(self, value):
-        return [line.strip() for line in value.splitlines() if line.strip()]
+        # Accept either one-item-per-line or comma-separated input (or a mix).
+        normalized = value.replace('\r', '\n').replace(',', '\n')
+        result = []
+        for line in normalized.splitlines():
+              cleaned = self._strip_wrapping_quotes(line)
+              if cleaned:
+                    result.append(cleaned)
+        return result
 
     def _format_value(self, var_name, value):
         if var_name in RAW_STRING_FIELDS:
