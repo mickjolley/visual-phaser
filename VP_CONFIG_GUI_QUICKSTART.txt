@@ -1,0 +1,166 @@
+================================================================================
+VISUAL PHASER CONFIG GUI - QUICK START GUIDE
+================================================================================
+
+INSTALLATION (First Time)
+------------------------
+
+1. Open Command Prompt / Terminal
+2. Navigate to the visual-phaser directory:
+   cd C:\Users\rjs\Documents\GitHub\Daverz\visual-phaser
+
+3. Install wxPython (required only once):
+   pip install -r requirements-gui.txt
+
+   OR install manually:
+   pip install wxPython
+
+
+LAUNCHING THE GUI
+-----------------
+
+Method 1: Simple Launch
+   python VP_Config_GUI_Launcher.py
+
+Method 2: Direct Run
+   python VP_Config_GUI.py
+
+Method 3: With Config File
+   python VP_Config_GUI_Launcher.py VP_configV1.py
+
+
+USING THE GUI
+-------------
+
+1. LOAD CONFIGURATION
+   - File menu → Load Config, OR
+   - Click "Load Configuration" button
+   - Select your VP_configV1.py file
+
+2. EDIT SETTINGS
+   Paths:        Click "Browse..." buttons to select folders
+   Files:        Use "Select Files" or type comma-separated names
+   Boolean:      Choose True/False from dropdown
+   Numbers:      Use up/down spinners or type values
+   Text:         Type directly in text fields
+
+3. GET HELP
+   - Hover over any field name to see a helpful tooltip
+   - Tooltips contain the original configuration documentation
+
+4. SAVE YOUR WORK
+   - Click "Save Configuration" button, OR
+   - File menu → Save Config
+   - Your changes are written to VP_configV1.py
+
+5. RESET / START OVER
+   - Click "Reset to Defaults" button
+   - Reloads the values from the currently open config file
+
+
+FIELDS ORGANIZED BY CATEGORY
+-----------------------------
+
+PATHS AND DIRECTORIES:
+  • FILES_PATH          - Where your DNA files are stored
+  • WORKING_DIRECTORY   - Where output files will be saved
+  • MAP_PATH            - Where min_map.txt is located
+
+FILE MANAGEMENT:
+  • SIBLINGS            - DNA sample files to compare (2 minimum)
+  • PHASED_FILES        - Pre-phased comparison files
+  • EVIL_TWINS          - Files to compare with siblings
+  • COUSINS             - Cousin relationship names
+  • CHROMOSOMES         - Which chromosomes (1-23, or blank for all)
+  • EXCEL_FILE_NAME     - Name for output file
+
+DISPLAY OPTIONS:
+  • CHROM_TRUE_SIZE              - Use true vs. normalized sizes
+  • LINEAR_CHROMOSOME            - Show linearized view
+  • SHOW_NO_MATCHES              - Include unmatched pairs
+  • SHOW_TIMES                   - Display timing info
+  • SHOW_MATCH_PAIR_PROGRESS     - Show progress messages
+  • FIR_TABLES                   - Display FIR analysis tables
+
+PROCESSING:
+  • MERGE_FILES                  - Combine DNA data
+  • AUTO_REC_PNTS                - Auto-calculate recombination points
+  • AUTO_RP_ASSIGN               - Auto-assign recombination points
+  • REPAIR_FILES                 - Fix isolated SNPs
+
+QUALITY PARAMETERS:
+  • RESOLUTION          - Display resolution (1-100)
+  • ARP_TOLERANCE       - Minimum column width for recombination
+  • HIR_CUTOFF          - Min HIR segment length (cM)
+  • FIR_CUTOFF          - Min FIR segment length (cM)
+  • X_HIR_CUTOFF        - X chromosome HIR cutoff (cM)
+  • X_FIR_CUTOFF        - X chromosome FIR cutoff (cM)
+  • HIR_SNP_MIN         - Minimum HIR SNPs
+  • FIR_SNP_MIN         - Minimum FIR SNPs
+  • MM_DIST             - Mismatch distance (Kbs)
+
+ADVANCED:
+  • SCALE_FACTOR        - Column width per pixel adjustment
+  • SCALE_ON            - Enable/disable scale display
+  • FREEZE_COLUMN       - Column to freeze in display
+  • LINUX_FONT_STRING   - Font path (Linux only)
+  • NO_CALL             - Character for missing data
+
+
+KEYBOARD SHORTCUTS
+------------------
+
+Ctrl+O     Load Configuration
+Ctrl+S     Save Configuration
+Alt+F4     Exit Application
+
+
+TROUBLESHOOTING
+---------------
+
+Q: "wxPython is not installed" error
+A: Run: pip install -r requirements-gui.txt
+
+Q: Changes don't seem to save
+A: Make sure you clicked "Save Configuration" button or used File → Save Config
+   Check that you have write permission to VP_configV1.py
+
+Q: GUI appears frozen
+A: Wait a moment - file dialogs can take time to open
+   If it stays frozen, close and reopen (Ctrl+C in terminal, then run again)
+
+Q: Can't find VP_configV1.py
+A: Make sure you're in the correct directory when launching
+   You can also use File → Load Config to browse for it
+
+
+FILES IN THIS PACKAGE
+---------------------
+
+VP_Config_GUI.py              - Main GUI application (900 lines)
+VP_Config_GUI_Launcher.py     - Entry point script
+VP_Config_Resources.py        - Resources & field definitions
+VP_Config_GUI_README.md       - Full documentation
+requirements-gui.txt          - Python dependencies
+VP_CONFIG_GUI_QUICKSTART.txt  - This file
+
+
+ABOUT THIS APPLICATION
+----------------------
+
+Visual Phaser Config GUI v1.0
+© 2026 Mick Jolley (mickj1948@gmail.com)
+
+Built with: wxPython 4.0+, Python 3.7+
+Methodology: boa-constructor (modular wxPython development)
+Repository: https://github.com/Daverz/visual-phaser
+
+
+NEED HELP?
+----------
+
+1. Check VP_Config_GUI_README.md for detailed documentation
+2. Hover over any field for context-sensitive help via tooltip
+3. Visit: https://github.com/Daverz/visual-phaser
+
+================================================================================
