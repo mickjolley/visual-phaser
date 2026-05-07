@@ -1,6 +1,19 @@
 # -*- coding: utf-8 -*-
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-VP_configV1.py is the configuration file for Visual_Phaser.V1.0.py.
+VPconfig_V1.py is the configuration file for Visual_Phaser.V1.0.py.
+It contains all the parameters that are used in the program.
+The parameters are explained in detail below.
+
+QUICK SETUP (Windows):
+1. The script will load config from one of these locations:
+	- VPnew_config_V19.py in the repo/run folder (checked first)
+	- C:/Users/<your-user>/AppData/Local/DNA_phasing/VPnew_config_V19.py
+2. Edit the copy you want the script to use.
+3. If both files exist, the repo/run-folder copy is used.
+4. Set these fields before running:
+	FILES_PATH, WORKING_DIRECTORY, MAP_PATH, EXCEL_FILE_NAME,
+	SIBLINGS/PHASED_FILES/EVIL_TWINS/COUSINS, CHROMOSOMES.
+5. Enable TIMEIT_PROFILE = True when benchmarking performance.
 
 FILES_PATH: Path to folder where the DNA files are stored.
 
@@ -20,7 +33,10 @@ will not be compared to siblings. The default assignment for no calls is "X".
 EVIL_TWINS: Evil Twin files to be compared to SIBLINGS.
 
 COUSINS: Enter names of individuals to be compared with all SIBLINGS in a
-pre-existing file. Leave blank ([]) when creating a new file.
+pre-existing file. Leave blank ([]) when creating a new file. If not empty ie [],
+AUTO_REC_PNTS will be set to False, and if EXCEL_FILE_NAME exists then
+CHROMOSOMES will be ignored since the program will compare only those already in
+the file.
 
 CHROMOSOMES: Chromosome selected (1-23). More than one chromosome may be entered.
 Leave empty for all chromosomes.
@@ -93,6 +109,10 @@ SHOW_TIMES: Elapsed times are shown for each step. Default =True
 SHOW_MATCH_PAIR_PROGRESS: Notifies the completion of each step. Set to
 False if you don't want to see this. Default = True
 
+Parallel execution: Worker counts are automatically derived from CPU count.
+Chromosome scheduling uses threads, while pair scan/plot stages use process
+pools for improved multi-core utilization.
+
 HIR_SNP_MIN: Minimum number of HIR SNPs. Default value = 200
 
 FIR_SNP_MIN: Minimum number of FIR SNPs. Default value = 75
@@ -106,25 +126,25 @@ NO_CALL: Character assigned to a no-call IN PHASED FILES.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 # Path to DNA files.
-FILES_PATH = 'C:\\Users\\rjs\\AppData\\Local\\DNA_phasing\\DNA_files'
+FILES_PATH = r'C:\Users\rjs\AppData\Local\DNA_phasing\DNA_files'
 
 # Path to .xlsx file.
-WORKING_DIRECTORY = 'C:\\Users\\rjs\\AppData\\Local\\DNA_phasing\\DNA_files\\tmp'
+WORKING_DIRECTORY = r"C:\Users\rjs\AppData\Local\DNA_phasing\DNA_files"
 
 # Path to min_map.txt file.
-MAP_PATH = 'C:\\Users\\rjs\\AppData\\Local\\DNA_phasing\\DNA_files'
+MAP_PATH = r"C:\Users\rjs\AppData\Local\DNA_phasing\DNA_files"
 
 # SIBLINGS to be compared. Make sure that no two files share the same name.
-SIBLINGS = ['Diane', 'Ray', 'Tom']
+SIBLINGS = ['Diane','Ray','Tom']
 
 # Phased files to be compared to each other.
-PHASED_FILES = ['Paternal', 'Paternal']
+PHASED_FILES = ['Paternal']
 
 # Evil Twin files to be compared to SIBLINGS.
-EVIL_TWINS = ['Paternal']
+EVIL_TWINS = []
 
 # COUSINS to be compared with SIBLINGS in a pre-existing file.
-COUSINS = []
+COUSINS = []#'LS', 'Sue', 'Wendy']
 
 # Chromosome selected. Leave empty to select all the chromosomes.
 CHROMOSOMES = []
@@ -168,7 +188,7 @@ REPAIR_FILES = True
 
 # The column width per pixel factor. This may need adjustment depending on
 #  the display resolution.
-SCALE_FACTOR = 0.1351
+SCALE_FACTOR = .1351
 
 # HIR Minimum segment length (cM). The default is 7.
 HIR_CUTOFF = 7
@@ -193,7 +213,7 @@ FREEZE_COLUMN = 'A'
 
 # Linux font string. An alternative is:
 # "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf"
-LINUX_FONT_STRING = '*/fonts/truetype/family/DejaVuSerif-Bold.ttf'
+LINUX_FONT_STRING = "*/fonts/truetype/family/DejaVuSerif-Bold.ttf"
 
 # Elapsed times are shown for each step.
 SHOW_TIMES = True
@@ -201,6 +221,10 @@ SHOW_TIMES = True
 # Notifies the completion of each step. Set to False if you don't want to see
 # this.
 SHOW_MATCH_PAIR_PROGRESS = True
+
+# Set to True to show timeit profiles for each function.
+TIMEIT_PROFILE = False
+
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 You shouldn't have to change the parameters below.

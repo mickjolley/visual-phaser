@@ -1,6 +1,6 @@
 #Boa:Frame:VPConfigBoaFrame
 # -*- coding: utf-8 -*-
-"""Boa-managed configuration editor for VP_configV1.py."""
+"""Boa-managed configuration editor for Visual_Phaser.V1.0.py"""
 
 import os
 import re
@@ -16,36 +16,36 @@ TOOLTIPS = {
     'FILES_PATH': 'Path to folder where the DNA files are stored.',
     'WORKING_DIRECTORY': 'Folder where the .xlsx and .py files will be stored.',
     'MAP_PATH': 'Path to folder containing min_map.txt.',
-    'SIBLINGS': 'Comma-separated sibling names in PCV format.',
-    'PHASED_FILES': 'Comma-separated phased names in PCV format.',
-    'EVIL_TWINS': 'Comma-separated evil twin names in PCV format.',
-    'COUSINS': 'Comma-separated cousin names.',
-    'CHROMOSOMES': 'Comma-separated chromosome numbers. Leave empty for all.',
-    'EXCEL_FILE_NAME': 'Name of the output workbook without .xlsx.',
-    'SHOW_NO_MATCHES': 'Set False to hide no-match rows.',
-    'CHROM_TRUE_SIZE': 'True for true chromosome size; False for normalized size.',
-    'LINEAR_CHROMOSOME': 'True to view chromosomes linearly.',
-    'MERGE_FILES': 'True to merge DNA files before comparison.',
-    'RESOLUTION': 'Resolution value. Recommended below 10 for normalized size.',
-    'AUTO_REC_PNTS': 'True to calculate recombination points automatically.',
-    'ARP_TOLERANCE': 'Minimum column width in pixels when AUTO_REC_PNTS is enabled.',
-    'AUTO_RP_ASSIGN': 'True to assign recombination points automatically.',
-    'REPAIR_FILES': 'True to repair isolated NIR and HIR SNPs.',
-    'SCALE_FACTOR': 'Column width per pixel factor.',
-    'HIR_CUTOFF': 'HIR minimum segment length in cM.',
-    'FIR_CUTOFF': 'FIR cutoff in cM.',
-    'X_HIR_CUTOFF': 'X chromosome HIR cutoff in cM.',
-    'X_FIR_CUTOFF': 'X chromosome FIR cutoff in cM.',
-    'FIR_TABLES': 'True to display FIR tables.',
-    'SCALE_ON': 'True to display the scale.',
-    'FREEZE_COLUMN': 'Column to freeze. Use A to disable freezing.',
-    'LINUX_FONT_STRING': 'Linux font path if needed for rendering.',
-    'SHOW_TIMES': 'True to show elapsed times.',
-    'SHOW_MATCH_PAIR_PROGRESS': 'True to show progress for each match pair.',
-    'HIR_SNP_MIN': 'Minimum number of HIR SNPs.',
-    'FIR_SNP_MIN': 'Minimum number of FIR SNPs.',
-    'MM_DIST': 'Mismatch distance in Kbs.',
-    'NO_CALL': 'Character assigned to no-calls in phased files.',
+    'SIBLINGS': 'Two minimum. Make sure that the DNA files are in the PixelChromosomeView (PCV) format.',
+    'PHASED_FILES': 'Enter names of phased files to be compared to each other. They will not be compared to siblings. The default assignment for no calls is "X".',
+    'EVIL_TWINS': 'Evil Twin files to be compared to SIBLINGS.',
+    'COUSINS': 'Enter names of individuals to be compared with all SIBLINGS in a pre-existing file. Leave blank ([]) when creating a new file.',
+    'CHROMOSOMES': 'Chromosome selected (1-23). More than one chromosome may be entered. Leave empty for all chromosomes.',
+    'EXCEL_FILE_NAME': 'Name of the .xlsx file. Do not include the ".xlsx", This is added automatically.',
+    'SHOW_NO_MATCHES': 'Set to False if the display of match pairs with no matching segments is not desired.',
+    'CHROM_TRUE_SIZE': 'Set to True for true size. Set to False for normalized size.',
+    'LINEAR_CHROMOSOME': 'Set to True if you want to see the linearized chromosomes.',
+    'MERGE_FILES': 'Set to True if merging of DNA files is desired. If it is desired to treat match pairs separately, set to False.',
+    'RESOLUTION': 'Default value = 1. For normalized size it is advised to keep it under 10.',
+    'AUTO_REC_PNTS': 'Set AUTO_REC_PNTS to True if calculation of RPs is desired.',
+    'ARP_TOLERANCE': 'When AUTO_REC_PNTS is activated, columns with pixel size less than this value will be deleted.',
+    'AUTO_RP_ASSIGN': 'Set AUTO_RP_ASSIGN to True if automatic assignment of recombination points is desired.',
+    'REPAIR_FILES': 'Converts isolated NIR and HIR SNPs to FIR. Converts isolated NIR SNPs to HIR.',
+    'SCALE_FACTOR': 'The column width per pixel factor.',
+    'HIR_CUTOFF': 'Default value = 7 cM',
+    'FIR_CUTOFF': 'Default value = 1 cM.',
+    'X_HIR_CUTOFF': 'X chromosome cutoff (cM). The default is 15.',
+    'X_FIR_CUTOFF': 'X chromosome FIR cutoff (cM). The default 15.',
+    'FIR_TABLES': 'Set to True if display of FIR tables is desired.',
+    'SCALE_ON': 'Turn scale on and off. Set to False if not required.',
+    'FREEZE_COLUMN': 'Set to "A" if freezing not desired. Default = "A".',
+    'LINUX_FONT_STRING': 'Linux users only. Enter the path to your font.',
+    'SHOW_TIMES': 'Elapsed times are shown for each step. Default =True',
+    'SHOW_MATCH_PAIR_PROGRESS': "Notifies the completion of each step. Set to False if you don't want to see this. Default = True",
+    'HIR_SNP_MIN': 'Minimum number of HIR SNPs. Default value = 200',
+    'FIR_SNP_MIN': 'Minimum number of FIR SNPs. Default value = 75',
+    'MM_DIST': 'Number of Kbs between mismatches to end segment. Default = 1000.',
+    'NO_CALL': 'Character assigned to a no-call IN PHASED FILES.',
 }
 
 
@@ -540,7 +540,7 @@ class VPConfigBoaFrame(wx.Frame):
         self.cousinsText.SetToolTip("Example: '****','****','****'")
 
         self.chromosomesLabel = wx.StaticText(id=wx.ID_ANY,
-              label='Chromosomes (comma-separated, leave empty for 23 chromosomes)',
+              label='Chromosomes (comma-separated <1,2,7>, leave empty for 23 chromosomes)',
               name='chromosomesLabel', parent=self.filesPanel, pos=wx.Point(8,
               208), size=wx.Size(187, 17), style=0)
 
