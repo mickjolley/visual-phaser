@@ -11,6 +11,8 @@ import threading
 
 import wx
 
+from VP_Config_Resources import FIELD_DEFINITIONS
+
 
 TOOLTIPS = {
     'FILES_PATH': 'Path to folder where the DNA files are stored.',
@@ -82,7 +84,6 @@ def create(parent):
  wxID_VPCONFIGBOAFRAMECHROMTRUESIZELABEL, wxID_VPCONFIGBOAFRAMECLOSEBUTTON,
  wxID_VPCONFIGBOAFRAMECONFIGBOOK, wxID_VPCONFIGBOAFRAMECOUSINSLABEL,
  wxID_VPCONFIGBOAFRAMECOUSINSTEXT, wxID_VPCONFIGBOAFRAMEEVILTWINSLABEL,
- wxID_VPCONFIGBOAFRAMEEVILTWINSSPACERPANEL,
  wxID_VPCONFIGBOAFRAMEEVILTWINSTEXT, wxID_VPCONFIGBOAFRAMEEXCELFILENAMELABEL,
  wxID_VPCONFIGBOAFRAMEEXCELFILENAMETEXT, wxID_VPCONFIGBOAFRAMEFILESPANEL,
  wxID_VPCONFIGBOAFRAMEFILESPATHLABEL, wxID_VPCONFIGBOAFRAMEFILESPATHTEXT,
@@ -101,7 +102,6 @@ def create(parent):
  wxID_VPCONFIGBOAFRAMENOCALLLABEL, wxID_VPCONFIGBOAFRAMENOCALLTEXT,
  wxID_VPCONFIGBOAFRAMENUMERICPANEL, wxID_VPCONFIGBOAFRAMEPATHSPANEL,
  wxID_VPCONFIGBOAFRAMEPHASEDFILESLABEL,
- wxID_VPCONFIGBOAFRAMEPHASEDFILESSPACERPANEL,
  wxID_VPCONFIGBOAFRAMEPHASEDFILESTEXT,
  wxID_VPCONFIGBOAFRAMEPROGRAMOUTPUTCLEARBUTTON,
  wxID_VPCONFIGBOAFRAMEPROGRAMOUTPUTLABEL,
@@ -123,7 +123,7 @@ def create(parent):
  wxID_VPCONFIGBOAFRAMEWORKINGDIRTEXT, wxID_VPCONFIGBOAFRAMEXFIRCUTOFFLABEL,
  wxID_VPCONFIGBOAFRAMEXFIRCUTOFFSPIN, wxID_VPCONFIGBOAFRAMEXHIRCUTOFFLABEL,
  wxID_VPCONFIGBOAFRAMEXHIRCUTOFFSPIN,
-] = [wx.NewIdRef() for _init_ctrls in range(89)]
+] = [wx.NewIdRef() for _init_ctrls in range(87)]
 
 
 [wxID_VPCONFIGBOAFRAMEEXITITEM, wxID_VPCONFIGBOAFRAMELOADITEM,
@@ -238,15 +238,11 @@ class VPConfigBoaFrame(wx.Frame):
 
         parent.Add(self.siblingsSizer, 0, border=8,
               flag=wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND)
-        parent.Add(self.phasedFilesButtonsSizer, 0, border=8,
-              flag=wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND)
-        parent.Add(self.phasedFilesText, 0, border=8,
-              flag=wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND)
-        parent.Add(self.evilTwinsButtonsSizer, 0, border=8,
-              flag=wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND)
-        parent.Add(self.evilTwinsText, 0, border=8,
-              flag=wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND)
         parent.Add(self.cousinsSizer, 0, border=8,
+              flag=wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND)
+        parent.Add(self.phasedFilesSizer, 0, border=8,
+              flag=wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND)
+        parent.Add(self.evilTwinsSizer, 0, border=8,
               flag=wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND)
         parent.Add(self.chromosomesSizer, 0, border=8, flag=wx.ALL | wx.EXPAND)
 
@@ -353,13 +349,17 @@ class VPConfigBoaFrame(wx.Frame):
         self.siblingsSizer.Add(self.siblingsText, 0, border=5,
               flag=int(wx.LEFT) | int(wx.RIGHT) | int(wx.BOTTOM) | int(wx.EXPAND))
 
-        self.phasedFilesButtonsSizer = wx.BoxSizer(orient=wx.HORIZONTAL)
-        self.phasedFilesButtonsSizer.Add(self.phasedFilesLabel, 0, border=5,
-              flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
+        self.phasedFilesSizer = wx.BoxSizer(orient=wx.VERTICAL)
+        self.phasedFilesSizer.Add(self.phasedFilesLabel, 0, border=5,
+              flag=wx.ALL)
+        self.phasedFilesSizer.Add(self.phasedFilesText, 0, border=5,
+              flag=int(wx.LEFT) | int(wx.RIGHT) | int(wx.BOTTOM) | int(wx.EXPAND))
 
-        self.evilTwinsButtonsSizer = wx.BoxSizer(orient=wx.HORIZONTAL)
-        self.evilTwinsButtonsSizer.Add(self.evilTwinsLabel, 0, border=5,
-              flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
+        self.evilTwinsSizer = wx.BoxSizer(orient=wx.VERTICAL)
+        self.evilTwinsSizer.Add(self.evilTwinsLabel, 0, border=5,
+              flag=wx.ALL)
+        self.evilTwinsSizer.Add(self.evilTwinsText, 0, border=5,
+              flag=int(wx.LEFT) | int(wx.RIGHT) | int(wx.BOTTOM) | int(wx.EXPAND))
 
         self.cousinsSizer = wx.BoxSizer(orient=wx.VERTICAL)
         self.cousinsSizer.Add(self.cousinsLabel, 0, border=5, flag=wx.ALL)
@@ -413,6 +413,7 @@ class VPConfigBoaFrame(wx.Frame):
               id=wxID_VPCONFIGBOAFRAMEEXITITEM)
         self.Bind(wx.EVT_MENU, self.OnAboutMenu,
               id=wxID_VPCONFIGBOAFRAMEABOUTITEM)
+        self.Bind(wx.EVT_CLOSE, self.OnWindowClose)
 
         self.statusBar = wx.StatusBar(id=wxID_VPCONFIGBOAFRAMESTATUSBAR,
               name='statusBar', parent=self, style=0)
@@ -493,7 +494,7 @@ class VPConfigBoaFrame(wx.Frame):
 
         self.siblingsLabel = wx.StaticText(id=wx.ID_ANY,
               label='Siblings (comma-separated)', name='siblingsLabel',
-              parent=self.filesPanel, pos=wx.Point(8, 8), size=wx.Size(153, 17),
+              parent=self.filesPanel, pos=wx.Point(8, 8), size=wx.Size(187, 17),
               style=0)
 
         self.siblingsText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMESIBLINGSTEXT,
@@ -503,12 +504,8 @@ class VPConfigBoaFrame(wx.Frame):
 
         self.phasedFilesLabel = wx.StaticText(id=wx.ID_ANY,
               label='Phased Files  (comma-separated)', name='phasedFilesLabel',
-              parent=self.filesPanel, pos=wx.Point(8, 54), size=wx.Size(154,
+              parent=self.filesPanel, pos=wx.Point(8, 54), size=wx.Size(187,
               17), style=0)
-
-        self.phasedFilesSpacerPanel = wx.Panel(id=wxID_VPCONFIGBOAFRAMEPHASEDFILESSPACERPANEL,
-              name='phasedFilesSpacerPanel', parent=self.filesPanel,
-              pos=wx.Point(162, 93), size=wx.Size(1, 1), style=wx.NO_BORDER)
 
         self.phasedFilesText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMEPHASEDFILESTEXT,
               name='phasedFilesText', parent=self.filesPanel, pos=wx.Point(8,
@@ -517,12 +514,8 @@ class VPConfigBoaFrame(wx.Frame):
 
         self.evilTwinsLabel = wx.StaticText(id=wx.ID_ANY,
               label='Evil Twins  (comma-separated)', name='evilTwinsLabel',
-              parent=self.filesPanel, pos=wx.Point(8, 108), size=wx.Size(146,
+              parent=self.filesPanel, pos=wx.Point(8, 108), size=wx.Size(187,
               17), style=0)
-
-        self.evilTwinsSpacerPanel = wx.Panel(id=wxID_VPCONFIGBOAFRAMEEVILTWINSSPACERPANEL,
-              name='evilTwinsSpacerPanel', parent=self.filesPanel,
-              pos=wx.Point(154, 435), size=wx.Size(1, 1), style=wx.NO_BORDER)
 
         self.evilTwinsText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMEEVILTWINSTEXT,
               name='evilTwinsText', parent=self.filesPanel, pos=wx.Point(8,
@@ -531,7 +524,7 @@ class VPConfigBoaFrame(wx.Frame):
 
         self.cousinsLabel = wx.StaticText(id=wx.ID_ANY,
               label='Cousins (comma-separated)', name='cousinsLabel',
-              parent=self.filesPanel, pos=wx.Point(8, 162), size=wx.Size(152,
+              parent=self.filesPanel, pos=wx.Point(8, 162), size=wx.Size(187,
               17), style=0)
 
         self.cousinsText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMECOUSINSTEXT,
@@ -542,7 +535,7 @@ class VPConfigBoaFrame(wx.Frame):
         self.chromosomesLabel = wx.StaticText(id=wx.ID_ANY,
               label='Chromosomes (comma-separated <1,2,7>, leave empty for 23 chromosomes)',
               name='chromosomesLabel', parent=self.filesPanel, pos=wx.Point(8,
-              208), size=wx.Size(187, 17), style=0)
+              208), size=wx.Size(300, 17), style=0)
 
         self.chromosomesText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMECHROMOSOMESTEXT,
               name='chromosomesText', parent=self.filesPanel, pos=wx.Point(8,
@@ -850,13 +843,14 @@ class VPConfigBoaFrame(wx.Frame):
         self._init_ctrls(parent)
         bg = self.GetBackgroundColour()
         self.actionsSpacerPanel.SetBackgroundColour(bg)
-        self.phasedFilesSpacerPanel.SetBackgroundColour(
-              self.filesPanel.GetBackgroundColour())
-        self.evilTwinsSpacerPanel.SetBackgroundColour(
-              self.filesPanel.GetBackgroundColour())
+        self._base_title = self.GetTitle()
         self.config_path = self._resolve_startup_config_path()
         self.controls = self._build_controls_map()
+        self.data_changed = False
+        self._suppress_change_tracking = False
+        self._bind_change_tracking()
         self._apply_tooltips()
+        self._refresh_dirty_state_ui()
         self.Centre(wx.BOTH)
         self.LoadConfig()
 
@@ -909,6 +903,29 @@ class VPConfigBoaFrame(wx.Frame):
             tooltip = TOOLTIPS.get(var_name, '')
             if tooltip:
                 ctrl.SetToolTip(tooltip)
+
+    def _bind_change_tracking(self):
+        for ctrl in self.controls.values():
+            if isinstance(ctrl, wx.ComboBox):
+                ctrl.Bind(wx.EVT_COMBOBOX, self._on_input_widget_changed)
+            elif isinstance(ctrl, wx.SpinCtrl):
+                ctrl.Bind(wx.EVT_SPINCTRL, self._on_input_widget_changed)
+                ctrl.Bind(wx.EVT_TEXT, self._on_input_widget_changed)
+            elif isinstance(ctrl, wx.TextCtrl):
+                ctrl.Bind(wx.EVT_TEXT, self._on_input_widget_changed)
+
+    def _on_input_widget_changed(self, event):
+        if not self._suppress_change_tracking:
+            self.data_changed = True
+            self._refresh_dirty_state_ui()
+        event.Skip()
+
+    def _refresh_dirty_state_ui(self):
+        title = self._base_title + (' *' if self.data_changed else '')
+        self.SetTitle(title)
+        self.runButton.Enable(not self.data_changed)
+        if self.data_changed:
+            self.statusBar.SetStatusText('Input data has changed, save config before running!', 0)
 
     def _set_status(self, message):
         self.statusBar.SetStatusText(message, 0)
@@ -1026,18 +1043,25 @@ class VPConfigBoaFrame(wx.Frame):
         try:
             if not os.path.exists(self.config_path):
                 self._set_status('No configuration file found')
+                self.data_changed = False
+                self._refresh_dirty_state_ui()
                 return
 
             local_dict = {}
             with open(self.config_path, 'r') as config_file:
                 exec(config_file.read(), {}, local_dict)
 
+            self._suppress_change_tracking = True
             for var_name, control in self.controls.items():
                 if var_name in local_dict:
                     self._populate_control(var_name, control, local_dict[var_name])
+            self._suppress_change_tracking = False
+            self.data_changed = False
+            self._refresh_dirty_state_ui()
 
             self._set_status('Configuration loaded successfully')
         except Exception as error:
+            self._suppress_change_tracking = False
             self._set_status('Error loading configuration: %s' % error)
 
     def SaveConfig(self):
@@ -1050,6 +1074,8 @@ class VPConfigBoaFrame(wx.Frame):
             with open(self.config_path, 'w') as config_file:
                 config_file.writelines(updated_lines)
 
+            self.data_changed = False
+            self._refresh_dirty_state_ui()
             self._set_status('Configuration saved')
             wx.MessageBox('Configuration saved successfully.', 'Success',
                   wx.OK | wx.ICON_INFORMATION)
@@ -1075,7 +1101,7 @@ class VPConfigBoaFrame(wx.Frame):
         self.OnSaveButton(event)
 
     def OnExitMenu(self, event):
-        self.Close(True)
+      self.Close()
 
     def OnAboutMenu(self, event):
         dialog = wx.MessageDialog(self,
@@ -1098,20 +1124,72 @@ class VPConfigBoaFrame(wx.Frame):
             dialog.Destroy()
 
     def OnSaveButton(self, event):
-        self.SaveConfig()
+        default_dir = os.path.dirname(self.config_path) if self.config_path else os.getcwd()
+        default_file = os.path.basename(self.config_path) if self.config_path else 'VP_configV1.py'
+        dialog = wx.FileDialog(
+            self,
+            'Save Configuration File',
+            defaultDir=default_dir,
+            defaultFile=default_file,
+            wildcard='Python files (*.py)|*.py',
+            style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT,
+        )
+        try:
+            if dialog.ShowModal() == wx.ID_OK:
+                self.config_path = dialog.GetPath()
+                self.SaveConfig()
+        finally:
+            dialog.Destroy()
 
     def OnResetButton(self, event):
+        try:
+            self._suppress_change_tracking = True
+
+            # Preserve requested behavior for Paths/Input tabs.
             for panel in (self.pathsPanel, self.filesPanel):
-                  for child in panel.GetChildren():
-                        if isinstance(child, wx.TextCtrl):
-                              child.SetValue('')
-            self._set_status('Cleared text fields in Paths and Input Files tabs')
+                for child in panel.GetChildren():
+                    if isinstance(child, wx.TextCtrl):
+                        child.SetValue('')
+
+            # Reload defaults for controls outside Paths/Input tabs.
+            for var_name, control in self.controls.items():
+                if control.GetParent() in (self.pathsPanel, self.filesPanel):
+                    continue
+
+                field_definition = FIELD_DEFINITIONS.get(var_name, {})
+                if 'default' in field_definition:
+                    self._populate_control(var_name, control, field_definition['default'])
+
+            self.data_changed = True
+            self._refresh_dirty_state_ui()
+            self._set_status('Defaults reloaded for Generation Options and Algorithm Factors; Paths/Input text fields cleared')
+        except Exception as error:
+            self._set_status('Error resetting defaults: %s' % error)
+        finally:
+            self._suppress_change_tracking = False
 
     def OnClearProgramOutputButton(self, event):
         self.programOutputText.SetValue('')
 
     def OnCloseButton(self, event):
-        self.Close(True)
+        self.Close()
+
+    def OnWindowClose(self, event):
+        if self.data_changed:
+            dialog = wx.MessageDialog(
+                  self,
+                  'You have unsaved changes. Close without saving?',
+                  'Unsaved Changes',
+                  wx.YES_NO | wx.CANCEL | wx.ICON_WARNING)
+            try:
+                result = dialog.ShowModal()
+            finally:
+                dialog.Destroy()
+
+            if result != wx.ID_YES:
+                event.Veto()
+                return
+        event.Skip()
 
     def _stream_process_output(self, process, script_name):
         try:
@@ -1127,10 +1205,9 @@ class VPConfigBoaFrame(wx.Frame):
             wx.CallAfter(self._set_status, 'Run failed: %s' % error)
 
     def OnRunButton(self, event):
-        # Persist current GUI values so the run uses exactly what is on screen.
-        if not self.SaveConfig():
-                self._set_status('Run cancelled: fix configuration errors and save again')
-                return
+        if self.data_changed:
+            self._set_status('Run disabled: save configuration changes first')
+            return
         self.configBook.SetSelection(0)
         script_dir = os.path.dirname(__file__)
         pattern = os.path.join(script_dir, 'Visual_Phaser.V*.py')
@@ -1184,7 +1261,7 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         config_path = sys.argv[1]
         if os.path.exists(config_path):
-                frame.config_path = config_path
-                frame.LoadConfig()
+          frame.config_path = config_path
+          frame.LoadConfig()
     frame.Show(True)
     app.MainLoop()
