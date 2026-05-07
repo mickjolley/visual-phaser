@@ -18,7 +18,7 @@ TOOLTIPS = {
     'MAP_PATH': 'Path to folder containing min_map.txt.',
     'SIBLINGS': 'Comma-separated sibling names in PCV format.',
     'PHASED_FILES': 'Comma-separated phased names in PCV format.',
-    'EVIL_TWINS': 'Comma-separated sevil twin names in PCV format.',
+    'EVIL_TWINS': 'Comma-separated evil twin names in PCV format.',
     'COUSINS': 'Comma-separated cousin names.',
     'CHROMOSOMES': 'Comma-separated chromosome numbers. Leave empty for all.',
     'EXCEL_FILE_NAME': 'Name of the output workbook without .xlsx.',
@@ -286,11 +286,11 @@ class VPConfigBoaFrame(wx.Frame):
         parent.AddPage(imageId=-1, page=self.pathsPanel, select=True,
               text='Paths')
         parent.AddPage(imageId=-1, page=self.filesPanel, select=False,
-              text='Input files')
+              text='Input Files')
         parent.AddPage(imageId=-1, page=self.boolPanel, select=False,
-              text='Generation options')
+              text='Generation Options')
         parent.AddPage(imageId=-1, page=self.numericPanel, select=False,
-              text='Algorithm factors')
+              text='Algorithm Factors')
 
     def _init_coll_statusBar_Fields(self, parent):
         # generated method, don't edit
@@ -329,8 +329,7 @@ class VPConfigBoaFrame(wx.Frame):
         self.filesPathRowSizer = wx.BoxSizer(orient=wx.HORIZONTAL)
         self.filesPathRowSizer.Add(self.filesPathLabel, 0, border=5,
               flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
-        self.filesPathRowSizer.Add(self.filesPathText, 0, border=5,
-              flag=wx.ALL)
+        self.filesPathRowSizer.Add(self.filesPathText, 0, border=5, flag=wx.ALL)
         self.filesPathRowSizer.Add(self.browseFilesPathButton, 0, border=5,
               flag=wx.ALL)
 
@@ -499,12 +498,12 @@ class VPConfigBoaFrame(wx.Frame):
 
         self.siblingsText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMESIBLINGSTEXT,
               name='siblingsText', parent=self.filesPanel, pos=wx.Point(8, 25),
-              size=wx.Size(715, 60), style=wx.TE_MULTILINE, value='')
+              size=wx.Size(715, 21), style=0, value='')
         self.siblingsText.SetToolTip("Example: '****','****','****'")
 
         self.phasedFilesLabel = wx.StaticText(id=wx.ID_ANY,
               label='Phased Files  (comma-separated)', name='phasedFilesLabel',
-              parent=self.filesPanel, pos=wx.Point(8, 93), size=wx.Size(154,
+              parent=self.filesPanel, pos=wx.Point(8, 54), size=wx.Size(154,
               17), style=0)
 
         self.phasedFilesSpacerPanel = wx.Panel(id=wxID_VPCONFIGBOAFRAMEPHASEDFILESSPACERPANEL,
@@ -513,12 +512,12 @@ class VPConfigBoaFrame(wx.Frame):
 
         self.phasedFilesText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMEPHASEDFILESTEXT,
               name='phasedFilesText', parent=self.filesPanel, pos=wx.Point(8,
-              118), size=wx.Size(715, 60), style=wx.TE_MULTILINE, value='')
+              79), size=wx.Size(715, 21), style=0, value='')
         self.phasedFilesText.SetToolTip("Example: '****','****','****'")
 
         self.evilTwinsLabel = wx.StaticText(id=wx.ID_ANY,
               label='Evil Twins  (comma-separated)', name='evilTwinsLabel',
-              parent=self.filesPanel, pos=wx.Point(8, 186), size=wx.Size(146,
+              parent=self.filesPanel, pos=wx.Point(8, 108), size=wx.Size(146,
               17), style=0)
 
         self.evilTwinsSpacerPanel = wx.Panel(id=wxID_VPCONFIGBOAFRAMEEVILTWINSSPACERPANEL,
@@ -527,27 +526,27 @@ class VPConfigBoaFrame(wx.Frame):
 
         self.evilTwinsText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMEEVILTWINSTEXT,
               name='evilTwinsText', parent=self.filesPanel, pos=wx.Point(8,
-              211), size=wx.Size(715, 60), style=wx.TE_MULTILINE, value='')
+              133), size=wx.Size(715, 21), style=0, value='')
         self.evilTwinsText.SetToolTip("Example: '****','****','****'")
 
         self.cousinsLabel = wx.StaticText(id=wx.ID_ANY,
               label='Cousins (comma-separated)', name='cousinsLabel',
-              parent=self.filesPanel, pos=wx.Point(8, 279), size=wx.Size(152,
+              parent=self.filesPanel, pos=wx.Point(8, 162), size=wx.Size(152,
               17), style=0)
 
         self.cousinsText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMECOUSINSTEXT,
-              name='cousinsText', parent=self.filesPanel, pos=wx.Point(8, 296),
-              size=wx.Size(715, 60), style=wx.TE_MULTILINE, value='')
+              name='cousinsText', parent=self.filesPanel, pos=wx.Point(8, 179),
+              size=wx.Size(715, 21), style=0, value='')
         self.cousinsText.SetToolTip("Example: '****','****','****'")
 
         self.chromosomesLabel = wx.StaticText(id=wx.ID_ANY,
-              label='Chromosomes (comma-separated)', name='chromosomesLabel',
-              parent=self.filesPanel, pos=wx.Point(8, 364), size=wx.Size(187,
-              17), style=0)
+              label='Chromosomes (comma-separated, leave empty for 23 chromosomes)',
+              name='chromosomesLabel', parent=self.filesPanel, pos=wx.Point(8,
+              208), size=wx.Size(187, 17), style=0)
 
         self.chromosomesText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMECHROMOSOMESTEXT,
               name='chromosomesText', parent=self.filesPanel, pos=wx.Point(8,
-              381), size=wx.Size(715, 60), style=wx.TE_MULTILINE, value='')
+              225), size=wx.Size(715, 21), style=0, value='')
         self.chromosomesText.SetToolTip('If empty, all chromosomes will be analyzed.\\nOtherwise: 1,2,3')
 
         self.boolPanel = wx.Panel(id=wxID_VPCONFIGBOAFRAMEBOOLPANEL,
@@ -752,11 +751,11 @@ class VPConfigBoaFrame(wx.Frame):
 
         self.excelFileNameLabel = wx.StaticText(label='EXCEL_FILE_NAME',
               name='excelFileNameLabel', parent=self.pathsPanel, pos=wx.Point(8,
-              159), size=wx.Size(140, 17), style=0)
+              151), size=wx.Size(140, 17), style=0)
 
         self.excelFileNameText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMEEXCELFILENAMETEXT,
               name='excelFileNameText', parent=self.pathsPanel,
-              pos=wx.Point(156, 157), size=wx.Size(439, 21), style=0, value='')
+              pos=wx.Point(156, 149), size=wx.Size(439, 21), style=0, value='')
         self.excelFileNameText.SetToolTip('First part only: no ".xlsx"')
 
         self.programOutputLabel = wx.StaticText(id=wx.ID_ANY,
@@ -765,9 +764,9 @@ class VPConfigBoaFrame(wx.Frame):
               17), style=0)
 
         self.programOutputClearButton = wx.Button(id=wxID_VPCONFIGBOAFRAMEPROGRAMOUTPUTCLEARBUTTON,
-              label='Clear', name='programOutputClearButton',
-              parent=self.pathsPanel, pos=wx.Point(156, 186),
-              size=wx.Size(75, 21), style=0)
+              label='Clear Output', name='programOutputClearButton',
+              parent=self.pathsPanel, pos=wx.Point(156, 186), size=wx.Size(75,
+              21), style=0)
         self.programOutputClearButton.Bind(wx.EVT_BUTTON,
               self.OnClearProgramOutputButton,
               id=wxID_VPCONFIGBOAFRAMEPROGRAMOUTPUTCLEARBUTTON)
@@ -949,6 +948,21 @@ class VPConfigBoaFrame(wx.Frame):
                     result.append(cleaned)
         return result
 
+    def _parse_chromosomes(self, value):
+        chrom_tokens = self._split_comma_list(value)
+        chromosomes = []
+        for token in chrom_tokens:
+            try:
+                chrom = int(token)
+            except ValueError:
+                raise ValueError('CHROMOSOMES must be comma-separated integers (for example: 1,2,3).')
+
+            if chrom < 1 or chrom > 23:
+                raise ValueError('CHROMOSOMES values must be between 1 and 23. Invalid value: %s' % chrom)
+
+            chromosomes.append(chrom)
+        return chromosomes
+
     def _format_value(self, var_name, value):
         if var_name in RAW_STRING_FIELDS:
             return repr(str(value))
@@ -964,6 +978,8 @@ class VPConfigBoaFrame(wx.Frame):
 
     def _collect_control_value(self, var_name, control):
         if var_name in LIST_FIELDS:
+            if var_name == 'CHROMOSOMES':
+                return self._parse_chromosomes(control.GetValue())
             return self._split_comma_list(control.GetValue())
         if var_name in LINE_LIST_FIELDS:
             return self._split_line_list(control.GetValue())
@@ -1037,9 +1053,11 @@ class VPConfigBoaFrame(wx.Frame):
             self._set_status('Configuration saved')
             wx.MessageBox('Configuration saved successfully.', 'Success',
                   wx.OK | wx.ICON_INFORMATION)
+            return True
         except Exception as error:
             wx.MessageBox('Error saving configuration: %s' % error, 'Error',
                   wx.OK | wx.ICON_ERROR)
+            return False
 
     def OnBrowseFilesPathButton(self, event):
         self._choose_directory('Select DNA files folder', self.filesPathText)
@@ -1083,7 +1101,11 @@ class VPConfigBoaFrame(wx.Frame):
         self.SaveConfig()
 
     def OnResetButton(self, event):
-        self.LoadConfig()
+            for panel in (self.pathsPanel, self.filesPanel):
+                  for child in panel.GetChildren():
+                        if isinstance(child, wx.TextCtrl):
+                              child.SetValue('')
+            self._set_status('Cleared text fields in Paths and Input Files tabs')
 
     def OnClearProgramOutputButton(self, event):
         self.programOutputText.SetValue('')
@@ -1105,6 +1127,10 @@ class VPConfigBoaFrame(wx.Frame):
             wx.CallAfter(self._set_status, 'Run failed: %s' % error)
 
     def OnRunButton(self, event):
+        # Persist current GUI values so the run uses exactly what is on screen.
+        if not self.SaveConfig():
+                self._set_status('Run cancelled: fix configuration errors and save again')
+                return
         self.configBook.SetSelection(0)
         script_dir = os.path.dirname(__file__)
         pattern = os.path.join(script_dir, 'Visual_Phaser.V*.py')

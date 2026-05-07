@@ -95,7 +95,7 @@ FIELD_DEFINITIONS = {
     'SHOW_NO_MATCHES': {
         'type': 'boolean',
         'label': 'SHOW_NO_MATCHES',
-        'tooltip': 'Set to False if display of match pairs with no matching segments is not desired.',
+        'tooltip': 'Set to False if display of match pairs with no matching segments is not desired.\nMust be True when creating a new configuration, and for AUTO_RP_ASSIGN to work.',
         'default': True,
     },
     'CHROM_TRUE_SIZE': {

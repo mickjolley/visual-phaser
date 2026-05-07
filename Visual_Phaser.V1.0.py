@@ -566,7 +566,11 @@ if __name__ == "__main__":
 
     # Load or create the Excel workbook
     xlname = os.path.join(wdir, f"{EXCEL_FILE_NAME}.xlsx")
-    wb = load_workbook(xlname) if COUSINS else Workbook()
+    if COUSINS:
+        wb = load_workbook(xlname)
+    else:
+        SHOW_NO_MATCHES = True # For siblings, we want to show all pairs even if no matches; for cousins, we only show pairs with matches
+        wb = Workbook()
     if not COUSINS:
         del wb["Sheet"]
 
