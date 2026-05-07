@@ -75,8 +75,6 @@ DISPLAY OPTIONS:
   • CHROM_TRUE_SIZE              - Use true vs. normalized sizes
   • LINEAR_CHROMOSOME            - Show linearized view
   • SHOW_NO_MATCHES              - Include unmatched pairs
-  • SHOW_TIMES                   - Display timing info
-  • SHOW_MATCH_PAIR_PROGRESS     - Show progress messages
   • FIR_TABLES                   - Display FIR analysis tables
 
 PROCESSING:

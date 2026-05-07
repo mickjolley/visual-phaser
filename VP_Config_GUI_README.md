@@ -125,8 +125,6 @@ python VP_Config_GUI.py path/to/VP_configV1.py
 - **CHROM_TRUE_SIZE**: Use true chromosome sizes vs. normalized
 - **LINEAR_CHROMOSOME**: Show chromosomes in linearized format
 - **SHOW_NO_MATCHES**: Include pairs with no matching segments
-- **SHOW_TIMES**: Display elapsed time for each step
-- **SHOW_MATCH_PAIR_PROGRESS**: Show progress notifications
 
 ### Processing
 - **MERGE_FILES**: Combine DNA file data

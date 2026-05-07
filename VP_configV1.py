@@ -104,11 +104,6 @@ FREEZE_COLUMN: Set to "A" if freezing not desired. Default = "A".
 LINUX_FONT_STRING: Linux users only. Enter the path to your font. If you don't
 know it, set SCALE_ON to False.
 
-SHOW_TIMES: Elapsed times are shown for each step. Default =True
-
-SHOW_MATCH_PAIR_PROGRESS: Notifies the completion of each step. Set to
-False if you don't want to see this. Default = True
-
 Parallel execution: Worker counts are automatically derived from CPU count.
 Chromosome scheduling uses threads, while pair scan/plot stages use process
 pools for improved multi-core utilization.
@@ -214,13 +209,6 @@ FREEZE_COLUMN = 'A'
 # Linux font string. An alternative is:
 # "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf"
 LINUX_FONT_STRING = '*/fonts/truetype/family/DejaVuSerif-Bold.ttf'
-
-# Elapsed times are shown for each step.
-SHOW_TIMES = True
-
-# Notifies the completion of each step. Set to False if you don't want to see
-# this.
-SHOW_MATCH_PAIR_PROGRESS = True
 
 # Set to True to show timeit profiles for each function.
 TIMEIT_PROFILE = False
