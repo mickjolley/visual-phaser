@@ -30,16 +30,110 @@ from typing import Any, cast
 from openpyxl.cell.cell import Cell
 from openpyxl.drawing.image import Image as XLImage
 
-# Re-import all config variables from the external configuration file
-from VP_configV1 import (
-    FILES_PATH, WORKING_DIRECTORY, MAP_PATH, SIBLINGS, PHASED_FILES,
-    EVIL_TWINS, COUSINS, CHROMOSOMES, EXCEL_FILE_NAME, SHOW_NO_MATCHES,
-    CHROM_TRUE_SIZE, LINEAR_CHROMOSOME, MERGE_FILES, RESOLUTION,
-    AUTO_REC_PNTS, ARP_TOLERANCE, AUTO_RP_ASSIGN, REPAIR_FILES,
-    SCALE_FACTOR, HIR_CUTOFF, FIR_CUTOFF, X_HIR_CUTOFF, X_FIR_CUTOFF,
-    FIR_TABLES, SCALE_ON, FREEZE_COLUMN, LINUX_FONT_STRING,
-    HIR_SNP_MIN, FIR_SNP_MIN, MM_DIST, NO_CALL
+CONFIG_VARIABLES = (
+    'FILES_PATH', 'WORKING_DIRECTORY', 'MAP_PATH', 'SIBLINGS', 'PHASED_FILES',
+    'EVIL_TWINS', 'COUSINS', 'CHROMOSOMES', 'EXCEL_FILE_NAME', 'SHOW_NO_MATCHES',
+    'CHROM_TRUE_SIZE', 'LINEAR_CHROMOSOME', 'MERGE_FILES', 'RESOLUTION',
+    'AUTO_REC_PNTS', 'ARP_TOLERANCE', 'AUTO_RP_ASSIGN', 'REPAIR_FILES',
+    'SCALE_FACTOR', 'HIR_CUTOFF', 'FIR_CUTOFF', 'X_HIR_CUTOFF', 'X_FIR_CUTOFF',
+    'FIR_TABLES', 'SCALE_ON', 'FREEZE_COLUMN', 'LINUX_FONT_STRING',
+    'HIR_SNP_MIN', 'FIR_SNP_MIN', 'MM_DIST', 'NO_CALL'
 )
+
+
+def get_runtime_directory():
+    if getattr(sys, 'frozen', False):
+        return os.path.dirname(sys.executable)
+    return os.path.dirname(__file__)
+
+
+def resolve_map_directory(map_path_value):
+    runtime_directory = get_runtime_directory()
+    candidate_directories = []
+
+    if map_path_value:
+        normalized_path = os.path.normpath(map_path_value)
+        if os.path.isfile(normalized_path):
+            candidate_directories.append(os.path.dirname(normalized_path))
+        elif os.path.isabs(normalized_path):
+            candidate_directories.append(normalized_path)
+        else:
+            candidate_directories.append(os.path.join(os.getcwd(), normalized_path))
+            candidate_directories.append(os.path.join(runtime_directory, normalized_path))
+
+    candidate_directories.extend([
+        os.getcwd(),
+        runtime_directory,
+        os.path.join(os.getcwd(), 'minmap'),
+        os.path.join(runtime_directory, 'minmap'),
+    ])
+
+    seen_directories = set()
+    for directory in candidate_directories:
+        normalized_directory = os.path.normpath(directory)
+        if normalized_directory in seen_directories:
+            continue
+        seen_directories.add(normalized_directory)
+
+        if os.path.isfile(normalized_directory):
+            normalized_directory = os.path.dirname(normalized_directory)
+
+        if os.path.exists(os.path.join(normalized_directory, 'min_map.txt')):
+            return normalized_directory
+
+    return os.path.normpath(map_path_value) if map_path_value else os.path.join(runtime_directory, 'minmap')
+
+
+def load_runtime_config():
+    candidate_paths = [
+        os.path.join(os.getcwd(), 'VP_configV1.py'),
+        os.path.join(get_runtime_directory(), 'VP_configV1.py'),
+    ]
+    for config_path in candidate_paths:
+        if not os.path.exists(config_path):
+            continue
+
+        namespace = {}
+        with open(config_path, 'r', encoding='utf-8') as config_file:
+            exec(config_file.read(), {}, namespace)
+        return {name: namespace[name] for name in CONFIG_VARIABLES}
+
+    import VP_configV1 as config_module
+    return {name: getattr(config_module, name) for name in CONFIG_VARIABLES}
+
+
+CONFIG_VALUES = load_runtime_config()
+FILES_PATH = CONFIG_VALUES['FILES_PATH']
+WORKING_DIRECTORY = CONFIG_VALUES['WORKING_DIRECTORY']
+MAP_PATH = CONFIG_VALUES['MAP_PATH']
+SIBLINGS = CONFIG_VALUES['SIBLINGS']
+PHASED_FILES = CONFIG_VALUES['PHASED_FILES']
+EVIL_TWINS = CONFIG_VALUES['EVIL_TWINS']
+COUSINS = CONFIG_VALUES['COUSINS']
+CHROMOSOMES = CONFIG_VALUES['CHROMOSOMES']
+EXCEL_FILE_NAME = CONFIG_VALUES['EXCEL_FILE_NAME']
+SHOW_NO_MATCHES = CONFIG_VALUES['SHOW_NO_MATCHES']
+CHROM_TRUE_SIZE = CONFIG_VALUES['CHROM_TRUE_SIZE']
+LINEAR_CHROMOSOME = CONFIG_VALUES['LINEAR_CHROMOSOME']
+MERGE_FILES = CONFIG_VALUES['MERGE_FILES']
+RESOLUTION = CONFIG_VALUES['RESOLUTION']
+AUTO_REC_PNTS = CONFIG_VALUES['AUTO_REC_PNTS']
+ARP_TOLERANCE = CONFIG_VALUES['ARP_TOLERANCE']
+AUTO_RP_ASSIGN = CONFIG_VALUES['AUTO_RP_ASSIGN']
+REPAIR_FILES = CONFIG_VALUES['REPAIR_FILES']
+SCALE_FACTOR = CONFIG_VALUES['SCALE_FACTOR']
+HIR_CUTOFF = CONFIG_VALUES['HIR_CUTOFF']
+FIR_CUTOFF = CONFIG_VALUES['FIR_CUTOFF']
+X_HIR_CUTOFF = CONFIG_VALUES['X_HIR_CUTOFF']
+X_FIR_CUTOFF = CONFIG_VALUES['X_FIR_CUTOFF']
+FIR_TABLES = CONFIG_VALUES['FIR_TABLES']
+SCALE_ON = CONFIG_VALUES['SCALE_ON']
+FREEZE_COLUMN = CONFIG_VALUES['FREEZE_COLUMN']
+LINUX_FONT_STRING = CONFIG_VALUES['LINUX_FONT_STRING']
+HIR_SNP_MIN = CONFIG_VALUES['HIR_SNP_MIN']
+FIR_SNP_MIN = CONFIG_VALUES['FIR_SNP_MIN']
+MM_DIST = CONFIG_VALUES['MM_DIST']
+NO_CALL = CONFIG_VALUES['NO_CALL']
 
 # Global cache to store loaded DNA data and a lock to manage concurrent access
 worker_dna_cache = {}
@@ -555,6 +649,7 @@ def delete_images(wdir):
 if __name__ == "__main__":
     start_time = time.time()
     FILES_PATH, WORKING_DIRECTORY, MAP_PATH = map(os.path.normpath, [FILES_PATH, WORKING_DIRECTORY, MAP_PATH])
+    MAP_PATH = resolve_map_directory(MAP_PATH)
     wdir = WORKING_DIRECTORY + "/"
 
     # Pre-flight check: ensure all requested individuals have DNA files
@@ -575,7 +670,12 @@ if __name__ == "__main__":
         del wb["Sheet"]
 
     # Load genetic map (Distance vs genomic position)
-    dmap_source = pd.read_csv(os.path.join(MAP_PATH, "min_map.txt"), sep="\t", header=0)
+    min_map_path = os.path.join(MAP_PATH, "min_map.txt")
+    if not os.path.exists(min_map_path):
+        print(f"\nmin_map.txt not found. Checked MAP_PATH: {MAP_PATH}", flush=True)
+        sys.exit(1)
+
+    dmap_source = pd.read_csv(min_map_path, sep="\t", header=0)
     # Standard chromosome lengths for GRCh37/hg19
     chr_lens = [249250621, 243199373, 198022430, 191154276, 180915260, 171115067, 159138663, 146364022, 141213431, 135534747, 135006516, 133851895, 115169878, 107349540, 102531392, 90354753, 81195210, 78077248, 59128983, 63025520, 48129895, 51304566, 155270560]
 

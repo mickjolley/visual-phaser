@@ -5,6 +5,7 @@
 import os
 import re
 import glob
+import shutil
 import subprocess
 import sys
 import threading
@@ -813,6 +814,7 @@ class VPConfigBoaFrame(wx.Frame):
         self.actionsSpacerPanel.SetBackgroundColour(bg)
         self._base_title = self.GetTitle()
         self.config_path = self._resolve_startup_config_path()
+        self._apply_window_icon()
         self.controls = self._build_controls_map()
         self.data_changed = False
         self._suppress_change_tracking = False
@@ -823,11 +825,58 @@ class VPConfigBoaFrame(wx.Frame):
         self.LoadConfig()
 
     def _resolve_startup_config_path(self):
+        app_dir = self._get_app_directory()
         local_config = os.path.join(os.getcwd(), 'VP_configV1.py')
         if os.path.exists(local_config):
             return local_config
+        return os.path.join(app_dir, 'VP_configV1.py')
 
-        return os.path.join(os.path.dirname(__file__), 'VP_configV1.py')
+    def _get_app_directory(self):
+        if getattr(sys, 'frozen', False):
+            return os.path.dirname(sys.executable)
+        return os.path.dirname(__file__)
+
+    def _apply_window_icon(self):
+        icon_path = os.path.join(self._get_app_directory(), 'VP_Config_GUI.ico')
+        if not os.path.exists(icon_path):
+                                    return
+
+        icon = wx.Icon(icon_path, wx.BITMAP_TYPE_ICO)
+        if icon.IsOk():
+                                    self.SetIcon(icon)
+
+    def _get_script_runner_command(self):
+        if not getattr(sys, 'frozen', False):
+            return [sys.executable]
+
+        for candidate in ('py', 'python'):
+            python_launcher = shutil.which(candidate)
+            if python_launcher:
+                return [python_launcher]
+
+        return None
+
+    def _require_config_path(self):
+        assert self.config_path is not None
+        return self.config_path
+
+    def _resolve_processor_launch(self):
+        app_dir = self._get_app_directory()
+        exe_candidates = sorted(glob.glob(os.path.join(app_dir, 'Visual_Phaser.V*.exe')))
+        if exe_candidates:
+                target_exe = exe_candidates[-1]
+                return [target_exe], os.path.basename(target_exe)
+
+        script_candidates = sorted(glob.glob(os.path.join(app_dir, 'Visual_Phaser.V*.py')))
+        if not script_candidates:
+                return None, None
+
+        runner_command = self._get_script_runner_command()
+        if runner_command is None:
+                return [], os.path.basename(script_candidates[-1])
+
+        target_script = script_candidates[-1]
+        return runner_command + [target_script], os.path.basename(target_script)
 
     def _build_controls_map(self):
         return {
@@ -1007,14 +1056,15 @@ class VPConfigBoaFrame(wx.Frame):
 
     def LoadConfig(self):
         try:
-            if not os.path.exists(self.config_path):
+            config_path = self._require_config_path()
+            if not os.path.exists(config_path):
                 self._set_status('No configuration file found')
                 self.data_changed = False
                 self._refresh_dirty_state_ui()
                 return
 
             local_dict = {}
-            with open(self.config_path, 'r') as config_file:
+            with open(config_path, 'r') as config_file:
                 exec(config_file.read(), {}, local_dict)
 
             self._suppress_change_tracking = True
@@ -1032,12 +1082,13 @@ class VPConfigBoaFrame(wx.Frame):
 
     def SaveConfig(self):
         try:
-            with open(self.config_path, 'r') as config_file:
+            config_path = self._require_config_path()
+            with open(config_path, 'r') as config_file:
                 lines = config_file.readlines()
 
             updated_lines = self._update_config_lines(lines)
 
-            with open(self.config_path, 'w') as config_file:
+            with open(config_path, 'w') as config_file:
                 config_file.writelines(updated_lines)
 
             self.data_changed = False
@@ -1176,16 +1227,22 @@ class VPConfigBoaFrame(wx.Frame):
             self._set_status('Run disabled: save configuration changes first')
             return
         self.configBook.SetSelection(0)
-        script_dir = os.path.dirname(__file__)
-        pattern = os.path.join(script_dir, 'Visual_Phaser.V*.py')
-        candidates = sorted(glob.glob(pattern))
-        if not candidates:
-            wx.MessageBox('Could not find Visual_Phaser.V*.py in %s' % script_dir,
+        script_dir = self._get_app_directory()
+        launch_command, target_name = self._resolve_processor_launch()
+        if launch_command is None:
+            wx.MessageBox('Could not find Visual_Phaser.V*.exe or Visual_Phaser.V*.py in %s' % script_dir,
                   'Run Error', wx.OK | wx.ICON_ERROR)
-            self._set_status('Run failed: Visual_Phaser.V*.py not found')
+            self._set_status('Run failed: Visual_Phaser executable/script not found')
             return
 
-        target_script = candidates[-1]
+        if not launch_command:
+            wx.MessageBox(
+                  'The packaged GUI could not find a Python launcher on PATH.\n'
+                  'Build/include Visual_Phaser.V*.exe or install Python.',
+                  'Run Error', wx.OK | wx.ICON_ERROR)
+            self._set_status('Run failed: Python launcher not found')
+            return
+
         running_process = getattr(self, '_run_process', None)
         if running_process and running_process.poll() is None:
             wx.MessageBox('A Visual Phaser run is already in progress.',
@@ -1195,20 +1252,26 @@ class VPConfigBoaFrame(wx.Frame):
         try:
             self.programOutputText.SetValue('')
             self.programOutputText.AppendText('Starting %s...\n\n' %
-                  os.path.basename(target_script))
+                  target_name)
+            popen_kwargs = {
+                  'cwd': script_dir,
+                  'stdin': subprocess.DEVNULL,
+                  'stdout': subprocess.PIPE,
+                  'stderr': subprocess.STDOUT,
+                  'text': True,
+                  'bufsize': 1,
+            }
+            if os.name == 'nt':
+                  popen_kwargs['creationflags'] = getattr(subprocess, 'CREATE_NO_WINDOW', 0)
+
             self._run_process = subprocess.Popen(
-                  [sys.executable, target_script],
-                  cwd=script_dir,
-                  stdin=subprocess.DEVNULL,
-                  stdout=subprocess.PIPE,
-                  stderr=subprocess.STDOUT,
-                  text=True,
-                  bufsize=1)
+                  launch_command,
+                  **popen_kwargs)
             output_thread = threading.Thread(target=self._stream_process_output,
-                  args=(self._run_process, os.path.basename(target_script)),
+                  args=(self._run_process, target_name),
                   daemon=True)
             output_thread.start()
-            self._set_status('Running %s' % os.path.basename(target_script))
+            self._set_status('Running %s' % target_name)
         except Exception as error:
             wx.MessageBox('Error launching script: %s' % error,
                   'Run Error', wx.OK | wx.ICON_ERROR)

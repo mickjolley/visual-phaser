@@ -1,0 +1,23 @@
+Visual Phaser Config GUI Release Package
+
+Contents required at runtime:
+- VP_Config_GUI.exe
+- Visual_Phaser.V1.0.exe
+- _internal/
+- VP_configV1.py
+- minmap/
+
+Icon assets:
+- VP_Config_GUI.ico
+  Used by the packaged GUI window for the top-left caption icon.
+- VP_Config_GUI.png
+  Easy-to-edit standalone image file to replace when changing branding.
+  The executable's embedded Windows icon is built from assets/VP_Config_GUI.ico.
+
+Notes:
+- The GUI looks for VP_configV1.py in its own folder.
+- The Run button launches Visual_Phaser.V1.0.exe from this package folder.
+- Python and Python package dependencies are frozen into the packaged executables, so end users do not need to install Python separately.
+
+Suggested release zip:
+- Zip the entire VP_Config_GUI folder and upload that zip to GitHub Releases.
