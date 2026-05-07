@@ -22,7 +22,7 @@ TOOLTIPS = {
     'PHASED_FILES': 'Enter names of phased files to be compared to each other. They will not be compared to siblings. The default assignment for no calls is "X".',
     'EVIL_TWINS': 'Evil Twin files to be compared to SIBLINGS.',
     'COUSINS': 'Enter names of individuals to be compared with all SIBLINGS in a pre-existing file. Leave blank ([]) when creating a new file.',
-    'CHROMOSOMES': 'Chromosome selected (1-23). More than one chromosome may be entered. Leave empty for all chromosomes.',
+    'CHROMOSOMES': 'Chromosome selected (1-23). More than one chromosome may be entered if comma-separated. Leave empty for all chromosomes.',
     'EXCEL_FILE_NAME': 'Name of the .xlsx file. Do not include the ".xlsx", This is added automatically.',
     'SHOW_NO_MATCHES': 'Set to False if the display of match pairs with no matching segments is not desired.',
     'CHROM_TRUE_SIZE': 'Set to True for true size. Set to False for normalized size.',
@@ -533,7 +533,7 @@ class VPConfigBoaFrame(wx.Frame):
         self.cousinsText.SetToolTip("Example: '****','****','****'")
 
         self.chromosomesLabel = wx.StaticText(id=wx.ID_ANY,
-              label='Chromosomes (comma-separated <1,2,7>, leave empty for 23 chromosomes)',
+              label='Chromosomes (comma-separated, leave empty for all 23 chromosomes)',
               name='chromosomesLabel', parent=self.filesPanel, pos=wx.Point(8,
               208), size=wx.Size(300, 17), style=0)
 
@@ -1148,21 +1148,22 @@ class VPConfigBoaFrame(wx.Frame):
             # Preserve requested behavior for Paths/Input tabs.
             for panel in (self.pathsPanel, self.filesPanel):
                 for child in panel.GetChildren():
-                    if isinstance(child, wx.TextCtrl):
-                        child.SetValue('')
+                        if isinstance(child, wx.TextCtrl):
+                            child.SetValue('')
 
             # Reload defaults for controls outside Paths/Input tabs.
             for var_name, control in self.controls.items():
                 if control.GetParent() in (self.pathsPanel, self.filesPanel):
-                    continue
+                        continue
 
                 field_definition = FIELD_DEFINITIONS.get(var_name, {})
                 if 'default' in field_definition:
-                    self._populate_control(var_name, control, field_definition['default'])
+                        self._populate_control(var_name, control, field_definition['default'])
 
             self.data_changed = True
             self._refresh_dirty_state_ui()
             self._set_status('Defaults reloaded for Generation Options and Algorithm Factors; Paths/Input text fields cleared')
+            self.filesPathText.SetFocus()
         except Exception as error:
             self._set_status('Error resetting defaults: %s' % error)
         finally:
