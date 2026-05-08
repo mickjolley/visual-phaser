@@ -239,7 +239,7 @@ def _clean_allele(series, no_call_val):
     return cleaned
 
 
-def agnostic_load_individual_dna(ind, files_path, no_call_val):
+def agnostic_load_individual_dna(ind, files_path, no_call_val, return_error=False):
     """
     Loads and pre-processes DNA for one individual from any supported raw DNA file.
     This parser is delimiter-agnostic (CSV/TAB) and schema-agnostic for common
@@ -247,11 +247,13 @@ def agnostic_load_individual_dna(ind, files_path, no_call_val):
     """
     file_names = os.listdir(files_path)
     candidates = [name for name in file_names if f"{ind}_raw_dna" in name]
+    last_error = f"No matching '*{ind}_raw_dna*' file found in FILES_PATH."
     for filname in candidates:
         this_file = os.path.join(files_path, filname)
         try:
             raw = _read_raw_dna_table(this_file)
             if raw is None or raw.empty:
+                last_error = f"{filname}: file could not be parsed or produced no rows."
                 continue
 
             # Resolve columns by common aliases first.
@@ -272,6 +274,7 @@ def agnostic_load_individual_dna(ind, files_path, no_call_val):
                     else:
                         genotype_col = cols[3]
                 else:
+                    last_error = f"{filname}: missing required columns (need rsid/chromosome/position + alleles or genotype)."
                     continue
 
             df = pd.DataFrame({
@@ -289,6 +292,7 @@ def agnostic_load_individual_dna(ind, files_path, no_call_val):
                 df['allele1'] = genotype.str[0]
                 df['allele2'] = genotype.str[1]
             else:
+                last_error = f"{filname}: allele columns were not found and no genotype column was available."
                 continue
 
             # Normalize chromosome labels from multiple vendor formats.
@@ -306,10 +310,19 @@ def agnostic_load_individual_dna(ind, files_path, no_call_val):
             df['allele1'] = _clean_allele(df['allele1'], no_call_val)
             df['allele2'] = _clean_allele(df['allele2'], no_call_val)
 
-            return ind, df.sort_values(by='position').reset_index(drop=True)
+            if df.empty:
+                last_error = f"{filname}: no usable autosomal rows after normalization/filtering."
+                continue
+
+            result = (ind, df.sort_values(by='position').reset_index(drop=True))
+            if return_error:
+                return result + (None,)
+            return result
         except Exception as e:
-            print(f"Error loading {this_file}: {e}", flush=True)
-            return ind, None
+            last_error = f"{filname}: {e}"
+
+    if return_error:
+        return ind, None, last_error
     return ind, None
 
 def apply_conditions_vectorized(al1x, al2x, al1y, al2y, no_call_val):
@@ -766,6 +779,19 @@ def delete_images(wdir):
         if f.endswith(".png"):
             os.remove(os.path.join(wdir, f))
 
+
+def ensure_visible_worksheet(wb):
+    """Guarantee openpyxl can save by keeping at least one visible worksheet."""
+    if not wb.worksheets:
+        ws = wb.create_sheet("Results")
+        ws["A1"] = "No chromosome sheets were generated."
+        ws["A2"] = "Check input files and filters in VP_configV1.py."
+        return
+
+    visible_sheets = [ws for ws in wb.worksheets if ws.sheet_state == "visible"]
+    if not visible_sheets:
+        wb.worksheets[0].sheet_state = "visible"
+
 if __name__ == "__main__":
     start_time = time.time()
     FILES_PATH, WORKING_DIRECTORY, MAP_PATH = map(os.path.normpath, [FILES_PATH, WORKING_DIRECTORY, MAP_PATH])
@@ -775,8 +801,27 @@ if __name__ == "__main__":
     individuals = list(set(SIBLINGS) | set(PHASED_FILES) | set(EVIL_TWINS) | set(COUSINS))
     missing_individuals = [ind for ind in individuals if not any(ind + "_raw" in f for f in os.listdir(FILES_PATH))]
     if missing_individuals:
-        print(f"\nDNA file(s) not found for: {', '.join(missing_individuals)}.", flush=True)
-        sys.exit()
+        print("\n[VP_INPUT_ERROR] DNA file(s) not found.", flush=True)
+        print(f"[VP_INPUT_ERROR] Missing individuals: {', '.join(missing_individuals)}.", flush=True)
+        print("[VP_INPUT_ERROR] Expected filename pattern includes '<name>_raw'.", flush=True)
+        sys.exit(2)
+
+    # Pre-flight check: ensure every configured sibling loads into a usable DataFrame.
+    sibling_load_failures = []
+    for sibling in SIBLINGS:
+        ind, sibling_df, error_text = agnostic_load_individual_dna(sibling, FILES_PATH, NO_CALL, return_error=True)
+        if sibling_df is None or sibling_df.empty:
+            sibling_load_failures.append((ind, error_text or "Unknown parsing error."))
+        else:
+            with cache_lock:
+                worker_dna_cache[ind] = sibling_df
+
+    if sibling_load_failures:
+        print("\n[VP_INPUT_ERROR] One or more SIBLINGS could not be loaded into usable DNA data.", flush=True)
+        print("[VP_INPUT_ERROR] Check FILES_PATH and input file format (columns/delimiter/content).", flush=True)
+        for ind, reason in sibling_load_failures:
+            print(f"[VP_INPUT_ERROR] {ind}: {reason}", flush=True)
+        sys.exit(2)
 
     # Load or create the Excel workbook
     xlname = os.path.join(wdir, f"{EXCEL_FILE_NAME}.xlsx")
@@ -892,6 +937,7 @@ if __name__ == "__main__":
         wb.move_sheet(target_sheet, idx - wb.index(target_sheet))
 
     # Final Save and Cleanup
+    ensure_visible_worksheet(wb)
     wb.save(xlname)
     delete_images(wdir)
     total_time = time.time() - start_time

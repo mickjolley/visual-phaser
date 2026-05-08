@@ -1071,12 +1071,23 @@ class VPConfigBoaFrame(wx.Frame):
 
     def _stream_process_output(self, process, script_name):
         try:
+                  input_errors = []
             for line in iter(process.stdout.readline, ''):
                 wx.CallAfter(self.programOutputText.AppendText, line)
+                        if '[VP_INPUT_ERROR]' in line:
+                              input_errors.append(line.strip())
             process.stdout.close()
             return_code = process.wait()
             wx.CallAfter(self._set_status,
                   'Finished %s (exit code %s)' % (script_name, return_code))
+                  if input_errors:
+                        cleaned = [line.replace('[VP_INPUT_ERROR]', '').strip() for line in input_errors]
+                        message = 'Visual Phaser could not load usable data for one or more SIBLINGS.\n\n' + '\n'.join(cleaned)
+                        wx.CallAfter(wx.MessageBox, message, 'Input Data Error', wx.OK | wx.ICON_ERROR)
+                  elif return_code != 0:
+                        wx.CallAfter(wx.MessageBox,
+                                'Visual Phaser exited with code %s.\nCheck Program Output for details.' % return_code,
+                                'Run Error', wx.OK | wx.ICON_ERROR)
         except Exception as error:
             wx.CallAfter(self.programOutputText.AppendText,
                   '\n[Output stream error] %s\n' % error)
