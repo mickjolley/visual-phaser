@@ -1,17 +1,28 @@
 # -*- coding: utf-8 -*-
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-VP_configV1.py is the configuration file for Visual_Phaser.V1.0.py.
+VPnew_config_V19.py is the configuration file for Visual_Phaser_New_V19.py.
 
-FILES_PATH: Path to folder where the DNA files are stored. 
+QUICK SETUP (Windows):
+1. The script will load config from one of these locations:
+	- VPnew_config_V19.py in the repo/run folder (checked first)
+	- C:/Users/<your-user>/AppData/Local/DNA_phasing/VPnew_config_V19.py
+2. Edit the copy you want the script to use.
+3. If both files exist, the repo/run-folder copy is used.
+4. Set these fields before running:
+	FILES_PATH, WORKING_DIRECTORY, MAP_PATH, EXCEL_FILE_NAME,
+	SIBLINGS/PHASED_FILES/EVIL_TWINS/COUSINS, CHROMOSOMES.
+5. Enable TIMEIT_PROFILE = True when benchmarking performance.
+
+FILES_PATH: Path to folder where the DNA files are stored.
 
 WORKING_DIRECTORY: Folder where the .xlsx and .py files will be stored.
 
 MAP_PATH: Path to folder containing min_map.txt.
 
-SIBLINGS: Two minimum. Make sure that the DNA files are in the 
-PixelChromosomeView (PCV) format. Examples are 'Ancestry_Fred_raw_dna.txt' and 
-'23andMe_Susan_raw_dna.txt'. These files must tab delimited .txt files. Use 
-ancestry_csv_to_tab_converter.py or not_ancestry_csv_to_tab_converter.py to 
+SIBLINGS: Two minimum. Make sure that the DNA files are in the
+PixelChromosomeView (PCV) format. Examples are 'Ancestry_Fred_raw_dna.txt' and
+'23andMe_Susan_raw_dna.txt'. These files must tab delimited .txt files. Use
+ancestry_csv_to_tab_converter.py or not_ancestry_csv_to_tab_converter.py to
 convert .csv files to the correct format.
 
 PHASED_FILES: Enter names of phased files to be compared to each other. They
@@ -19,17 +30,20 @@ will not be compared to siblings. The default assignment for no calls is "X".
 
 EVIL_TWINS: Evil Twin files to be compared to SIBLINGS.
 
-COUSINS: Enter names of individuals to be compared with all SIBLINGS in a 
-pre-existing file. Leave blank ([]) when creating a new file.
+COUSINS: Enter names of individuals to be compared with all SIBLINGS in a
+pre-existing file. Leave blank ([]) when creating a new file. If not empty ie [],
+AUTO_REC_PNTS will be set to False, and if EXCEL_FILE_NAME exists then
+CHROMOSOMES will be ignored since the program will compare only those already in
+the file.
 
 CHROMOSOMES: Chromosome selected (1-23). More than one chromosome may be entered.
-Leave empty for all chromosomes. 
+Leave empty for all chromosomes.
 
 EXCEL_FILE_NAME: Name of the .xlsx file. Do not include the ".xlsx", This is
 added automatically.
 
 SHOW_NO_MATCHES: Set to False if the display of match pairs with no matching
-segments is not desired. This is the recommended default value for cousin 
+segments is not desired. This is the recommended default value for cousin
 matches. If only siblings are being compared set this to True.
 
 CHROM_TRUE_SIZE: Set to True for true size. Set to False for normalized size.
@@ -39,36 +53,36 @@ RESOLUTION will be ignored unless it is 10 (10x resolution). CHROM_TRUE_SIZE is
 automatically set to False.
 
 MERGE_FILES: Set to True if merging of DNA files is desired. If it is desired
-to treat match pairs separately, set to False. This is useful if one of the 
+to treat match pairs separately, set to False. This is useful if one of the
 files is missing a lot of SNPs or if LINEAR_CHROMOSOME is set to True. Missing
-SNPs are shown in gray. Default = True. 
+SNPs are shown in gray. Default = True.
 
-RESOLUTION: Default value = 1. For normalized size it is advised to keep it 
+RESOLUTION: Default value = 1. For normalized size it is advised to keep it
 under 10. Set to 100 for full length chromosomes. If LINEAR_CHROMOSOME is set
 to "True", RESOLUTION is automatically set to 1, unless it is set to 10.
 
 AUTO_REC_PNTS: Set AUTO_REC_PNTS to True if calculation of RPs is desired. ARP
-is not activated in LINEAR_CHROMOSOME mode or when cousins are being added. 
-The first time the program is run, if AUTO_ REC_PNTS is set to True, it is 
-recommended that it is run with two siblings and chromosome 1 only. If the RPs 
-do not line up correctly, the SCALE_FACTOR needs to be adjusted (see below). 
+is not activated in LINEAR_CHROMOSOME mode or when cousins are being added.
+The first time the program is run, if AUTO_ REC_PNTS is set to True, it is
+recommended that it is run with two siblings and chromosome 1 only. If the RPs
+do not line up correctly, the SCALE_FACTOR needs to be adjusted (see below).
 
-ARP_TOLERANCE: When AUTO_REC_PNTS is activated, columns with pixel size 
-less than this value will be deleted. Set to minimum desired column width 
-(pixels). Default = 5 (RESOLUTION is set to 1). ARP_TOLERANCE is adjusted for 
+ARP_TOLERANCE: When AUTO_REC_PNTS is activated, columns with pixel size
+less than this value will be deleted. Set to minimum desired column width
+(pixels). Default = 5 (RESOLUTION is set to 1). ARP_TOLERANCE is adjusted for
 RESOLUTION.
 
-AUTO_RP_ASSIGN: Set AUTO_RP_ASSIGN to True if automatic assignment of 
+AUTO_RP_ASSIGN: Set AUTO_RP_ASSIGN to True if automatic assignment of
 recombination points is desired.
 
 REPAIR_FILES: Converts isolated NIR and HIR SNPs to FIR. Converts isolated
 NIR SNPs to HIR. Default = True.
 
 SCALE_FACTOR: The column width per pixel factor. Default value = 0.1351.This may
-require adjustment to correctly position the recombination points. If the RPs 
-are to the right of where they should be, decrease SCALE_FACTOR (try 0.13 to 
-start), and vice versa (try 0.14 to start). Repeat until the RPs line up 
-correctly. It is suggested that this procedure is performed using two siblings 
+require adjustment to correctly position the recombination points. If the RPs
+are to the right of where they should be, decrease SCALE_FACTOR (try 0.13 to
+start), and vice versa (try 0.14 to start). Repeat until the RPs line up
+correctly. It is suggested that this procedure is performed using two siblings
 and chromosome 1 only. This only has to be performed once.
 
 HIR_CUTOFF: Default value = 7 cM
@@ -80,18 +94,22 @@ X_HIR_CUTOFF: X chromosome cutoff (cM). The default is 15.
 X_FIR_CUTOFF: X chromosome FIR cutoff (cM). The default 15.
 
 FIR_TABLES: Set to True if display of FIR tables is desired.
- 
+
 SCALE_ON: Turn scale on and off. Set to False if not required. Default = True
 
 FREEZE_COLUMN: Set to "A" if freezing not desired. Default = "A".
 
-LINUX_FONT_STRING: Linux users only. Enter the path to your font. If you don't 
-know it, set SCALE_ON to False. 
+LINUX_FONT_STRING: Linux users only. Enter the path to your font. If you don't
+know it, set SCALE_ON to False.
 
 SHOW_TIMES: Elapsed times are shown for each step. Default =True
 
-SHOW_MATCH_PAIR_PROGRESS: Notifies the completion of each step. Set to 
+SHOW_MATCH_PAIR_PROGRESS: Notifies the completion of each step. Set to
 False if you don't want to see this. Default = True
+
+Parallel execution: Worker counts are automatically derived from CPU count.
+Chromosome scheduling uses threads, while pair scan/plot stages use process
+pools for improved multi-core utilization.
 
 HIR_SNP_MIN: Minimum number of HIR SNPs. Default value = 200
 
@@ -101,21 +119,20 @@ MM_DIST: Number of Kbs between mismatches to end segment. Default = 1000.
 
 NO_CALL: Character assigned to a no-call IN PHASED FILES.
 
-© 2026 Mick Jolley (mickj1948@gmail.com) 
+© 2026 Mick Jolley (mickj1948@gmail.com)
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 # Path to DNA files.
-FILES_PATH = r'*******'
-
+FILES_PATH = 'C:\\Users\\rjs\\AppData\\Local\\DNA_phasing\\DNA_files'
 # Path to .xlsx file.
-WORKING_DIRECTORY = r'*******'
+WORKING_DIRECTORY = 'C:\\Users\\rjs\\AppData\\Local\\DNA_phasing\\DNA_files\\tmp'
 
 # Path to min_map.txt file.
-MAP_PATH = r'********'
+MAP_PATH = 'C:\\Users\\rjs\\AppData\\Local\\DNA_phasing\\DNA_files'
 
 # SIBLINGS to be compared. Make sure that no two files share the same name.
-SIBLINGS = ['****','****','****']
+SIBLINGS = ['Diane', 'Ray', 'James']
 
 # Phased files to be compared to each other.
 PHASED_FILES = []
@@ -127,10 +144,10 @@ EVIL_TWINS = []
 COUSINS = []
 
 # Chromosome selected. Leave empty to select all the chromosomes.
-CHROMOSOMES = []
+CHROMOSOMES = ['1', '2']
 
 # Excel file name. Leave ".xlsx" out.
-EXCEL_FILE_NAME = '********'
+EXCEL_FILE_NAME = 'DNA_test1'
 
 # Suppress no-matches. Set to True if display of no-matches is desired.
 SHOW_NO_MATCHES = True
@@ -138,27 +155,27 @@ SHOW_NO_MATCHES = True
 # Chromosome true size. Set to False for normalized size.
 CHROM_TRUE_SIZE = False
 
-# Linearize the chromosome. 
+# Linearize the chromosome.
 LINEAR_CHROMOSOME = False
 
 # Select merging of DNA files. Default = True
 MERGE_FILES = True
 
-# Resolution. Default = 1. Keep under 10. Set to 100 if full resolution is 
+# Resolution. Default = 1. Keep under 10. Set to 100 if full resolution is
 # desired. If LINEAR_CHROMOSOME is set to True, RESOLUTION will be automatically
 # set to 1, unless it is set to 10 (10x resolution).
-RESOLUTION = 1
+RESOLUTION = 10
 
-# Set AUTO_REC_PNTS to True if calculation of RPs is desired. ARP is not 
+# Set AUTO_REC_PNTS to True if calculation of RPs is desired. ARP is not
 # activated in LINEAR_CHROMOSOME mode or when COUSINS is not empty.
 AUTO_REC_PNTS = True
 
-# When AUTO_REC_PNTS is activated, Columns with pixel numbers less than this 
-# value will be deleted. Set to minimum desired column width (pixels). 
+# When AUTO_REC_PNTS is activated, Columns with pixel numbers less than this
+# value will be deleted. Set to minimum desired column width (pixels).
 # Default = 5.
 ARP_TOLERANCE = 5
 
-# Set AUTO_RP_ASSIGN to True if automatic assignment of recombination points is 
+# Set AUTO_RP_ASSIGN to True if automatic assignment of recombination points is
 # desired.
 AUTO_RP_ASSIGN = True
 
@@ -168,7 +185,7 @@ REPAIR_FILES = True
 
 # The column width per pixel factor. This may need adjustment depending on
 #  the display resolution.
-SCALE_FACTOR = 0.1355
+SCALE_FACTOR = 0.1351
 
 # HIR Minimum segment length (cM). The default is 7.
 HIR_CUTOFF = 7
@@ -192,15 +209,19 @@ SCALE_ON = True
 FREEZE_COLUMN = 'A'
 
 # Linux font string. An alternative is:
-# "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf" 
+# "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf"
 LINUX_FONT_STRING = '*/fonts/truetype/family/DejaVuSerif-Bold.ttf'
 
 # Elapsed times are shown for each step.
 SHOW_TIMES = True
 
-# Notifies the completion of each step. Set to False if you don't want to see 
+# Notifies the completion of each step. Set to False if you don't want to see
 # this.
 SHOW_MATCH_PAIR_PROGRESS = True
+
+# Set to True to show timeit profiles for each function.
+TIMEIT_PROFILE = False
+
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 You shouldn't have to change the parameters below.

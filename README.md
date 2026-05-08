@@ -2,7 +2,7 @@
 
 1. Introduction
 
-  Visual_Phaser.V1.0.py is a specialized bioinformatics application designed for
+  Visual_Phaser.V1.1.py is a specialized bioinformatics application designed for
   genetic genealogy. It analyzes raw autosomal DNA files to identify and visualize
   shared segments (Half-Identical Regions (HIRs), Fully-Identical Regions
   (FIRs) and Non-Identical regions (NIRs)) between siblings, cousins, and other relatives.
@@ -20,7 +20,7 @@
            numpy pandas pillow openpyxl
 
   Project Structure
-   - Visual_Phaser.V1.0.py: The main execution engine.
+   - Visual_Phaser.V1.1.py: The main execution engine.
    - VP_configV1.py: The configuration and parameter file.
    - min_map.txt: (Required) A genetic map file mapping physical positions (Mb) to
      genetic distances (cM).

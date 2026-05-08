@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Visual Phaser Configuration GUI — Documentation</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: Segoe UI, Calibri, Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    color: #1a1a2e;
+    background: #f5f6fa;
+  }
+
+  /* ── Side-nav ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0;
+    width: 230px; height: 100vh;
+    background: #16213e;
+    overflow-y: auto;
+    padding: 24px 0 40px;
+    z-index: 100;
+  }
+  nav .nav-title {
+    color: #e2e8f0;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding: 0 20px 12px;
+    border-bottom: 1px solid #2a3a5c;
+    margin-bottom: 8px;
+  }
+  nav a {
+    display: block;
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 13.5px;
+    padding: 5px 20px;
+    border-left: 3px solid transparent;
+    transition: color .15s, border-color .15s, background .15s;
+  }
+  nav a:hover, nav a.active {
+    color: #7dd3fc;
+    border-left-color: #7dd3fc;
+    background: rgba(125,211,252,.07);
+  }
+  nav a.sub { padding-left: 34px; font-size: 13px; }
+
+  /* ── Main content ── */
+  main {
+    margin-left: 230px;
+    padding: 44px 52px 80px;
+    max-width: 960px;
+  }
+
+  h1 { font-size: 2rem; color: #0f3460; margin-bottom: 6px; }
+  h2 { font-size: 1.35rem; color: #0f3460; margin: 44px 0 12px;
+       padding-bottom: 6px; border-bottom: 2px solid #c8d8f0; }
+  h3 { font-size: 1.05rem; color: #1a3a6b; margin: 28px 0 8px; }
+  h4 { font-size: .95rem; color: #2d4fa0; margin: 20px 0 6px; }
+
+  p  { margin-bottom: 10px; }
+  ul, ol { margin: 8px 0 12px 24px; }
+  li { margin-bottom: 4px; }
+
+  code {
+    font-family: Consolas, "Courier New", monospace;
+    font-size: .88em;
+    background: #e8eef8;
+    color: #1e3a6e;
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+  pre {
+    background: #1e2d45;
+    color: #cfe2ff;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: .88em;
+    padding: 14px 18px;
+    border-radius: 6px;
+    overflow-x: auto;
+    margin: 10px 0 18px;
+  }
+  pre code { background: none; color: inherit; padding: 0; }
+
+  /* ── Feature / param cards ── */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px;
+    margin: 14px 0 24px;
+  }
+  .card {
+    background: #fff;
+    border: 1px solid #d1ddf5;
+    border-radius: 8px;
+    padding: 14px 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  }
+  .card strong { color: #0f3460; }
+
+  /* ── Param table ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0 22px;
+    font-size: .92em;
+  }
+  th {
+    background: #0f3460;
+    color: #e2e8f0;
+    text-align: left;
+    padding: 8px 12px;
+  }
+  td { padding: 7px 12px; border-bottom: 1px solid #dde6f5; vertical-align: top; }
+  tr:nth-child(even) td { background: #f0f4fc; }
+  td code { font-size: .87em; }
+
+  /* ── Callout boxes ── */
+  .note {
+    background: #eff6ff;
+    border-left: 4px solid #3b82f6;
+    padding: 10px 16px;
+    border-radius: 0 6px 6px 0;
+    margin: 14px 0;
+    font-size: .94em;
+  }
+  .warn {
+    background: #fff7ed;
+    border-left: 4px solid #f59e0b;
+    padding: 10px 16px;
+    border-radius: 0 6px 6px 0;
+    margin: 14px 0;
+    font-size: .94em;
+  }
+
+  footer {
+    margin-left: 230px;
+    padding: 18px 52px;
+    font-size: .85em;
+    color: #64748b;
+    border-top: 1px solid #d1ddf5;
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════ NAV ════════════════════ -->
+<nav>
+  <div class="nav-title">Visual Phaser</div>
+  <a href="#overview">Overview</a>
+  <a href="#features">Features</a>
+  <a href="#installation">Installation</a>
+  <a href="#usage">Usage</a>
+  <a class="sub" href="#usage-load">Load Config</a>
+  <a class="sub" href="#usage-edit">Edit Settings</a>
+  <a class="sub" href="#usage-save">Save &amp; Run</a>
+  <a href="#params">Parameter Reference</a>
+  <a class="sub" href="#params-paths">Paths</a>
+  <a class="sub" href="#params-files">File Lists</a>
+  <a class="sub" href="#params-display">Display</a>
+  <a class="sub" href="#params-proc">Processing</a>
+  <a class="sub" href="#params-quality">Quality</a>
+  <a class="sub" href="#params-advanced">Advanced</a>
+  <a href="#file-formats">Input File Formats</a>
+  <a href="#troubleshooting">Troubleshooting</a>
+  <a href="#license">License</a>
+</nav>
+
+<!-- ════════════════════ MAIN ════════════════════ -->
+<main>
+
+<h1 id="overview">Visual Phaser Configuration GUI</h1>
+<p>A <strong>wxPython</strong> graphical editor for <code>VP_configV1.py</code> — the configuration file for
+<em>Visual_Phaser.V1.1.py</em>. It lets you browse paths, edit all settings through purpose-built
+controls, validate inputs, and launch a run directly from the GUI.</p>
+
+<div class="note">
+  <strong>Quick start:</strong> open a terminal in the <code>visual-phaser</code> folder and run
+  <code>python VP_Config_GUI.py</code>. The GUI loads <code>VP_configV1.py</code> from the same
+  folder automatically.
+</div>
+
+<!-- ────────────────── FEATURES ────────────────── -->
+<h2 id="features">Features</h2>
+<div class="card-grid">
+  <div class="card"><strong>Path Browsers</strong><br>Browse buttons for FILES_PATH, WORKING_DIRECTORY, and MAP_PATH.</div>
+  <div class="card"><strong>File Lists</strong><br>SIBLINGS, COUSINS, CHROMOSOMES as comma-separated fields; PHASED_FILES and EVIL_TWINS as multiline lists.</div>
+  <div class="card"><strong>Boolean Dropdowns</strong><br>True/False combo boxes for every boolean parameter.</div>
+  <div class="card"><strong>Spin Controls</strong><br>Integer spin boxes for RESOLUTION, cutoffs, SNP minimums, and more.</div>
+  <div class="card"><strong>Tooltips</strong><br>Hover any field for a description drawn from the original config comments.</div>
+  <div class="card"><strong>Unsaved-change Guard</strong><br>The Run button is blocked until the configuration has been saved.</div>
+  <div class="card"><strong>Live Output</strong><br>Program stdout/stderr is streamed into the Program Output panel in real time.</div>
+  <div class="card"><strong>Input Validation</strong><br>If a sibling DNA file cannot be parsed, a popup identifies the failing individual and reason.</div>
+</div>
+
+<!-- ────────────────── INSTALLATION ────────────────── -->
+<h2 id="installation">Installation</h2>
+<h3>Prerequisites</h3>
+<ul>
+  <li>Python 3.8 or higher</li>
+  <li>wxPython 4.0 or higher</li>
+  <li>pandas, numpy, openpyxl, Pillow (required by the processor)</li>
+</ul>
+
+<h3>Install wxPython</h3>
+<pre><code>pip install wxPython</code></pre>
+
+<p>On Linux install the system package instead if pip fails:</p>
+<pre><code># Ubuntu / Debian
+sudo apt-get install python3-wxgtk4.0
+
+# Fedora
+sudo dnf install python3-wxpython4</code></pre>
+
+<h3>Install processor dependencies</h3>
+<pre><code>pip install pandas numpy openpyxl Pillow</code></pre>
+
+<!-- ────────────────── USAGE ────────────────── -->
+<h2 id="usage">Usage</h2>
+
+<h3 id="usage-load">1 — Load a Configuration</h3>
+<ul>
+  <li>At startup the GUI loads <code>VP_configV1.py</code> from its own directory automatically.</li>
+  <li>To load a different file: <strong>File → Load Config</strong> or click <strong>Load Configuration</strong>.</li>
+</ul>
+
+<h3 id="usage-edit">2 — Edit Settings</h3>
+<ul>
+  <li>Switch between the four tabs: <em>Paths</em>, <em>Input files</em>, <em>Generation options</em>, <em>Algorithm factors</em>.</li>
+  <li>Use Browse buttons for folder paths.</li>
+  <li>Enter sibling names as a comma-separated list, e.g. <code>Alice, Bob, Carol</code>.</li>
+  <li>Leave CHROMOSOMES blank to process all 23 chromosomes.</li>
+  <li>The status bar shows <em>"Unsaved configuration changes"</em> whenever a field is modified.</li>
+</ul>
+
+<h3 id="usage-save">3 — Save &amp; Run</h3>
+<ol>
+  <li>Click <strong>Save Configuration</strong> (or <strong>File → Save Config</strong>) to write changes to <code>VP_configV1.py</code>.</li>
+  <li>Click the green <strong>Run</strong> button to launch the processor. If there are unsaved changes the Run button will show a warning instead of starting.</li>
+  <li>Watch progress in the <em>Program Output</em> panel on the Paths tab. Use <strong>Clear</strong> to reset it.</li>
+  <li>If a DNA file fails to load a popup describes which individual failed and why.</li>
+</ol>
+
+<!-- ────────────────── PARAMETER REFERENCE ────────────────── -->
+<h2 id="params">Parameter Reference</h2>
+
+<h3 id="params-paths">Paths</h3>
+<table>
+  <tr><th>Parameter</th><th>Description</th></tr>
+  <tr><td><code>FILES_PATH</code></td><td>Directory that contains the raw DNA files (e.g. <code>*_raw_dna.txt</code>).</td></tr>
+  <tr><td><code>WORKING_DIRECTORY</code></td><td>Directory where the output <code>.xlsx</code> file is written.</td></tr>
+  <tr><td><code>MAP_PATH</code></td><td>Directory that contains <code>min_map.txt</code>.</td></tr>
+</table>
+
+<h3 id="params-files">File Lists</h3>
+<table>
+  <tr><th>Parameter</th><th>Description</th></tr>
+  <tr><td><code>SIBLINGS</code></td><td>Comma-separated names of the individuals to compare (minimum 2). Each name must match the prefix of a <code>&lt;name&gt;_raw_dna*</code> file.</td></tr>
+  <tr><td><code>PHASED_FILES</code></td><td>Pre-phased files to compare with each other (not with siblings).</td></tr>
+  <tr><td><code>EVIL_TWINS</code></td><td>Files to compare against all siblings.</td></tr>
+  <tr><td><code>COUSINS</code></td><td>Names to compare against siblings in an existing workbook. Leave blank to create a new file.</td></tr>
+  <tr><td><code>CHROMOSOMES</code></td><td>Comma-separated chromosome numbers (1–23). Leave blank to process all.</td></tr>
+  <tr><td><code>EXCEL_FILE_NAME</code></td><td>Output workbook name without the <code>.xlsx</code> extension.</td></tr>
+</table>
+
+<h3 id="params-display">Display Options</h3>
+<table>
+  <tr><th>Parameter</th><th>Default</th><th>Description</th></tr>
+  <tr><td><code>SHOW_NO_MATCHES</code></td><td>True</td><td>Include pairs that share no matching segments in the output.</td></tr>
+  <tr><td><code>CHROM_TRUE_SIZE</code></td><td>False</td><td>Use true chromosome sizes instead of normalized sizes.</td></tr>
+  <tr><td><code>LINEAR_CHROMOSOME</code></td><td>False</td><td>Show chromosomes in linearized (un-binned) format.</td></tr>
+  <tr><td><code>SCALE_ON</code></td><td>True</td><td>Display a genomic scale bar above the chromosome image.</td></tr>
+  <tr><td><code>FREEZE_COLUMN</code></td><td>A</td><td>Excel column to freeze. Set to <code>A</code> to disable freezing.</td></tr>
+  <tr><td><code>FIR_TABLES</code></td><td>True</td><td>Display FIR segment tables in the workbook.</td></tr>
+  <tr><td><code>SHOW_TIMES</code></td><td>True</td><td>Print elapsed time for each processing step.</td></tr>
+  <tr><td><code>SHOW_MATCH_PAIR_PROGRESS</code></td><td>True</td><td>Print a notification when each pair is complete.</td></tr>
+</table>
+
+<h3 id="params-proc">Processing</h3>
+<table>
+  <tr><th>Parameter</th><th>Default</th><th>Description</th></tr>
+  <tr><td><code>MERGE_FILES</code></td><td>True</td><td>Merge DNA data for all pairs before comparison. Set False to treat pairs independently.</td></tr>
+  <tr><td><code>REPAIR_FILES</code></td><td>True</td><td>Smooth isolated NIR/HIR SNPs to reduce noise.</td></tr>
+  <tr><td><code>AUTO_REC_PNTS</code></td><td>True</td><td>Automatically calculate recombination points. Disabled in LINEAR_CHROMOSOME mode.</td></tr>
+  <tr><td><code>AUTO_RP_ASSIGN</code></td><td>True</td><td>Automatically assign recombination point columns to individuals.</td></tr>
+</table>
+
+<h3 id="params-quality">Quality / Cutoff Settings</h3>
+<table>
+  <tr><th>Parameter</th><th>Default</th><th>Description</th></tr>
+  <tr><td><code>RESOLUTION</code></td><td>1</td><td>Pixels-per-bin multiplier. Keep ≤ 10 for normalized size; set 100 for full resolution.</td></tr>
+  <tr><td><code>ARP_TOLERANCE</code></td><td>5</td><td>Minimum column width (pixels) when AUTO_REC_PNTS is active.</td></tr>
+  <tr><td><code>HIR_CUTOFF</code></td><td>7 cM</td><td>Minimum HIR (half-identical region) segment length.</td></tr>
+  <tr><td><code>FIR_CUTOFF</code></td><td>1 cM</td><td>Minimum FIR (fully-identical region) segment length.</td></tr>
+  <tr><td><code>X_HIR_CUTOFF</code></td><td>15 cM</td><td>HIR cutoff for the X chromosome.</td></tr>
+  <tr><td><code>X_FIR_CUTOFF</code></td><td>15 cM</td><td>FIR cutoff for the X chromosome.</td></tr>
+  <tr><td><code>HIR_SNP_MIN</code></td><td>200</td><td>Minimum number of SNPs required to call an HIR segment.</td></tr>
+  <tr><td><code>FIR_SNP_MIN</code></td><td>75</td><td>Minimum number of SNPs required to call an FIR segment.</td></tr>
+  <tr><td><code>MM_DIST</code></td><td>1000 Kb</td><td>Gap between mismatches (Kb) beyond which a segment is ended.</td></tr>
+</table>
+
+<h3 id="params-advanced">Advanced</h3>
+<table>
+  <tr><th>Parameter</th><th>Default</th><th>Description</th></tr>
+  <tr><td><code>SCALE_FACTOR</code></td><td>0.1355</td><td>Excel column-width per pixel. Adjust if recombination points are misaligned.</td></tr>
+  <tr><td><code>LINUX_FONT_STRING</code></td><td></td><td>Full path to a TrueType font file on Linux, required when SCALE_ON is True.</td></tr>
+  <tr><td><code>NO_CALL</code></td><td>X</td><td>Character used to represent no-call alleles in phased files.</td></tr>
+</table>
+
+<!-- ────────────────── INPUT FILE FORMATS ────────────────── -->
+<h2 id="file-formats">Supported Input File Formats</h2>
+<p>Raw DNA files must be named <code>&lt;name&gt;_raw_dna&lt;extension&gt;</code> and placed in <code>FILES_PATH</code>.
+The loader automatically detects the delimiter (tab or comma) and column layout.</p>
+
+<table>
+  <tr><th>Source</th><th>Format</th><th>Notes</th></tr>
+  <tr><td>AncestryDNA</td><td>Tab-delimited <code>.txt</code></td><td>Columns: rsid, chromosome, position, allele1, allele2</td></tr>
+  <tr><td>23andMe</td><td>Tab-delimited <code>.txt</code></td><td>Same column layout; chromosome X mapped to 23</td></tr>
+  <tr><td>MyHeritage / FTDNA</td><td>CSV or tab <code>.txt</code></td><td>Genotype column (two-character string) also accepted</td></tr>
+  <tr><td>VCF</td><td><code>.vcf</code> or <code>##fileformat=VCF</code> header</td><td>GT genotype field decoded; REF/ALT used as fallback</td></tr>
+</table>
+
+<div class="note">
+  Y chromosome and mitochondrial (MT) rows are silently dropped. Only autosomes (1–22) and the X
+  chromosome (mapped to 23) are analysed.
+</div>
+
+<!-- ────────────────── TROUBLESHOOTING ────────────────── -->
+<h2 id="troubleshooting">Troubleshooting</h2>
+
+<h3>Run button shows "Save Required" warning</h3>
+<p>You edited one or more fields without saving. Click <strong>Save Configuration</strong> first.</p>
+
+<h3>"Input Data Error" popup when running</h3>
+<p>One or more <code>SIBLINGS</code> files could not be parsed into usable data. The popup lists each
+failing individual and the specific reason (missing file, unrecognised columns, no autosomal rows,
+etc.).</p>
+
+<h3>DNA file not found</h3>
+<p>Files must follow the pattern <code>&lt;name&gt;_raw_dna*</code> inside <code>FILES_PATH</code>. Check capitalisation
+and that the directory path in the GUI is correct.</p>
+
+<h3>Empty/missing workbook after run</h3>
+<p>If no chromosome sheets can be created (e.g. all individuals fail to load), a <em>Results</em>
+sheet is written with a diagnostic message so the file can still be opened.</p>
+
+<h3>"IndexError: at least one sheet must be visible"</h3>
+<p>Fixed in current release via the <code>ensure_visible_worksheet</code> guard. Rebuild your exe if
+running a frozen version.</p>
+
+<h3>Documentation opens in Notepad</h3>
+<p>No default application is associated with <code>.html</code> files. Right-click the file and choose
+<em>Open with → your browser</em>, then set it as the default.</p>
+
+<h3>wxPython installation fails on Windows</h3>
+<pre><code>pip install --upgrade wxPython</code></pre>
+
+<h3>wxPython on macOS (Apple Silicon)</h3>
+<pre><code>pip install wxPython --no-binary wxPython</code></pre>
+
+<h3>Changes not saving</h3>
+<ul>
+  <li>Confirm write permission to <code>VP_configV1.py</code>.</li>
+  <li>Make sure no other editor has the file locked.</li>
+</ul>
+
+<!-- ────────────────── FILE STRUCTURE ────────────────── -->
+<h2 id="file-structure">File Structure</h2>
+<table>
+  <tr><th>File</th><th>Purpose</th></tr>
+  <tr><td><code>VP_Config_GUI.py</code></td><td>Main GUI application and entry point</td></tr>
+  <tr><td><code>VP_configV1.py</code></td><td>Configuration file edited by the GUI</td></tr>
+  <tr><td><code>Visual_Phaser.V1.1.py</code></td><td>Core DNA analysis processor</td></tr>
+  <tr><td><code>VP_Config_Resources.py</code></td><td>Additional project resources</td></tr>
+  <tr><td><code>minmap/min_map.txt</code></td><td>Genetic distance map (GRCh37/hg19)</td></tr>
+  <tr><td><code>VP_Config_GUI_README.html</code></td><td>This documentation file</td></tr>
+</table>
+
+<!-- ────────────────── LICENSE ────────────────── -->
+<h2 id="license">License</h2>
+<p>© 2026 Mick Jolley (<a href="mailto:mickj1948@gmail.com">mickj1948@gmail.com</a>)</p>
+<p>For issues or suggestions, visit:
+  <a href="https://github.com/mickjolley/visual-phaser">https://github.com/mickjolley/visual-phaser</a>
+</p>
+
+</main>
+
+<footer>Visual Phaser Configuration GUI Documentation &nbsp;·&nbsp; © 2026 Mick Jolley</footer>
+
+<script>
+  // Highlight active nav link on scroll
+  const links = document.querySelectorAll('nav a[href^="#"]');
+  const sections = [...links].map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const active = [...links].find(l => l.getAttribute('href') === '#' + e.target.id);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-30% 0px -65% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

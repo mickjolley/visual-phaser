@@ -5,7 +5,9 @@
 import os
 import re
 import glob
+import platform
 import subprocess
+import webbrowser
 import sys
 import threading
 
@@ -130,7 +132,8 @@ def create(parent):
  wxID_VPCONFIGBOAFRAMESAVEITEM,
 ] = [wx.NewIdRef() for _init_coll_fileMenu_Items in range(3)]
 
-[wxID_VPCONFIGBOAFRAMEABOUTITEM] = [wx.NewIdRef() for _init_coll_helpMenu_Items in range(1)]
+[wxID_VPCONFIGBOAFRAMEABOUTITEM,
+ wxID_VPCONFIGBOAFRAMEDOCUMENTATIONITEM] = [wx.NewIdRef() for _init_coll_helpMenu_Items in range(2)]
 
 class VPConfigBoaFrame(wx.Frame):
     def _init_coll_numericGridSizer_Items(self, parent):
@@ -260,6 +263,9 @@ class VPConfigBoaFrame(wx.Frame):
     def _init_coll_helpMenu_Items(self, parent):
         # generated method, don't edit
 
+        parent.Append(helpString='Open documentation',
+              id=wxID_VPCONFIGBOAFRAMEDOCUMENTATIONITEM, item='&Documentation')
+        parent.AppendSeparator()
         parent.Append(helpString='About this application',
               id=wxID_VPCONFIGBOAFRAMEABOUTITEM, item='&About')
 
@@ -411,6 +417,8 @@ class VPConfigBoaFrame(wx.Frame):
               id=wxID_VPCONFIGBOAFRAMESAVEITEM)
         self.Bind(wx.EVT_MENU, self.OnExitMenu,
               id=wxID_VPCONFIGBOAFRAMEEXITITEM)
+        self.Bind(wx.EVT_MENU, self.OnDocumentationMenu,
+              id=wxID_VPCONFIGBOAFRAMEDOCUMENTATIONITEM)
         self.Bind(wx.EVT_MENU, self.OnAboutMenu,
               id=wxID_VPCONFIGBOAFRAMEABOUTITEM)
 
@@ -856,9 +864,27 @@ class VPConfigBoaFrame(wx.Frame):
               self.filesPanel.GetBackgroundColour())
         self.config_path = self._resolve_startup_config_path()
         self.controls = self._build_controls_map()
+        self._loading_controls = False
+        self._is_dirty = False
         self._apply_tooltips()
+        self._bind_dirty_events()
         self.Centre(wx.BOTH)
         self.LoadConfig()
+
+    def _bind_dirty_events(self):
+        for control in self.controls.values():
+            if isinstance(control, wx.TextCtrl):
+                control.Bind(wx.EVT_TEXT, self._on_control_modified)
+            elif isinstance(control, wx.ComboBox):
+                control.Bind(wx.EVT_COMBOBOX, self._on_control_modified)
+            elif isinstance(control, wx.SpinCtrl):
+                control.Bind(wx.EVT_SPINCTRL, self._on_control_modified)
+
+    def _on_control_modified(self, event):
+        if not self._loading_controls:
+            self._is_dirty = True
+            self._set_status('Unsaved configuration changes')
+        event.Skip()
 
     def _resolve_startup_config_path(self):
         local_config = os.path.join(os.getcwd(), 'VP_configV1.py')
@@ -994,12 +1020,16 @@ class VPConfigBoaFrame(wx.Frame):
             with open(self.config_path, 'r') as config_file:
                 exec(config_file.read(), {}, local_dict)
 
+            self._loading_controls = True
             for var_name, control in self.controls.items():
                 if var_name in local_dict:
                     self._populate_control(var_name, control, local_dict[var_name])
+            self._loading_controls = False
 
+            self._is_dirty = False
             self._set_status('Configuration loaded successfully')
         except Exception as error:
+            self._loading_controls = False
             self._set_status('Error loading configuration: %s' % error)
 
     def SaveConfig(self):
@@ -1012,12 +1042,15 @@ class VPConfigBoaFrame(wx.Frame):
             with open(self.config_path, 'w') as config_file:
                 config_file.writelines(updated_lines)
 
+            self._is_dirty = False
             self._set_status('Configuration saved')
             wx.MessageBox('Configuration saved successfully.', 'Success',
                   wx.OK | wx.ICON_INFORMATION)
+            return True
         except Exception as error:
             wx.MessageBox('Error saving configuration: %s' % error, 'Error',
                   wx.OK | wx.ICON_ERROR)
+            return False
 
     def OnBrowseFilesPathButton(self, event):
         self._choose_directory('Select DNA files folder', self.filesPathText)
@@ -1036,6 +1069,14 @@ class VPConfigBoaFrame(wx.Frame):
 
     def OnExitMenu(self, event):
         self.Close(True)
+
+    def OnDocumentationMenu(self, event):
+        doc_path = os.path.join(os.path.dirname(__file__), 'VP_Config_GUI_README.html')
+        if not os.path.exists(doc_path):
+            wx.MessageBox('Documentation file not found:\n%s' % doc_path,
+                  'Documentation', wx.OK | wx.ICON_INFORMATION)
+            return
+        webbrowser.open('file:///' + doc_path.replace('\\', '/'))
 
     def OnAboutMenu(self, event):
         dialog = wx.MessageDialog(self,
@@ -1075,7 +1116,7 @@ class VPConfigBoaFrame(wx.Frame):
             for line in iter(process.stdout.readline, ''):
                 wx.CallAfter(self.programOutputText.AppendText, line)
                 if '[VP_INPUT_ERROR]' in line:
-                        input_errors.append(line.strip())
+                              input_errors.append(line.strip())
 
             process.stdout.close()
             return_code = process.wait()
@@ -1087,16 +1128,16 @@ class VPConfigBoaFrame(wx.Frame):
             if input_errors:
                 cleaned = [line.replace('[VP_INPUT_ERROR]', '').strip() for line in input_errors]
                 message = (
-                        'Visual Phaser could not load usable data for one or more SIBLINGS.\n\n'
-                        + '\n'.join(cleaned)
+                      'Visual Phaser could not load usable data for one or more SIBLINGS.\n\n'
+                      + '\n'.join(cleaned)
                 )
                 wx.CallAfter(wx.MessageBox, message, 'Input Data Error', wx.OK | wx.ICON_ERROR)
             elif return_code != 0:
                 wx.CallAfter(
-                        wx.MessageBox,
-                        'Visual Phaser exited with code %s.\nCheck Program Output for details.' % return_code,
-                        'Run Error',
-                        wx.OK | wx.ICON_ERROR,
+                      wx.MessageBox,
+                      'Visual Phaser exited with code %s.\nCheck Program Output for details.' % return_code,
+                      'Run Error',
+                      wx.OK | wx.ICON_ERROR,
                 )
         except Exception as error:
             wx.CallAfter(
@@ -1106,6 +1147,14 @@ class VPConfigBoaFrame(wx.Frame):
             wx.CallAfter(self._set_status, 'Run failed: %s' % error)
 
     def OnRunButton(self, event):
+        if self._is_dirty:
+            wx.MessageBox(
+                  'Configuration has unsaved changes. Click "Save Configuration" before running.',
+                  'Save Required',
+                  wx.OK | wx.ICON_WARNING)
+            self._set_status('Run blocked: save configuration first')
+            return
+
         self.configBook.SetSelection(0)
         script_dir = os.path.dirname(__file__)
         pattern = os.path.join(script_dir, 'Visual_Phaser.V*.py')
