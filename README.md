@@ -32,8 +32,9 @@
   DNA File Format (PCV)
   The software expects tab-delimited .txt files in a format often referred to as
   "PixelChromosomeView" (PCV).
-   - Naming Convention: Files must contain the person's name followed by _raw_dna
-     - Example: Barb_raw_dna.txt, Jan_raw_dna.txt.
+   - Naming Convention: Files must contain the testing company followed by the person's
+     name followed by _raw_dna.txt.
+     - Examples: Ancestry_Barb_raw_dna.txt, FTDNA_Jan_raw_dna.txt, Other_Fred_raw_dna.txt.
      - .csv files can be converted to .txt files with
        converter/ancestry_csv_to_tab_converter_V1.py or
        converter/non_ancestry_csv_to_tab_converter_V1.py.
@@ -58,12 +59,14 @@
 
   Comparison Lists
    - SIBLINGS: A list of individuals to be compared against one another.
+     Enter names of siblings between quotation marks, comma separated.
+     Example: ["Barb", "Jan", "Paul"]
    - PHASED_FILES: Names of phased files (usually derived from parent/child
-     comparisons).
-   - COUSINS: Individuals to be compared against the sibling list in an existing
-     project.
-   - EVIL_TWINS: Specialized files representing the non-matching side of a phased
-     individual.
+     comparisons). Follow SIBLINGS example.
+   - COUSINS: Names of individuals to be compared against the sibling list in an existing
+     project. Follow SIBLINGS example.
+   - EVIL_TWINS: Names of files representing the non-matching side of a phased
+     individual. Follow SIBLINGS example.
 
   Genetic Cutoffs
    - HIR_CUTOFF: Minimum segment length (in cM) for Half-Identical segments (Default:
