@@ -45,57 +45,271 @@ from VP_configV1 import (
 worker_dna_cache = {}
 cache_lock = threading.Lock()
 
-def load_individual_dna(ind, files_path, no_call_val):
+
+def _looks_like_vcf(file_path):
+    if str(file_path).lower().endswith('.vcf'):
+        return True
+
+    try:
+        with open(file_path, 'r', encoding='utf-8', errors='ignore') as handle:
+            for _ in range(20):
+                line = handle.readline()
+                if not line:
+                    break
+                stripped = line.strip()
+                if stripped.startswith('##fileformat=VCF') or stripped.startswith('#CHROM'):
+                    return True
+    except OSError:
+        return False
+
+    return False
+
+
+def _parse_vcf_file(file_path):
+    header_columns = None
+    separator = '\t'
+
+    with open(file_path, 'r', encoding='utf-8', errors='ignore') as handle:
+        for raw_line in handle:
+            line = raw_line.strip()
+            if not line:
+                continue
+            if line.startswith('#CHROM'):
+                if '\t' in line:
+                    header_columns = line.lstrip('#').split('\t')
+                    separator = '\t'
+                else:
+                    header_columns = line.lstrip('#').split()
+                    separator = r'\s+'
+                break
+
+    if not header_columns:
+        return None
+
+    if separator == '\t':
+        raw = pd.read_csv(
+            file_path,
+            sep='\t',
+            comment='#',
+            header=None,
+            names=header_columns,
+            dtype=str,
+            low_memory=False,
+            keep_default_na=False,
+        )
+    else:
+        raw = pd.read_csv(
+            file_path,
+            sep=r'\s+',
+            comment='#',
+            header=None,
+            names=header_columns,
+            dtype=str,
+            low_memory=False,
+            keep_default_na=False,
+            engine='python',
+        )
+
+    if raw.empty:
+        return None
+
+    chrom_col = _pick_column(raw.columns, ['chrom', 'chromosome'])
+    pos_col = _pick_column(raw.columns, ['pos', 'position'])
+    id_col = _pick_column(raw.columns, ['id', 'rsid'])
+    ref_col = _pick_column(raw.columns, ['ref'])
+    alt_col = _pick_column(raw.columns, ['alt'])
+    format_col = _pick_column(raw.columns, ['format'])
+
+    if not all([chrom_col, pos_col, ref_col, alt_col]):
+        return None
+
+    df = pd.DataFrame({
+        'chromosome': raw[chrom_col].astype(str),
+        'position': raw[pos_col].astype(str),
+        'rsid': raw[id_col].astype(str) if id_col else '',
+    })
+
+    # Default to REF/ALT for non-genotype VCF rows.
+    ref_series = raw[ref_col].fillna('').astype(str)
+    alt_first = raw[alt_col].fillna('').astype(str).str.split(',').str[0]
+    df['allele1'] = ref_series
+    df['allele2'] = alt_first
+
+    if format_col and len(header_columns) > 9:
+        sample_col = header_columns[9]
+        format_tokens = raw[format_col].fillna('').astype(str).str.split(':')
+        gt_index = format_tokens.apply(lambda toks: toks.index('GT') if 'GT' in toks else -1)
+        sample_tokens = raw[sample_col].fillna('').astype(str).str.split(':')
+
+        def decode_gt(gt_idx, sample_vals, ref_val, alt_val):
+            if gt_idx < 0 or gt_idx >= len(sample_vals):
+                return ref_val, alt_val.split(',')[0] if alt_val else ref_val
+
+            gt = sample_vals[gt_idx].replace('|', '/').strip()
+            choices = [ref_val] + alt_val.split(',')
+            parts = gt.split('/')
+
+            def pick(part):
+                if not part or part == '.':
+                    return ''
+                if not part.isdigit():
+                    return ''
+                idx = int(part)
+                if 0 <= idx < len(choices):
+                    return choices[idx]
+                return ''
+
+            a1 = pick(parts[0]) if len(parts) > 0 else ''
+            a2 = pick(parts[1]) if len(parts) > 1 else a1
+            if not a1:
+                a1 = ref_val
+            if not a2:
+                a2 = a1
+            return a1, a2
+
+        decoded = [
+            decode_gt(gt_idx, sample_vals, ref_val, alt_val)
+            for gt_idx, sample_vals, ref_val, alt_val in zip(
+                gt_index.tolist(),
+                sample_tokens.tolist(),
+                ref_series.tolist(),
+                raw[alt_col].fillna('').astype(str).tolist(),
+            )
+        ]
+        df['allele1'] = [pair[0] for pair in decoded]
+        df['allele2'] = [pair[1] for pair in decoded]
+
+    # Populate missing IDs with chromosome-position token.
+    missing_id = df['rsid'].isin(['', '.', 'nan', 'None'])
+    df.loc[missing_id, 'rsid'] = (
+        df.loc[missing_id, 'chromosome'].astype(str) + ':' + df.loc[missing_id, 'position'].astype(str)
+    )
+
+    return df
+
+
+def _read_raw_dna_table(file_path):
+    if _looks_like_vcf(file_path):
+        vcf_df = _parse_vcf_file(file_path)
+        if vcf_df is not None:
+            return vcf_df
+
+    # Try delimiter auto-detection first, then explicit fallbacks.
+    read_attempts = [
+        {'sep': None, 'engine': 'python'},
+        {'sep': '\t'},
+        {'sep': ','},
+    ]
+    for attempt in read_attempts:
+        try:
+            df = pd.read_csv(
+                file_path,
+                skip_blank_lines=True,
+                comment='#',
+                header=0,
+                low_memory=False,
+                dtype=str,
+                keep_default_na=False,
+                **attempt,
+            )
+            if df is not None and len(df.columns) > 0:
+                return df
+        except (pd.errors.ParserError, pd.errors.EmptyDataError, UnicodeDecodeError, OSError, ValueError):
+            continue
+    return None
+
+
+def _pick_column(columns, aliases):
+    normalized = {str(col).strip().lower(): col for col in columns}
+    for alias in aliases:
+        if alias in normalized:
+            return normalized[alias]
+    return None
+
+
+def _clean_allele(series, no_call_val):
+    no_call_token = str(no_call_val).strip().upper()
+    cleaned = series.fillna('').astype(str).str.strip().str.upper()
+    cleaned = cleaned.str.replace(r'[^A-Z0-9-]', '', regex=True)
+
+    # Common no-call encodings seen across raw DNA exports.
+    no_call_aliases = {'', '-', '--', '0', '00', 'N', 'NN', 'NC', 'NOCALL'}
+    cleaned = cleaned.where(~cleaned.isin(no_call_aliases), no_call_token)
+    cleaned = cleaned.where(cleaned.isin({'A', 'T', 'C', 'G', no_call_token}), no_call_token)
+    return cleaned
+
+
+def agnostic_load_individual_dna(ind, files_path, no_call_val):
     """
-    Loads and pre-processes DNA for one individual.
-    Identifies if the file is from Ancestry or another service and parses accordingly.
-    Filters out non-numeric chromosomes (Y, MT) and ensures valid alleles.
+    Loads and pre-processes DNA for one individual from any supported raw DNA file.
+    This parser is delimiter-agnostic (CSV/TAB) and schema-agnostic for common
+    consumer DNA exports (Ancestry/23andMe/MyHeritage/FTDNA-like layouts).
     """
     file_names = os.listdir(files_path)
-    for filname in file_names:
-        if ind + "_raw_dna" in filname:
-            this_file = os.path.join(files_path, filname)
-            try:
-                if "Ancestry" in filname:
-                    # Ancestry format typically has 5 columns
-                    df = pd.read_csv(
-                        this_file,
-                        sep="\t",
-                        skip_blank_lines=True,
-                        comment="#",
-                        header=0,
-                        names=["rsid", "chromosome", "position", "allele1", "allele2"],
-                    )
-                    df["chromosome"] = df["chromosome"].replace("X", "23").astype(str)
+    candidates = [name for name in file_names if f"{ind}_raw_dna" in name]
+    for filname in candidates:
+        this_file = os.path.join(files_path, filname)
+        try:
+            raw = _read_raw_dna_table(this_file)
+            if raw is None or raw.empty:
+                continue
+
+            # Resolve columns by common aliases first.
+            rsid_col = _pick_column(raw.columns, ['rsid', 'rs#', 'snp'])
+            chrom_col = _pick_column(raw.columns, ['chromosome', 'chrom', 'chr'])
+            pos_col = _pick_column(raw.columns, ['position', 'pos'])
+            allele1_col = _pick_column(raw.columns, ['allele1'])
+            allele2_col = _pick_column(raw.columns, ['allele2'])
+            genotype_col = _pick_column(raw.columns, ['result', 'genotype', 'alleles', 'allele_pair'])
+
+            # Fallback to column count if headers are non-standard.
+            if rsid_col is None or chrom_col is None or pos_col is None:
+                cols = list(raw.columns)
+                if len(cols) >= 4:
+                    rsid_col, chrom_col, pos_col = cols[0], cols[1], cols[2]
+                    if len(cols) >= 5:
+                        allele1_col, allele2_col = cols[3], cols[4]
+                    else:
+                        genotype_col = cols[3]
                 else:
-                    # Other formats (e.g., 23andMe) have a combined allele column
-                    df = pd.read_csv(
-                        this_file,
-                        sep="\t",
-                        skip_blank_lines=True,
-                        comment="#",
-                        header=0,
-                        low_memory=False,
-                        names=["rsid", "chromosome", "position", "allele_pair"],
-                    )
-                    df["allele1"] = df["allele_pair"].str[0]
-                    df["allele2"] = df["allele_pair"].str[1]
-                    df.drop(columns=["allele_pair"], inplace=True)
-                    df["chromosome"] = df["chromosome"].replace({"X": "23", "XY": "23"}).astype(str)
+                    continue
 
-                # Clean chromosome data: keep numeric only (1-22) and X (mapped to 23)
-                df = df[~df["chromosome"].isin(["Y", "MT"])]
-                df = df[df["chromosome"].str.isnumeric()]
-                df["chromosome"] = df["chromosome"].astype(int)
+            df = pd.DataFrame({
+                'rsid': raw[rsid_col].astype(str),
+                'chromosome': raw[chrom_col].astype(str),
+                'position': raw[pos_col].astype(str),
+            })
 
-                # Filter for valid genetic letters or the designated no-call value
-                valid_alleles = {"A", "T", "C", "G", no_call_val}
-                df = df[df["allele1"].isin(valid_alleles)]
+            if allele1_col is not None and allele2_col is not None:
+                df['allele1'] = raw[allele1_col]
+                df['allele2'] = raw[allele2_col]
+            elif genotype_col is not None:
+                genotype = raw[genotype_col].fillna('').astype(str).str.strip().str.upper()
+                genotype = genotype.str.replace(r'[^A-Z0-9-]', '', regex=True)
+                df['allele1'] = genotype.str[0]
+                df['allele2'] = genotype.str[1]
+            else:
+                continue
 
-                return ind, df.sort_values(by='position').reset_index(drop=True)
-            except Exception as e:
-                print(f"Error loading {this_file}: {e}", flush=True)
-                return ind, None
+            # Normalize chromosome labels from multiple vendor formats.
+            df['chromosome'] = df['chromosome'].str.strip().str.upper().str.replace('CHR', '', regex=False)
+            df['chromosome'] = df['chromosome'].replace({'X': '23', 'XY': '23', 'MT': 'M'})
+            df = df[~df['chromosome'].isin(['Y', 'M'])]
+            df = df[df['chromosome'].str.isnumeric()]
+            df['chromosome'] = df['chromosome'].astype(int)
+
+            # Keep only valid genomic positions.
+            df['position'] = pd.to_numeric(df['position'], errors='coerce')
+            df = df.dropna(subset=['position'])
+            df['position'] = df['position'].astype(int)
+
+            df['allele1'] = _clean_allele(df['allele1'], no_call_val)
+            df['allele2'] = _clean_allele(df['allele2'], no_call_val)
+
+            return ind, df.sort_values(by='position').reset_index(drop=True)
+        except Exception as e:
+            print(f"Error loading {this_file}: {e}", flush=True)
+            return ind, None
     return ind, None
 
 def apply_conditions_vectorized(al1x, al2x, al1y, al2y, no_call_val):
@@ -307,7 +521,7 @@ def thread_chromosome(chrom, match_pairs, individuals, files_path, map_positions
 
     if missing_inds:
         with ThreadPoolExecutor(max_workers=min(len(missing_inds), 8)) as threads:
-            load_results = threads.map(lambda ind: load_individual_dna(ind, files_path, config_params['NO_CALL']), missing_inds)
+            load_results = threads.map(lambda ind: agnostic_load_individual_dna(ind, files_path, config_params['NO_CALL']), missing_inds)
             with cache_lock:
                 for ind, dna_df in load_results:
                     if dna_df is not None:
