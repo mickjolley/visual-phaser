@@ -1099,11 +1099,11 @@ class VPConfigBoaFrame(wx.Frame):
                         wx.OK | wx.ICON_ERROR,
                 )
         except Exception as error:
-                wx.CallAfter(
-                    self.programOutputText.AppendText,
-                    '\n[Output stream error] %s\n' % error,
-                )
-                wx.CallAfter(self._set_status, 'Run failed: %s' % error)
+            wx.CallAfter(
+                self.programOutputText.AppendText,
+                '\n[Output stream error] %s\n' % error,
+            )
+            wx.CallAfter(self._set_status, 'Run failed: %s' % error)
 
     def OnRunButton(self, event):
         self.configBook.SetSelection(0)
