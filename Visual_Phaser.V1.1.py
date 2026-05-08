@@ -326,6 +326,7 @@ def agnostic_load_individual_dna(ind, files_path, no_call_val, return_error=Fals
                 last_error = f"{filname}: no usable autosomal rows after normalization/filtering."
                 continue
 
+            print(f"Loaded DNA file successfully: {filname} ({ind})", flush=True)
             result = (ind, df.sort_values(by='position').reset_index(drop=True))
             if return_error:
                 return result + (None,)

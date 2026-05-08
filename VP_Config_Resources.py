@@ -77,18 +77,21 @@ FIELD_DEFINITIONS = {
         'label': 'Linux Font Path',
         'tooltip': 'Linux users only. Enter the path to your font.',
         'required': False,
+        'default': '*/fonts/truetype/family/DejaVuSerif-Bold.ttf',
     },
     'FREEZE_COLUMN': {
         'type': 'text',
         'label': 'Freeze Column (e.g., "A" for no freeze)',
         'tooltip': 'Set to "A" if freezing not desired.',
         'required': False,
+        'default': "A",
     },
     'NO_CALL': {
         'type': 'text',
         'label': 'No-Call Character',
         'tooltip': 'Character assigned to a no-call IN PHASED FILES.',
         'required': False,
+        'default': "X",
     },
 
     # Boolean Fields

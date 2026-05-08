@@ -124,15 +124,15 @@ NO_CALL: Character assigned to a no-call IN PHASED FILES.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 # Path to DNA files.
-FILES_PATH = 'C:\\Users\\rjs\\AppData\\Local\\DNA_phasing\\DNA_files'
+FILES_PATH = ''
 # Path to .xlsx file.
-WORKING_DIRECTORY = 'C:\\Users\\rjs\\AppData\\Local\\DNA_phasing\\DNA_files\\tmp'
+WORKING_DIRECTORY = ''
 
 # Path to min_map.txt file.
-MAP_PATH = 'C:\\Users\\rjs\\AppData\\Local\\DNA_phasing\\DNA_files'
+MAP_PATH = ''
 
 # SIBLINGS to be compared. Make sure that no two files share the same name.
-SIBLINGS = ['Diane', 'Ray', 'James']
+SIBLINGS = []
 
 # Phased files to be compared to each other.
 PHASED_FILES = []
@@ -144,10 +144,10 @@ EVIL_TWINS = []
 COUSINS = []
 
 # Chromosome selected. Leave empty to select all the chromosomes.
-CHROMOSOMES = ['1', '2']
+CHROMOSOMES = []
 
 # Excel file name. Leave ".xlsx" out.
-EXCEL_FILE_NAME = 'DNA_test1'
+EXCEL_FILE_NAME = ''
 
 # Suppress no-matches. Set to True if display of no-matches is desired.
 SHOW_NO_MATCHES = True
@@ -164,7 +164,7 @@ MERGE_FILES = True
 # Resolution. Default = 1. Keep under 10. Set to 100 if full resolution is
 # desired. If LINEAR_CHROMOSOME is set to True, RESOLUTION will be automatically
 # set to 1, unless it is set to 10 (10x resolution).
-RESOLUTION = 10
+RESOLUTION = 1
 
 # Set AUTO_REC_PNTS to True if calculation of RPs is desired. ARP is not
 # activated in LINEAR_CHROMOSOME mode or when COUSINS is not empty.
@@ -185,7 +185,7 @@ REPAIR_FILES = True
 
 # The column width per pixel factor. This may need adjustment depending on
 #  the display resolution.
-SCALE_FACTOR = 0.1351
+SCALE_FACTOR = 0.1355
 
 # HIR Minimum segment length (cM). The default is 7.
 HIR_CUTOFF = 7

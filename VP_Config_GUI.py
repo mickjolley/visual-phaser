@@ -1,4 +1,4 @@
-#Boa:Frame:VPConfigBoaFrame
+﻿#Boa:Frame:VPConfigBoaFrame
 # -*- coding: utf-8 -*-
 """Boa-managed configuration editor for VP_configV1.py."""
 
@@ -12,6 +12,7 @@ import sys
 import threading
 
 import wx
+from VP_Config_Resources import FIELD_DEFINITIONS
 
 
 TOOLTIPS = {
@@ -939,6 +940,34 @@ class VPConfigBoaFrame(wx.Frame):
     def _set_status(self, message):
         self.statusBar.SetStatusText(message, 0)
 
+    def _default_value_for_field(self, var_name):
+            definition = FIELD_DEFINITIONS.get(var_name, {})
+            if 'default' in definition:
+                  return definition['default']
+
+            field_type = definition.get('type')
+            if field_type in ('list_text', 'list_files'):
+                  return []
+            if field_type == 'boolean':
+                  return False
+            if field_type == 'int_spin':
+                  return int(definition.get('min', 0))
+            if field_type == 'float':
+                  return 0.0
+            return ''
+
+    def _load_defaults_from_field_definitions(self):
+            self._loading_controls = True
+            try:
+                  for var_name, control in self.controls.items():
+                        value = self._default_value_for_field(var_name)
+                        self._populate_control(var_name, control, value)
+            finally:
+                  self._loading_controls = False
+
+            self._is_dirty = True
+            self._set_status('Defaults loaded from FIELD_DEFINITIONS; save to apply')
+
     def _choose_directory(self, title, control):
         dialog = wx.DirDialog(self, title)
         try:
@@ -1102,7 +1131,7 @@ class VPConfigBoaFrame(wx.Frame):
         self.SaveConfig()
 
     def OnResetButton(self, event):
-        self.LoadConfig()
+            self._load_defaults_from_field_definitions()
 
     def OnClearProgramOutputButton(self, event):
         self.programOutputText.SetValue('')
