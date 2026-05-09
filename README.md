@@ -29,14 +29,10 @@
 
 3. Data Preparation
 
-  DNA File Format (PCV)
-  The software expects tab-delimited .txt files in a format often referred to as
-  "PixelChromosomeView" (PCV).
-   - Naming Convention: Files must contain the person's name followed by _raw_dna
-     - Example: Barb_raw_dna.txt, Jan_raw_dna.txt.
-     - .csv files can be converted to .txt files with
-       converter/ancestry_csv_to_tab_converter_V1.py or
-       converter/non_ancestry_csv_to_tab_converter_V1.py.
+ Tab-delimited .txt files and comma-sparated .csv files may be used.
+   - Rename file, placing "_raw_dna" immediately after the name.
+     Example "37_H_Fred_Chrom_Autoso_2024477.csv" is renamed "37_H_Fred_raw_dnaChrom_Autoso_2024477.csv".
+     In the Input Files tab enter the siblings (or cousins) as Fred, Joe, Susan. 
    - Supported Sources: Specifically optimized for AncestryDNA , 23andMe and other
       non- Ancestry exports.
 
