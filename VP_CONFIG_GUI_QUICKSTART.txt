@@ -64,10 +64,10 @@ PATHS AND DIRECTORIES:
   • MAP_PATH            - Where min_map.txt is located
 
 FILE MANAGEMENT:
-  • SIBLINGS            - DNA sample files to compare (2 minimum)
-  • PHASED_FILES        - Pre-phased comparison files
-  • EVIL_TWINS          - Files to compare with siblings
-  • COUSINS             - Cousin relationship names
+   • SIBLINGS            - Comma-separated names of the individuals to compare (2 minimum)
+   • PHASED_FILES        - Comma-separated names of the individuals in phased files
+   • EVIL_TWINS          - Comma-separated names of the individuals in evil-twin files
+   • COUSINS             - Comma-separated names of the individuals to compare with siblings
   • CHROMOSOMES         - Which chromosomes (1-23, or blank for all)
   • EXCEL_FILE_NAME     - Name for output file
 

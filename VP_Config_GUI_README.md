@@ -10,8 +10,7 @@ A wxPython-based graphical user interface for editing the Visual Phaser `VP_conf
   - `MAP_PATH` - Map file directory
 
 - **File Management**:
-  - Edit `PHASED_FILES` and `EVIL_TWINS` as list-style text entries
-  - Edit `SIBLINGS`, `COUSINS`, and `CHROMOSOMES` as comma-separated lists
+  - Edit `SIBLINGS`, `PHASED_FILES`, `EVIL_TWINS`, `COUSINS`, and `CHROMOSOMES` as comma-separated lists
   - Set `EXCEL_FILE_NAME` for output
 
 - **Configuration Options**:
@@ -73,7 +72,7 @@ python VP_Config_GUI.py path/to/VP_configV1.py
      - **Text fields**: Enter text values
      - **Dropdowns**: Select True/False for boolean options
      - **Spin controls**: Adjust numeric values
-    - **Multiline text fields**: Enter list values directly for `PHASED_FILES` and `EVIL_TWINS`
+    - **Text fields**: Enter comma-separated list values for `SIBLINGS`, `PHASED_FILES`, `EVIL_TWINS`, `COUSINS`, and `CHROMOSOMES`
 
 3. **Get Help**:
    - Hover over any field to see its tooltip
@@ -113,10 +112,10 @@ python VP_Config_GUI.py path/to/VP_configV1.py
 - **MAP_PATH**: Directory containing min_map.txt
 
 ### File Lists
-- **SIBLINGS**: DNA sample files to compare (minimum 2)
-- **PHASED_FILES**: Pre-phased files to compare
-- **EVIL_TWINS**: Files to compare with siblings
-- **COUSINS**: Cousin relationships to track
+- **SIBLINGS**: Comma-separated names of the individuals to compare (minimum 2)
+- **PHASED_FILES**: Comma-separated names of the individuals in phased files to compare
+- **EVIL_TWINS**: Comma-separated names of the individuals in evil-twin files to compare with siblings
+- **COUSINS**: Comma-separated names of the individuals to compare with siblings
 - **CHROMOSOMES**: Which chromosomes to process (1-23, or empty for all)
 
 ### Output

@@ -19,10 +19,10 @@ TOOLTIPS = {
     'FILES_PATH': 'Path to folder where the DNA files are stored.',
     'WORKING_DIRECTORY': 'Folder where the .xlsx and .py files will be stored.',
     'MAP_PATH': 'Path to folder containing min_map.txt.',
-    'SIBLINGS': 'Comma-separated sibling file names in PCV format.',
-    'PHASED_FILES': 'One file name per line for phased files.',
-    'EVIL_TWINS': 'One file name per line for evil twin files.',
-    'COUSINS': 'Comma-separated cousin names.',
+      'SIBLINGS': 'Comma-separated names of the individuals to compare.',
+      'PHASED_FILES': 'Comma-separated names of the individuals in phased files to compare with each other.',
+      'EVIL_TWINS': 'Comma-separated names of the individuals in evil-twin files to compare against all siblings.',
+      'COUSINS': 'Comma-separated names of the individuals to compare against siblings in an existing workbook.',
     'CHROMOSOMES': 'Comma-separated chromosome numbers. Leave empty for all.',
     'EXCEL_FILE_NAME': 'Name of the output workbook without .xlsx.',
     'SHOW_NO_MATCHES': 'Set False to hide no-match rows.',
@@ -133,8 +133,8 @@ def create(parent):
  wxID_VPCONFIGBOAFRAMESAVEITEM,
 ] = [wx.NewIdRef() for _init_coll_fileMenu_Items in range(3)]
 
-[wxID_VPCONFIGBOAFRAMEABOUTITEM,
- wxID_VPCONFIGBOAFRAMEDOCUMENTATIONITEM] = [wx.NewIdRef() for _init_coll_helpMenu_Items in range(2)]
+[wxID_VPCONFIGBOAFRAMEABOUTITEM, wxID_VPCONFIGBOAFRAMEDOCUMENTATIONITEM,
+] = [wx.NewIdRef() for _init_coll_helpMenu_Items in range(2)]
 
 class VPConfigBoaFrame(wx.Frame):
     def _init_coll_numericGridSizer_Items(self, parent):
@@ -242,15 +242,11 @@ class VPConfigBoaFrame(wx.Frame):
 
         parent.Add(self.siblingsSizer, 0, border=8,
               flag=wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND)
-        parent.Add(self.phasedFilesButtonsSizer, 0, border=8,
-              flag=wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND)
-        parent.Add(self.phasedFilesText, 0, border=8,
-              flag=wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND)
-        parent.Add(self.evilTwinsButtonsSizer, 0, border=8,
-              flag=wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND)
-        parent.Add(self.evilTwinsText, 0, border=8,
-              flag=wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND)
         parent.Add(self.cousinsSizer, 0, border=8,
+              flag=wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND)
+        parent.Add(self.phasedFilesSizer, 0, border=8,
+              flag=wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND)
+        parent.Add(self.evilTwinsSizer, 0, border=8,
               flag=wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND)
         parent.Add(self.chromosomesSizer, 0, border=8, flag=wx.ALL | wx.EXPAND)
 
@@ -293,11 +289,11 @@ class VPConfigBoaFrame(wx.Frame):
         parent.AddPage(imageId=-1, page=self.pathsPanel, select=True,
               text='Paths')
         parent.AddPage(imageId=-1, page=self.filesPanel, select=False,
-              text='Input files')
+              text='Input Files')
         parent.AddPage(imageId=-1, page=self.boolPanel, select=False,
-              text='Generation options')
+              text='Generation Options')
         parent.AddPage(imageId=-1, page=self.numericPanel, select=False,
-              text='Algorithm factors')
+              text='Algorithm Factors')
 
     def _init_coll_statusBar_Fields(self, parent):
         # generated method, don't edit
@@ -360,13 +356,16 @@ class VPConfigBoaFrame(wx.Frame):
         self.siblingsSizer.Add(self.siblingsText, 0, border=5,
               flag=int(wx.LEFT) | int(wx.RIGHT) | int(wx.BOTTOM) | int(wx.EXPAND))
 
-        self.phasedFilesButtonsSizer = wx.BoxSizer(orient=wx.HORIZONTAL)
-        self.phasedFilesButtonsSizer.Add(self.phasedFilesLabel, 0, border=5,
-              flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
+        self.phasedFilesSizer = wx.BoxSizer(orient=wx.VERTICAL)
+        self.phasedFilesSizer.Add(self.phasedFilesLabel, 0, border=5,
+              flag=wx.ALL)
+        self.phasedFilesSizer.Add(self.phasedFilesText, 0, border=5,
+              flag=int(wx.LEFT) | int(wx.RIGHT) | int(wx.BOTTOM) | int(wx.EXPAND))
 
-        self.evilTwinsButtonsSizer = wx.BoxSizer(orient=wx.HORIZONTAL)
-        self.evilTwinsButtonsSizer.Add(self.evilTwinsLabel, 0, border=5,
-              flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
+        self.evilTwinsSizer = wx.BoxSizer(orient=wx.VERTICAL)
+        self.evilTwinsSizer.Add(self.evilTwinsLabel, 0, border=5, flag=wx.ALL)
+        self.evilTwinsSizer.Add(self.evilTwinsText, 0, border=5,
+              flag=int(wx.LEFT) | int(wx.RIGHT) | int(wx.BOTTOM) | int(wx.EXPAND))
 
         self.cousinsSizer = wx.BoxSizer(orient=wx.VERTICAL)
         self.cousinsSizer.Add(self.cousinsLabel, 0, border=5, flag=wx.ALL)
@@ -406,7 +405,7 @@ class VPConfigBoaFrame(wx.Frame):
     def _init_ctrls(self, prnt):
         # generated method, don't edit
         wx.Frame.__init__(self, id=wxID_VPCONFIGBOAFRAME,
-              name='VPConfigBoaFrame', parent=prnt, pos=wx.Point(401, 98),
+              name='VPConfigBoaFrame', parent=prnt, pos=wx.Point(431, 139),
               size=wx.Size(771, 641), style=wx.DEFAULT_FRAME_STYLE,
               title='Visual Phaser Configuration Editor')
         self._init_utils()
@@ -469,12 +468,12 @@ class VPConfigBoaFrame(wx.Frame):
 
         self.workingDirText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMEWORKINGDIRTEXT,
               name='workingDirText', parent=self.pathsPanel, pos=wx.Point(156,
-              89), size=wx.Size(419, 21), style=0, value='')
+              89), size=wx.Size(439, 21), style=0, value='')
         self.workingDirText.SetToolTip('Path to where the Excel file will be created, or already exists.')
 
         self.browseWorkingDirButton = wx.Button(id=wxID_VPCONFIGBOAFRAMEBROWSEWORKINGDIRBUTTON,
               label='Browse...', name='browseWorkingDirButton',
-              parent=self.pathsPanel, pos=wx.Point(583, 89), size=wx.Size(90,
+              parent=self.pathsPanel, pos=wx.Point(603, 89), size=wx.Size(90,
               23), style=0)
         self.browseWorkingDirButton.Bind(wx.EVT_BUTTON,
               self.OnBrowseWorkingDirectoryButton,
@@ -486,12 +485,12 @@ class VPConfigBoaFrame(wx.Frame):
 
         self.mapPathText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMEMAPPATHTEXT,
               name='mapPathText', parent=self.pathsPanel, pos=wx.Point(156,
-              120), size=wx.Size(419, 21), style=0, value='')
+              120), size=wx.Size(439, 21), style=0, value='')
         self.mapPathText.SetToolTip('Select the path to min_map.txt if not the default.')
 
         self.browseMapPathButton = wx.Button(id=wxID_VPCONFIGBOAFRAMEBROWSEMAPPATHBUTTON,
               label='Browse...', name='browseMapPathButton',
-              parent=self.pathsPanel, pos=wx.Point(583, 120), size=wx.Size(90,
+              parent=self.pathsPanel, pos=wx.Point(603, 120), size=wx.Size(90,
               23), style=0)
         self.browseMapPathButton.Bind(wx.EVT_BUTTON, self.OnBrowseMapPathButton,
               id=wxID_VPCONFIGBOAFRAMEBROWSEMAPPATHBUTTON)
@@ -507,12 +506,12 @@ class VPConfigBoaFrame(wx.Frame):
 
         self.siblingsText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMESIBLINGSTEXT,
               name='siblingsText', parent=self.filesPanel, pos=wx.Point(8, 25),
-              size=wx.Size(715, 60), style=wx.TE_MULTILINE, value='')
+              size=wx.Size(715, 21), style=0, value='')
         self.siblingsText.SetToolTip("Example: '****','****','****'")
 
         self.phasedFilesLabel = wx.StaticText(id=wx.ID_ANY,
-              label='Phased Files  (comma-separated)', name='phasedFilesLabel',
-              parent=self.filesPanel, pos=wx.Point(8, 93), size=wx.Size(154,
+              label='Phased Files (comma-separated)', name='phasedFilesLabel',
+              parent=self.filesPanel, pos=wx.Point(8, 100), size=wx.Size(240,
               17), style=0)
 
         self.phasedFilesSpacerPanel = wx.Panel(id=wxID_VPCONFIGBOAFRAMEPHASEDFILESSPACERPANEL,
@@ -521,12 +520,12 @@ class VPConfigBoaFrame(wx.Frame):
 
         self.phasedFilesText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMEPHASEDFILESTEXT,
               name='phasedFilesText', parent=self.filesPanel, pos=wx.Point(8,
-              118), size=wx.Size(715, 60), style=wx.TE_MULTILINE, value='')
+              117), size=wx.Size(715, 21), style=0, value='')
         self.phasedFilesText.SetToolTip("Example: '****','****','****'")
 
         self.evilTwinsLabel = wx.StaticText(id=wx.ID_ANY,
-              label='Evil Twins  (comma-separated)', name='evilTwinsLabel',
-              parent=self.filesPanel, pos=wx.Point(8, 186), size=wx.Size(146,
+              label='Evil Twins (comma-separated)', name='evilTwinsLabel',
+              parent=self.filesPanel, pos=wx.Point(8, 146), size=wx.Size(230,
               17), style=0)
 
         self.evilTwinsSpacerPanel = wx.Panel(id=wxID_VPCONFIGBOAFRAMEEVILTWINSSPACERPANEL,
@@ -535,27 +534,27 @@ class VPConfigBoaFrame(wx.Frame):
 
         self.evilTwinsText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMEEVILTWINSTEXT,
               name='evilTwinsText', parent=self.filesPanel, pos=wx.Point(8,
-              211), size=wx.Size(715, 60), style=wx.TE_MULTILINE, value='')
+              163), size=wx.Size(715, 21), style=0, value='')
         self.evilTwinsText.SetToolTip("Example: '****','****','****'")
 
         self.cousinsLabel = wx.StaticText(id=wx.ID_ANY,
               label='Cousins (comma-separated)', name='cousinsLabel',
-              parent=self.filesPanel, pos=wx.Point(8, 279), size=wx.Size(152,
+              parent=self.filesPanel, pos=wx.Point(8, 54), size=wx.Size(152,
               17), style=0)
 
         self.cousinsText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMECOUSINSTEXT,
-              name='cousinsText', parent=self.filesPanel, pos=wx.Point(8, 296),
-              size=wx.Size(715, 60), style=wx.TE_MULTILINE, value='')
+              name='cousinsText', parent=self.filesPanel, pos=wx.Point(8, 71),
+              size=wx.Size(715, 21), style=0, value='')
         self.cousinsText.SetToolTip("Example: '****','****','****'")
 
         self.chromosomesLabel = wx.StaticText(id=wx.ID_ANY,
               label='Chromosomes (comma-separated)', name='chromosomesLabel',
-              parent=self.filesPanel, pos=wx.Point(8, 364), size=wx.Size(187,
+              parent=self.filesPanel, pos=wx.Point(8, 192), size=wx.Size(187,
               17), style=0)
 
         self.chromosomesText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMECHROMOSOMESTEXT,
               name='chromosomesText', parent=self.filesPanel, pos=wx.Point(8,
-              381), size=wx.Size(715, 60), style=wx.TE_MULTILINE, value='')
+              209), size=wx.Size(715, 21), style=0, value='')
         self.chromosomesText.SetToolTip('If empty, all chromosomes will be analyzed.\\nOtherwise: 1,2,3')
 
         self.boolPanel = wx.Panel(id=wxID_VPCONFIGBOAFRAMEBOOLPANEL,
@@ -764,7 +763,7 @@ class VPConfigBoaFrame(wx.Frame):
 
         self.excelFileNameText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMEEXCELFILENAMETEXT,
               name='excelFileNameText', parent=self.pathsPanel,
-              pos=wx.Point(156, 157), size=wx.Size(400, 21), style=0, value='')
+              pos=wx.Point(156, 157), size=wx.Size(300, 21), style=0, value='')
         self.excelFileNameText.SetToolTip('First part only: no ".xlsx"')
 
         self.programOutputLabel = wx.StaticText(id=wx.ID_ANY,
@@ -774,8 +773,8 @@ class VPConfigBoaFrame(wx.Frame):
 
         self.programOutputClearButton = wx.Button(id=wxID_VPCONFIGBOAFRAMEPROGRAMOUTPUTCLEARBUTTON,
               label='Clear', name='programOutputClearButton',
-              parent=self.pathsPanel, pos=wx.Point(156, 186),
-              size=wx.Size(75, 23), style=0)
+              parent=self.pathsPanel, pos=wx.Point(156, 186), size=wx.Size(75,
+              23), style=0)
         self.programOutputClearButton.Bind(wx.EVT_BUTTON,
               self.OnClearProgramOutputButton,
               id=wxID_VPCONFIGBOAFRAMEPROGRAMOUTPUTCLEARBUTTON)
@@ -1185,16 +1184,34 @@ class VPConfigBoaFrame(wx.Frame):
             return
 
         self.configBook.SetSelection(0)
-        script_dir = os.path.dirname(__file__)
-        pattern = os.path.join(script_dir, 'Visual_Phaser.V*.py')
-        candidates = sorted(glob.glob(pattern))
-        if not candidates:
-            wx.MessageBox('Could not find Visual_Phaser.V*.py in %s' % script_dir,
-                  'Run Error', wx.OK | wx.ICON_ERROR)
-            self._set_status('Run failed: Visual_Phaser.V*.py not found')
-            return
+        if getattr(sys, 'frozen', False):
+            # Running as a PyInstaller bundle: find Visual_Phaser.V*.exe.
+            exe_dir = os.path.dirname(sys.executable)
+            candidates = sorted(
+                glob.glob(os.path.join(exe_dir, 'Visual_Phaser.V*.exe')) +
+                glob.glob(os.path.join(os.path.dirname(exe_dir), 'Visual_Phaser.V*', 'Visual_Phaser.V*.exe'))
+            )
+            if not candidates:
+                wx.MessageBox(
+                    'Could not find Visual_Phaser.V*.exe next to\n%s\nor in a sibling folder.' % sys.executable,
+                    'Run Error', wx.OK | wx.ICON_ERROR)
+                self._set_status('Run failed: Visual_Phaser.V*.exe not found')
+                return
+            target_script = candidates[-1]
+            script_dir = os.path.dirname(target_script)
+            launch_cmd = [target_script]
+        else:
+            # Running from source: find the .py script.
+            script_dir = os.path.dirname(__file__)
+            candidates = sorted(glob.glob(os.path.join(script_dir, 'Visual_Phaser.V*.py')))
+            if not candidates:
+                wx.MessageBox('Could not find Visual_Phaser.V*.py in %s' % script_dir,
+                      'Run Error', wx.OK | wx.ICON_ERROR)
+                self._set_status('Run failed: Visual_Phaser.V*.py not found')
+                return
+            target_script = candidates[-1]
+            launch_cmd = [sys.executable, target_script]
 
-        target_script = candidates[-1]
         running_process = getattr(self, '_run_process', None)
         if running_process and running_process.poll() is None:
             wx.MessageBox('A Visual Phaser run is already in progress.',
@@ -1205,14 +1222,19 @@ class VPConfigBoaFrame(wx.Frame):
             self.programOutputText.SetValue('')
             self.programOutputText.AppendText('Starting %s...\n\n' %
                   os.path.basename(target_script))
+            popen_kwargs = {
+                'cwd': script_dir,
+                'stdin': subprocess.DEVNULL,
+                'stdout': subprocess.PIPE,
+                'stderr': subprocess.STDOUT,
+                'text': True,
+                'bufsize': 1,
+            }
+            if platform.system().lower() == 'windows':
+                popen_kwargs['creationflags'] = getattr(subprocess, 'CREATE_NO_WINDOW', 0)
             self._run_process = subprocess.Popen(
-                  [sys.executable, target_script],
-                  cwd=script_dir,
-                  stdin=subprocess.DEVNULL,
-                  stdout=subprocess.PIPE,
-                  stderr=subprocess.STDOUT,
-                  text=True,
-                  bufsize=1)
+                  launch_cmd,
+                  **popen_kwargs)
             output_thread = threading.Thread(target=self._stream_process_output,
                   args=(self._run_process, os.path.basename(target_script)),
                   daemon=True)

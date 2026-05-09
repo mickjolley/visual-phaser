@@ -36,26 +36,26 @@ FIELD_DEFINITIONS = {
     # File Lists
     'SIBLINGS': {
         'type': 'list_text',
-        'label': 'DNA Siblings (comma-separated filenames)',
-        'tooltip': 'Two minimum. Make sure that the DNA files are in the PixelChromosomeView (PCV) format.',
+        'label': 'Siblings (comma-separated names)',
+        'tooltip': 'Comma-separated names of the individuals to compare (minimum 2).',
         'required': True,
     },
     'PHASED_FILES': {
         'type': 'list_files',
-        'label': 'Phased Files (select files)',
-        'tooltip': 'Enter names of phased files to be compared to each other.',
+        'label': 'Phased Files (comma-separated names)',
+        'tooltip': 'Comma-separated names of the individuals in phased files to compare with each other.',
         'required': False,
     },
     'EVIL_TWINS': {
         'type': 'list_files',
-        'label': 'Evil Twin Files (select files)',
-        'tooltip': 'Evil Twin files to be compared to SIBLINGS.',
+        'label': 'Evil Twins (comma-separated names)',
+        'tooltip': 'Comma-separated names of the individuals in evil-twin files to compare against all SIBLINGS.',
         'required': False,
     },
     'COUSINS': {
         'type': 'list_text',
         'label': 'Cousins (comma-separated names)',
-        'tooltip': 'Enter names of individuals to be compared with all SIBLINGS in a pre-existing file.',
+        'tooltip': 'Comma-separated names of the individuals to compare with all SIBLINGS in a pre-existing file.',
         'required': False,
     },
     'CHROMOSOMES': {

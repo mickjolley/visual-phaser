@@ -190,7 +190,7 @@ controls, validate inputs, and launch a run directly from the GUI.</p>
 <h2 id="features">Features</h2>
 <div class="card-grid">
   <div class="card"><strong>Path Browsers</strong><br>Browse buttons for FILES_PATH, WORKING_DIRECTORY, and MAP_PATH.</div>
-  <div class="card"><strong>File Lists</strong><br>SIBLINGS, COUSINS, CHROMOSOMES as comma-separated fields; PHASED_FILES and EVIL_TWINS as multiline lists.</div>
+  <div class="card"><strong>File Lists</strong><br>SIBLINGS, PHASED_FILES, EVIL_TWINS, COUSINS, and CHROMOSOMES as comma-separated fields.</div>
   <div class="card"><strong>Boolean Dropdowns</strong><br>True/False combo boxes for every boolean parameter.</div>
   <div class="card"><strong>Spin Controls</strong><br>Integer spin boxes for RESOLUTION, cutoffs, SNP minimums, and more.</div>
   <div class="card"><strong>Tooltips</strong><br>Hover any field for a description drawn from the original config comments.</div>
@@ -234,7 +234,7 @@ sudo dnf install python3-wxpython4</code></pre>
 <ul>
   <li>Switch between the four tabs: <em>Paths</em>, <em>Input files</em>, <em>Generation options</em>, <em>Algorithm factors</em>.</li>
   <li>Use Browse buttons for folder paths.</li>
-  <li>Enter sibling names as a comma-separated list, e.g. <code>Alice, Bob, Carol</code>.</li>
+  <li>Enter list fields as comma-separated values (for example: <code>Alice, Bob, Carol</code>).</li>
   <li>Leave CHROMOSOMES blank to process all 23 chromosomes.</li>
   <li>The status bar shows <em>"Unsaved configuration changes"</em> whenever a field is modified.</li>
 </ul>
@@ -262,9 +262,9 @@ sudo dnf install python3-wxpython4</code></pre>
 <table>
   <tr><th>Parameter</th><th>Description</th></tr>
   <tr><td><code>SIBLINGS</code></td><td>Comma-separated names of the individuals to compare (minimum 2). Each name must match the prefix of a <code>&lt;name&gt;_raw_dna*</code> file.</td></tr>
-  <tr><td><code>PHASED_FILES</code></td><td>Pre-phased files to compare with each other (not with siblings).</td></tr>
-  <tr><td><code>EVIL_TWINS</code></td><td>Files to compare against all siblings.</td></tr>
-  <tr><td><code>COUSINS</code></td><td>Names to compare against siblings in an existing workbook. Leave blank to create a new file.</td></tr>
+  <tr><td><code>PHASED_FILES</code></td><td>Comma-separated names of the individuals in phased files to compare with each other (not with siblings).</td></tr>
+  <tr><td><code>EVIL_TWINS</code></td><td>Comma-separated names of the individuals in evil-twin files to compare against all siblings.</td></tr>
+  <tr><td><code>COUSINS</code></td><td>Comma-separated names of the individuals to compare against siblings in an existing workbook. Leave blank to create a new file.</td></tr>
   <tr><td><code>CHROMOSOMES</code></td><td>Comma-separated chromosome numbers (1–23). Leave blank to process all.</td></tr>
   <tr><td><code>EXCEL_FILE_NAME</code></td><td>Output workbook name without the <code>.xlsx</code> extension.</td></tr>
 </table>

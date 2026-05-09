@@ -57,13 +57,13 @@
    - MAP_PATH: The folder containing min_map.txt.
 
   Comparison Lists
-   - SIBLINGS: A list of individuals to be compared against one another.
-   - PHASED_FILES: Names of phased files (usually derived from parent/child
-     comparisons).
-   - COUSINS: Individuals to be compared against the sibling list in an existing
+   - SIBLINGS: Comma-separated list of individuals to be compared against one another.
+   - PHASED_FILES: Comma-separated names of the individuals in phased files (usually derived from
+     parent/child comparisons).
+   - COUSINS: Comma-separated names of the individuals to be compared against the sibling list in an existing
      project.
-   - EVIL_TWINS: Specialized files representing the non-matching side of a phased
-     individual.
+   - EVIL_TWINS: Comma-separated names of the individuals representing the non-matching side of a
+     phased individual.
 
   Genetic Cutoffs
    - HIR_CUTOFF: Minimum segment length (in cM) for Half-Identical segments (Default:
