@@ -2,7 +2,7 @@
 
 1. Introduction
 
-  Visual_Phaser.V1.0.py is a specialized bioinformatics application designed for
+  Visual_Phaser.V1.1.py is a specialized bioinformatics application designed for
   genetic genealogy. It analyzes raw autosomal DNA files to identify and visualize
   shared segments (Half-Identical Regions (HIRs), Fully-Identical Regions
   (FIRs) and Non-Identical regions (NIRs)) between siblings, cousins, and other relatives.
@@ -20,7 +20,7 @@
            numpy pandas pillow openpyxl
 
   Project Structure
-   - Visual_Phaser.V1.0.py: The main execution engine.
+   - Visual_Phaser.V1.1.py: The main execution engine.
    - VP_configV1.py: The configuration and parameter file.
    - min_map.txt: (Required) A genetic map file mapping physical positions (Mb) to
      genetic distances (cM).
@@ -29,15 +29,10 @@
 
 3. Data Preparation
 
-  DNA File Format (PCV)
-  The software expects tab-delimited .txt files in a format often referred to as
-  "PixelChromosomeView" (PCV).
-   - Naming Convention: Files must contain the testing company followed by the person's
-     name followed by _raw_dna.txt.
-     - Examples: Ancestry_Barb_raw_dna.txt, FTDNA_Jan_raw_dna.txt, Other_Fred_raw_dna.txt.
-     - .csv files can be converted to .txt files with
-       converter/ancestry_csv_to_tab_converter_V1.py or
-       converter/non_ancestry_csv_to_tab_converter_V1.py.
+ Tab-delimited .txt files and comma-sparated .csv files may be used.
+   - Rename file, placing "_raw_dna" immediately after the name.
+     Example "37_H_Fred_Chrom_Autoso_2024477.csv" is renamed "37_H_Fred_raw_dnaChrom_Autoso_2024477.csv".
+     In the Input Files tab enter the siblings (or cousins) as Fred, Joe, Susan. 
    - Supported Sources: Specifically optimized for AncestryDNA , 23andMe and other
       non- Ancestry exports.
 
@@ -58,15 +53,14 @@
    - MAP_PATH: The folder containing min_map.txt.
 
   Comparison Lists
-   - SIBLINGS: A list of individuals to be compared against one another.
-     Enter names of siblings between quotation marks, comma separated.
-     Example: ["Barb", "Jan", "Paul"]
-   - PHASED_FILES: Names of phased files (usually derived from parent/child
-     comparisons). Follow SIBLINGS example.
-   - COUSINS: Names of individuals to be compared against the sibling list in an existing
-     project. Follow SIBLINGS example.
-   - EVIL_TWINS: Names of files representing the non-matching side of a phased
-     individual. Follow SIBLINGS example.
+   - SIBLINGS: Comma-separated list of individuals to be compared against one another.
+   - PHASED_FILES: Comma-separated names of the individuals in phased files (usually derived from
+     parent/child comparisons).
+   - COUSINS: Comma-separated names of the individuals to be compared against the sibling list in an existing
+     project.
+   - EVIL_TWINS: Comma-separated names of the individuals representing the non-matching side of a
+     phased individual.
+
 
   Genetic Cutoffs
    - HIR_CUTOFF: Minimum segment length (in cM) for Half-Identical segments (Default:

@@ -1,16 +1,18 @@
-#Boa:Frame:VPConfigBoaFrame
+﻿#Boa:Frame:VPConfigBoaFrame
 # -*- coding: utf-8 -*-
 """Boa-managed configuration editor for Visual_Phaser.V1.0.py"""
 
 import os
 import re
 import glob
-import shutil
+import platform
 import subprocess
+import webbrowser
 import sys
 import threading
 
 import wx
+from VP_Config_Resources import FIELD_DEFINITIONS
 
 from VP_Config_Resources import FIELD_DEFINITIONS
 
@@ -19,34 +21,36 @@ TOOLTIPS = {
     'FILES_PATH': 'Path to folder where the DNA files are stored.',
     'WORKING_DIRECTORY': 'Folder where the .xlsx and .py files will be stored.',
     'MAP_PATH': 'Path to folder containing min_map.txt.',
-    'SIBLINGS': 'Two minimum. Make sure that the DNA files are in the PixelChromosomeView (PCV) format.',
-    'PHASED_FILES': 'Enter names of phased files to be compared to each other. They will not be compared to siblings. The default assignment for no calls is "X".',
-    'EVIL_TWINS': 'Evil Twin files to be compared to SIBLINGS.',
-    'COUSINS': 'Enter names of individuals to be compared with all SIBLINGS in a pre-existing file. Leave blank ([]) when creating a new file.',
-    'CHROMOSOMES': 'Chromosome selected (1-23). More than one chromosome may be entered if comma-separated. Leave empty for all chromosomes.',
-    'EXCEL_FILE_NAME': 'Name of the .xlsx file. Do not include the ".xlsx", This is added automatically.',
-    'SHOW_NO_MATCHES': 'Set to False if the display of match pairs with no matching segments is not desired.',
-    'CHROM_TRUE_SIZE': 'Set to True for true size. Set to False for normalized size.',
-    'LINEAR_CHROMOSOME': 'Set to True if you want to see the linearized chromosomes.',
-    'MERGE_FILES': 'Set to True if merging of DNA files is desired. If it is desired to treat match pairs separately, set to False.',
-    'RESOLUTION': 'Default value = 1. For normalized size it is advised to keep it under 10.',
-    'AUTO_REC_PNTS': 'Set AUTO_REC_PNTS to True if calculation of RPs is desired.',
-    'ARP_TOLERANCE': 'When AUTO_REC_PNTS is activated, columns with pixel size less than this value will be deleted.',
-    'AUTO_RP_ASSIGN': 'Set AUTO_RP_ASSIGN to True if automatic assignment of recombination points is desired.',
-    'REPAIR_FILES': 'Converts isolated NIR and HIR SNPs to FIR. Converts isolated NIR SNPs to HIR.',
-    'SCALE_FACTOR': 'The column width per pixel factor.',
-    'HIR_CUTOFF': 'Default value = 7 cM',
-    'FIR_CUTOFF': 'Default value = 1 cM.',
-    'X_HIR_CUTOFF': 'X chromosome cutoff (cM). The default is 15.',
-    'X_FIR_CUTOFF': 'X chromosome FIR cutoff (cM). The default 15.',
-    'FIR_TABLES': 'Set to True if display of FIR tables is desired.',
-    'SCALE_ON': 'Turn scale on and off. Set to False if not required.',
-    'FREEZE_COLUMN': 'Set to "A" if freezing not desired. Default = "A".',
-      'LINUX_FONT_STRING': 'Linux users only. Enter the path to your font.',
-    'HIR_SNP_MIN': 'Minimum number of HIR SNPs. Default value = 200',
-    'FIR_SNP_MIN': 'Minimum number of FIR SNPs. Default value = 75',
-    'MM_DIST': 'Number of Kbs between mismatches to end segment. Default = 1000.',
-    'NO_CALL': 'Character assigned to a no-call IN PHASED FILES.',
+    'SIBLINGS': 'Comma-separated names of the individuals to compare.',
+    'PHASED_FILES': 'Comma-separated names of the individuals in phased files to compare with each other.',
+    'EVIL_TWINS': 'Comma-separated names of the individuals in evil-twin files to compare against all siblings.',
+    'COUSINS': 'Comma-separated names of the individuals to compare against siblings in an existing workbook.',
+    'CHROMOSOMES': 'Comma-separated chromosome numbers. Leave empty for all.',
+    'EXCEL_FILE_NAME': 'Name of the output workbook without .xlsx.',
+    'SHOW_NO_MATCHES': 'Set False to hide no-match rows.',
+    'CHROM_TRUE_SIZE': 'True for true chromosome size; False for normalized size.',
+    'LINEAR_CHROMOSOME': 'True to view chromosomes linearly.',
+    'MERGE_FILES': 'True to merge DNA files before comparison.',
+    'RESOLUTION': 'Resolution value. Recommended below 10 for normalized size.',
+    'AUTO_REC_PNTS': 'True to calculate recombination points automatically.',
+    'ARP_TOLERANCE': 'Minimum column width in pixels when AUTO_REC_PNTS is enabled.',
+    'AUTO_RP_ASSIGN': 'True to assign recombination points automatically.',
+    'REPAIR_FILES': 'True to repair isolated NIR and HIR SNPs.',
+    'SCALE_FACTOR': 'Column width per pixel factor.',
+    'HIR_CUTOFF': 'HIR minimum segment length in cM.',
+    'FIR_CUTOFF': 'FIR cutoff in cM.',
+    'X_HIR_CUTOFF': 'X chromosome HIR cutoff in cM.',
+    'X_FIR_CUTOFF': 'X chromosome FIR cutoff in cM.',
+    'FIR_TABLES': 'True to display FIR tables.',
+    'SCALE_ON': 'True to display the scale.',
+    'FREEZE_COLUMN': 'Column to freeze. Use A to disable freezing.',
+    'LINUX_FONT_STRING': 'Linux font path if needed for rendering.',
+    'SHOW_TIMES': 'True to show elapsed times.',
+    'SHOW_MATCH_PAIR_PROGRESS': 'True to show progress for each match pair.',
+    'HIR_SNP_MIN': 'Minimum number of HIR SNPs.',
+    'FIR_SNP_MIN': 'Minimum number of FIR SNPs.',
+    'MM_DIST': 'Mismatch distance in Kbs.',
+    'NO_CALL': 'Character assigned to no-calls in phased files.',
 }
 
 
@@ -125,9 +129,33 @@ def create(parent):
  wxID_VPCONFIGBOAFRAMESAVEITEM,
 ] = [wx.NewIdRef() for _init_coll_fileMenu_Items in range(3)]
 
-[wxID_VPCONFIGBOAFRAMEABOUTITEM] = [wx.NewIdRef() for _init_coll_helpMenu_Items in range(1)]
+[wxID_VPCONFIGBOAFRAMEABOUTITEM, wxID_VPCONFIGBOAFRAMEDOCUMENTATIONITEM,
+] = [wx.NewIdRef() for _init_coll_helpMenu_Items in range(2)]
 
 class VPConfigBoaFrame(wx.Frame):
+    def _apply_window_icon(self):
+        if getattr(sys, 'frozen', False):
+                base_dir = os.path.dirname(sys.executable)
+                icon_candidates = [
+                    os.path.join(base_dir, 'VP_Config_GUI.ico'),
+                    os.path.join(os.path.dirname(base_dir), 'VP_Config_GUI.ico'),
+                ]
+        else:
+                base_dir = os.path.dirname(__file__)
+                icon_candidates = [
+                    os.path.join(base_dir, 'VP_Config_GUI.ico'),
+                    os.path.join(os.getcwd(), 'VP_Config_GUI.ico'),
+                ]
+
+        for icon_path in icon_candidates:
+                if not os.path.exists(icon_path):
+                    continue
+
+                icon = wx.Icon(icon_path, wx.BITMAP_TYPE_ICO)
+                if icon.IsOk():
+                    self.SetIcon(icon)
+                    break
+
     def _init_coll_numericGridSizer_Items(self, parent):
         # generated method, don't edit
 
@@ -245,6 +273,9 @@ class VPConfigBoaFrame(wx.Frame):
     def _init_coll_helpMenu_Items(self, parent):
         # generated method, don't edit
 
+        parent.Append(helpString='Open documentation',
+              id=wxID_VPCONFIGBOAFRAMEDOCUMENTATIONITEM, item='&Documentation')
+        parent.AppendSeparator()
         parent.Append(helpString='About this application',
               id=wxID_VPCONFIGBOAFRAMEABOUTITEM, item='&About')
 
@@ -387,7 +418,7 @@ class VPConfigBoaFrame(wx.Frame):
     def _init_ctrls(self, prnt):
         # generated method, don't edit
         wx.Frame.__init__(self, id=wxID_VPCONFIGBOAFRAME,
-              name='VPConfigBoaFrame', parent=prnt, pos=wx.Point(401, 98),
+              name='VPConfigBoaFrame', parent=prnt, pos=wx.Point(431, 139),
               size=wx.Size(771, 641), style=wx.DEFAULT_FRAME_STYLE,
               title='Visual Phaser Configuration Editor')
         self._init_utils()
@@ -399,6 +430,8 @@ class VPConfigBoaFrame(wx.Frame):
               id=wxID_VPCONFIGBOAFRAMESAVEITEM)
         self.Bind(wx.EVT_MENU, self.OnExitMenu,
               id=wxID_VPCONFIGBOAFRAMEEXITITEM)
+        self.Bind(wx.EVT_MENU, self.OnDocumentationMenu,
+              id=wxID_VPCONFIGBOAFRAMEDOCUMENTATIONITEM)
         self.Bind(wx.EVT_MENU, self.OnAboutMenu,
               id=wxID_VPCONFIGBOAFRAMEABOUTITEM)
         self.Bind(wx.EVT_CLOSE, self.OnWindowClose)
@@ -491,8 +524,8 @@ class VPConfigBoaFrame(wx.Frame):
         self.siblingsText.SetToolTip("Example: '****','****','****'")
 
         self.phasedFilesLabel = wx.StaticText(id=wx.ID_ANY,
-              label='Phased Files  (comma-separated)', name='phasedFilesLabel',
-              parent=self.filesPanel, pos=wx.Point(8, 100), size=wx.Size(187,
+              label='Phased Files (comma-separated)', name='phasedFilesLabel',
+              parent=self.filesPanel, pos=wx.Point(8, 100), size=wx.Size(240,
               17), style=0)
 
         self.phasedFilesText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMEPHASEDFILESTEXT,
@@ -501,8 +534,8 @@ class VPConfigBoaFrame(wx.Frame):
         self.phasedFilesText.SetToolTip("Example: '****','****','****'")
 
         self.evilTwinsLabel = wx.StaticText(id=wx.ID_ANY,
-              label='Evil Twins  (comma-separated)', name='evilTwinsLabel',
-              parent=self.filesPanel, pos=wx.Point(8, 146), size=wx.Size(187,
+              label='Evil Twins (comma-separated)', name='evilTwinsLabel',
+              parent=self.filesPanel, pos=wx.Point(8, 146), size=wx.Size(230,
               17), style=0)
 
         self.evilTwinsText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMEEVILTWINSTEXT,
@@ -512,7 +545,7 @@ class VPConfigBoaFrame(wx.Frame):
 
         self.cousinsLabel = wx.StaticText(id=wx.ID_ANY,
               label='Cousins (comma-separated)', name='cousinsLabel',
-              parent=self.filesPanel, pos=wx.Point(8, 54), size=wx.Size(187,
+              parent=self.filesPanel, pos=wx.Point(8, 54), size=wx.Size(152,
               17), style=0)
 
         self.cousinsText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMECOUSINSTEXT,
@@ -521,9 +554,9 @@ class VPConfigBoaFrame(wx.Frame):
         self.cousinsText.SetToolTip("Example: '****','****','****'")
 
         self.chromosomesLabel = wx.StaticText(id=wx.ID_ANY,
-              label='Chromosomes (comma-separated, leave empty for all 23 chromosomes)',
-              name='chromosomesLabel', parent=self.filesPanel, pos=wx.Point(8,
-              192), size=wx.Size(520, 17), style=0)
+              label='Chromosomes (comma-separated)', name='chromosomesLabel',
+              parent=self.filesPanel, pos=wx.Point(8, 192), size=wx.Size(187,
+              17), style=0)
 
         self.chromosomesText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMECHROMOSOMESTEXT,
               name='chromosomesText', parent=self.filesPanel, pos=wx.Point(8,
@@ -717,7 +750,7 @@ class VPConfigBoaFrame(wx.Frame):
 
         self.excelFileNameText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMEEXCELFILENAMETEXT,
               name='excelFileNameText', parent=self.pathsPanel,
-              pos=wx.Point(156, 149), size=wx.Size(439, 21), style=0, value='')
+              pos=wx.Point(156, 157), size=wx.Size(300, 21), style=0, value='')
         self.excelFileNameText.SetToolTip('First part only: no ".xlsx"')
 
         self.programOutputLabel = wx.StaticText(id=wx.ID_ANY,
@@ -726,9 +759,10 @@ class VPConfigBoaFrame(wx.Frame):
               17), style=0)
 
         self.programOutputClearButton = wx.Button(id=wxID_VPCONFIGBOAFRAMEPROGRAMOUTPUTCLEARBUTTON,
-              label='Clear Output', name='programOutputClearButton',
+              label='Clear', name='programOutputClearButton',
               parent=self.pathsPanel, pos=wx.Point(156, 186), size=wx.Size(75,
-              21), style=0)
+              23), style=0)
+              
         self.programOutputClearButton.Bind(wx.EVT_BUTTON,
               self.OnClearProgramOutputButton,
               id=wxID_VPCONFIGBOAFRAMEPROGRAMOUTPUTCLEARBUTTON)
@@ -810,19 +844,34 @@ class VPConfigBoaFrame(wx.Frame):
 
     def __init__(self, parent):
         self._init_ctrls(parent)
+        self._apply_window_icon()
         bg = self.GetBackgroundColour()
         self.actionsSpacerPanel.SetBackgroundColour(bg)
         self._base_title = self.GetTitle()
         self.config_path = self._resolve_startup_config_path()
         self._apply_window_icon()
         self.controls = self._build_controls_map()
-        self.data_changed = False
-        self._suppress_change_tracking = False
-        self._bind_change_tracking()
+        self._loading_controls = False
+        self._is_dirty = False
         self._apply_tooltips()
-        self._refresh_dirty_state_ui()
+        self._bind_dirty_events()
         self.Centre(wx.BOTH)
         self.LoadConfig()
+
+    def _bind_dirty_events(self):
+        for control in self.controls.values():
+            if isinstance(control, wx.TextCtrl):
+                control.Bind(wx.EVT_TEXT, self._on_control_modified)
+            elif isinstance(control, wx.ComboBox):
+                control.Bind(wx.EVT_COMBOBOX, self._on_control_modified)
+            elif isinstance(control, wx.SpinCtrl):
+                control.Bind(wx.EVT_SPINCTRL, self._on_control_modified)
+
+    def _on_control_modified(self, event):
+        if not self._loading_controls:
+            self._is_dirty = True
+            self._set_status('Unsaved configuration changes')
+        event.Skip()
 
     def _resolve_startup_config_path(self):
         app_dir = self._get_app_directory()
@@ -945,6 +994,34 @@ class VPConfigBoaFrame(wx.Frame):
     def _set_status(self, message):
         self.statusBar.SetStatusText(message, 0)
 
+    def _default_value_for_field(self, var_name):
+            definition = FIELD_DEFINITIONS.get(var_name, {})
+            if 'default' in definition:
+                  return definition['default']
+
+            field_type = definition.get('type')
+            if field_type in ('list_text', 'list_files'):
+                  return []
+            if field_type == 'boolean':
+                  return False
+            if field_type == 'int_spin':
+                  return int(definition.get('min', 0))
+            if field_type == 'float':
+                  return 0.0
+            return ''
+
+    def _load_defaults_from_field_definitions(self):
+            self._loading_controls = True
+            try:
+                  for var_name, control in self.controls.items():
+                        value = self._default_value_for_field(var_name)
+                        self._populate_control(var_name, control, value)
+            finally:
+                  self._loading_controls = False
+
+            self._is_dirty = True
+            self._set_status('Defaults loaded from FIELD_DEFINITIONS; save to apply')
+
     def _choose_directory(self, title, control):
         dialog = wx.DirDialog(self, title)
         try:
@@ -1066,18 +1143,16 @@ class VPConfigBoaFrame(wx.Frame):
             local_dict = {}
             with open(config_path, 'r') as config_file:
                 exec(config_file.read(), {}, local_dict)
-
-            self._suppress_change_tracking = True
+            self._loading_controls = True
             for var_name, control in self.controls.items():
                 if var_name in local_dict:
                     self._populate_control(var_name, control, local_dict[var_name])
-            self._suppress_change_tracking = False
-            self.data_changed = False
-            self._refresh_dirty_state_ui()
+            self._loading_controls = False
 
+            self._is_dirty = False
             self._set_status('Configuration loaded successfully')
         except Exception as error:
-            self._suppress_change_tracking = False
+            self._loading_controls = False
             self._set_status('Error loading configuration: %s' % error)
 
     def SaveConfig(self):
@@ -1090,9 +1165,7 @@ class VPConfigBoaFrame(wx.Frame):
 
             with open(config_path, 'w') as config_file:
                 config_file.writelines(updated_lines)
-
-            self.data_changed = False
-            self._refresh_dirty_state_ui()
+            self._is_dirty = False
             self._set_status('Configuration saved')
             wx.MessageBox('Configuration saved successfully.', 'Success',
                   wx.OK | wx.ICON_INFORMATION)
@@ -1119,6 +1192,14 @@ class VPConfigBoaFrame(wx.Frame):
 
     def OnExitMenu(self, event):
       self.Close()
+
+    def OnDocumentationMenu(self, event):
+        doc_path = os.path.join(os.path.dirname(__file__), 'VP_Config_GUI_README.html')
+        if not os.path.exists(doc_path):
+            wx.MessageBox('Documentation file not found:\n%s' % doc_path,
+                  'Documentation', wx.OK | wx.ICON_INFORMATION)
+            return
+        webbrowser.open('file:///' + doc_path.replace('\\', '/'))
 
     def OnAboutMenu(self, event):
         dialog = wx.MessageDialog(self,
@@ -1159,32 +1240,7 @@ class VPConfigBoaFrame(wx.Frame):
             dialog.Destroy()
 
     def OnResetButton(self, event):
-        try:
-            self._suppress_change_tracking = True
-
-            # Preserve requested behavior for Paths/Input tabs.
-            for panel in (self.pathsPanel, self.filesPanel):
-                for child in panel.GetChildren():
-                        if isinstance(child, wx.TextCtrl):
-                            child.SetValue('')
-
-            # Reload defaults for controls outside Paths/Input tabs.
-            for var_name, control in self.controls.items():
-                if control.GetParent() in (self.pathsPanel, self.filesPanel):
-                        continue
-
-                field_definition = FIELD_DEFINITIONS.get(var_name, {})
-                if 'default' in field_definition:
-                        self._populate_control(var_name, control, field_definition['default'])
-
-            self.data_changed = True
-            self._refresh_dirty_state_ui()
-            self._set_status('Defaults reloaded for Generation Options and Algorithm Factors; Paths/Input text fields cleared')
-            self.filesPathText.SetFocus()
-        except Exception as error:
-            self._set_status('Error resetting defaults: %s' % error)
-        finally:
-            self._suppress_change_tracking = False
+            self._load_defaults_from_field_definitions()
 
     def OnClearProgramOutputButton(self, event):
         self.programOutputText.SetValue('')
@@ -1211,37 +1267,82 @@ class VPConfigBoaFrame(wx.Frame):
 
     def _stream_process_output(self, process, script_name):
         try:
+            input_errors = []
             for line in iter(process.stdout.readline, ''):
                 wx.CallAfter(self.programOutputText.AppendText, line)
+                if '[VP_INPUT_ERROR]' in line:
+                              input_errors.append(line.strip())
+
             process.stdout.close()
             return_code = process.wait()
-            wx.CallAfter(self._set_status,
-                  'Finished %s (exit code %s)' % (script_name, return_code))
+            wx.CallAfter(
+                self._set_status,
+                'Finished %s (exit code %s)' % (script_name, return_code)
+            )
+
+            if input_errors:
+                cleaned = [line.replace('[VP_INPUT_ERROR]', '').strip() for line in input_errors]
+                message = (
+                      'Visual Phaser could not load usable data for one or more SIBLINGS.\n\n'
+                      + '\n'.join(cleaned)
+                )
+                wx.CallAfter(wx.MessageBox, message, 'Input Data Error', wx.OK | wx.ICON_ERROR)
+            elif return_code != 0:
+                wx.CallAfter(
+                      wx.MessageBox,
+                      'Visual Phaser exited with code %s.\nCheck Program Output for details.' % return_code,
+                      'Run Error',
+                      wx.OK | wx.ICON_ERROR,
+                )
         except Exception as error:
-            wx.CallAfter(self.programOutputText.AppendText,
-                  '\n[Output stream error] %s\n' % error)
+            wx.CallAfter(
+                self.programOutputText.AppendText,
+                '\n[Output stream error] %s\n' % error,
+            )
             wx.CallAfter(self._set_status, 'Run failed: %s' % error)
 
     def OnRunButton(self, event):
-        if self.data_changed:
-            self._set_status('Run disabled: save configuration changes first')
-            return
-        self.configBook.SetSelection(0)
-        script_dir = self._get_app_directory()
-        launch_command, target_name = self._resolve_processor_launch()
-        if launch_command is None:
-            wx.MessageBox('Could not find Visual_Phaser.V*.exe or Visual_Phaser.V*.py in %s' % script_dir,
-                  'Run Error', wx.OK | wx.ICON_ERROR)
-            self._set_status('Run failed: Visual_Phaser executable/script not found')
+        if self._is_dirty:
+            wx.MessageBox(
+                  'Configuration has unsaved changes. Click "Save Configuration" before running.',
+                  'Save Required',
+                  wx.OK | wx.ICON_WARNING)
+            self._set_status('Run blocked: save configuration first')
             return
 
-        if not launch_command:
-            wx.MessageBox(
-                  'The packaged GUI could not find a Python launcher on PATH.\n'
-                  'Build/include Visual_Phaser.V*.exe or install Python.',
-                  'Run Error', wx.OK | wx.ICON_ERROR)
-            self._set_status('Run failed: Python launcher not found')
-            return
+        self.configBook.SetSelection(0)
+        runtime_config_path = os.path.abspath(self.config_path) if self.config_path else ''
+
+        if getattr(sys, 'frozen', False):
+            # Running as a PyInstaller bundle: find Visual_Phaser.V*.exe.
+            exe_dir = os.path.dirname(sys.executable)
+            candidates = sorted(
+                glob.glob(os.path.join(exe_dir, 'Visual_Phaser.V*.exe')) +
+                glob.glob(os.path.join(os.path.dirname(exe_dir), 'Visual_Phaser.V*', 'Visual_Phaser.V*.exe'))
+            )
+            if not candidates:
+                wx.MessageBox(
+                    'Could not find Visual_Phaser.V*.exe next to\n%s\nor in a sibling folder.' % sys.executable,
+                    'Run Error', wx.OK | wx.ICON_ERROR)
+                self._set_status('Run failed: Visual_Phaser.V*.exe not found')
+                return
+            target_script = candidates[-1]
+            script_dir = os.path.dirname(target_script)
+            launch_cmd = [target_script]
+        else:
+            # Running from source: find the .py script.
+            script_dir = os.path.dirname(__file__)
+            candidates = sorted(glob.glob(os.path.join(script_dir, 'Visual_Phaser.V*.py')))
+            if not candidates:
+                wx.MessageBox('Could not find Visual_Phaser.V*.py in %s' % script_dir,
+                      'Run Error', wx.OK | wx.ICON_ERROR)
+                self._set_status('Run failed: Visual_Phaser.V*.py not found')
+                return
+            target_script = candidates[-1]
+            launch_cmd = [sys.executable, target_script]
+
+        if runtime_config_path and os.path.exists(runtime_config_path):
+            launch_cmd.append(runtime_config_path)
 
         running_process = getattr(self, '_run_process', None)
         if running_process and running_process.poll() is None:
@@ -1252,20 +1353,23 @@ class VPConfigBoaFrame(wx.Frame):
         try:
             self.programOutputText.SetValue('')
             self.programOutputText.AppendText('Starting %s...\n\n' %
-                  target_name)
+                  os.path.basename(target_script))
             popen_kwargs = {
-                  'cwd': script_dir,
-                  'stdin': subprocess.DEVNULL,
-                  'stdout': subprocess.PIPE,
-                  'stderr': subprocess.STDOUT,
-                  'text': True,
-                  'bufsize': 1,
+                'cwd': script_dir,
+                'stdin': subprocess.DEVNULL,
+                'stdout': subprocess.PIPE,
+                'stderr': subprocess.STDOUT,
+                'text': True,
+                'bufsize': 1,
             }
-            if os.name == 'nt':
-                  popen_kwargs['creationflags'] = getattr(subprocess, 'CREATE_NO_WINDOW', 0)
-
+            if platform.system().lower() == 'windows':
+                popen_kwargs['creationflags'] = getattr(subprocess, 'CREATE_NO_WINDOW', 0)
+            if runtime_config_path and os.path.exists(runtime_config_path):
+                env = os.environ.copy()
+                env['VP_CONFIG_PATH'] = runtime_config_path
+                popen_kwargs['env'] = env
             self._run_process = subprocess.Popen(
-                  launch_command,
+                  launch_cmd,
                   **popen_kwargs)
             output_thread = threading.Thread(target=self._stream_process_output,
                   args=(self._run_process, target_name),

@@ -1,19 +1,6 @@
 # -*- coding: utf-8 -*-
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-VPconfig_V1.py is the configuration file for Visual_Phaser.V1.0.py.
-It contains all the parameters that are used in the program.
-The parameters are explained in detail below.
-
-QUICK SETUP (Windows):
-1. The script will load config from one of these locations:
-	- VPnew_config_V19.py in the repo/run folder (checked first)
-	- C:/Users/<your-user>/AppData/Local/DNA_phasing/VPnew_config_V19.py
-2. Edit the copy you want the script to use.
-3. If both files exist, the repo/run-folder copy is used.
-4. Set these fields before running:
-	FILES_PATH, WORKING_DIRECTORY, MAP_PATH, EXCEL_FILE_NAME,
-	SIBLINGS/PHASED_FILES/EVIL_TWINS/COUSINS, CHROMOSOMES.
-5. Enable TIMEIT_PROFILE = True when benchmarking performance.
+VP_configV1.py is the configuration file for Visual_Phaser.V1.1.py.
 
 FILES_PATH: Path to folder where the DNA files are stored.
 
@@ -27,16 +14,15 @@ PixelChromosomeView (PCV) format. Examples are 'Ancestry_Fred_raw_dna.txt' and
 ancestry_csv_to_tab_converter.py or not_ancestry_csv_to_tab_converter.py to
 convert .csv files to the correct format.
 
-PHASED_FILES: Enter names of phased files to be compared to each other. They
-will not be compared to siblings. The default assignment for no calls is "X".
+PHASED_FILES: Enter comma-separated names of the individuals in phased files to
+be compared to each other. They will not be compared to siblings. The default
+assignment for no calls is "X".
 
-EVIL_TWINS: Evil Twin files to be compared to SIBLINGS.
+EVIL_TWINS: Enter comma-separated names of the individuals in evil-twin files
+to be compared to SIBLINGS.
 
-COUSINS: Enter names of individuals to be compared with all SIBLINGS in a
-pre-existing file. Leave blank ([]) when creating a new file. If not empty ie [],
-AUTO_REC_PNTS will be set to False, and if EXCEL_FILE_NAME exists then
-CHROMOSOMES will be ignored since the program will compare only those already in
-the file.
+COUSINS: Enter comma-separated names of the individuals to be compared with all SIBLINGS in a
+pre-existing file. Leave blank ([]) when creating a new file.
 
 CHROMOSOMES: Chromosome selected (1-23). More than one chromosome may be entered.
 Leave empty for all chromosomes.
@@ -104,9 +90,10 @@ FREEZE_COLUMN: Set to "A" if freezing not desired. Default = "A".
 LINUX_FONT_STRING: Linux users only. Enter the path to your font. If you don't
 know it, set SCALE_ON to False.
 
-Parallel execution: Worker counts are automatically derived from CPU count.
-Chromosome scheduling uses threads, while pair scan/plot stages use process
-pools for improved multi-core utilization.
+SHOW_TIMES: Elapsed times are shown for each step. Default =True
+
+SHOW_MATCH_PAIR_PROGRESS: Notifies the completion of each step. Set to
+False if you don't want to see this. Default = True
 
 HIR_SNP_MIN: Minimum number of HIR SNPs. Default value = 200
 
@@ -121,16 +108,16 @@ NO_CALL: Character assigned to a no-call IN PHASED FILES.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 # Path to DNA files.
-FILES_PATH = ''
+FILES_PATH = r'*******'
 
 # Path to .xlsx file.
-WORKING_DIRECTORY = ''
+WORKING_DIRECTORY = r'*******'
 
 # Path to min_map.txt file.
-MAP_PATH = ''
+MAP_PATH = r'********'
 
 # SIBLINGS to be compared. Make sure that no two files share the same name.
-SIBLINGS = []
+SIBLINGS = ['****','****','****']
 
 # Phased files to be compared to each other.
 PHASED_FILES = []
@@ -145,7 +132,7 @@ COUSINS = []
 CHROMOSOMES = []
 
 # Excel file name. Leave ".xlsx" out.
-EXCEL_FILE_NAME = ''
+EXCEL_FILE_NAME = '********'
 
 # Suppress no-matches. Set to True if display of no-matches is desired.
 SHOW_NO_MATCHES = True
@@ -213,6 +200,9 @@ LINUX_FONT_STRING = '*/fonts/truetype/family/DejaVuSerif-Bold.ttf'
 # Set to True to show timeit profiles for each function.
 TIMEIT_PROFILE = False
 
+# Notifies the completion of each step. Set to False if you don't want to see
+# this.
+SHOW_MATCH_PAIR_PROGRESS = True
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 You shouldn't have to change the parameters below.

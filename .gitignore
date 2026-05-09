@@ -1,3 +1,8 @@
 *.pyc
-\build
-\executable
+/executable*
+/build*
+/dist*
+nuitka*
+setup.*
+*.spec
+*.ps1
