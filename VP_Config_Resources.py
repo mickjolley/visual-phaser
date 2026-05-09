@@ -98,7 +98,7 @@ FIELD_DEFINITIONS = {
     'SHOW_NO_MATCHES': {
         'type': 'boolean',
         'label': 'SHOW_NO_MATCHES',
-        'tooltip': 'Set to False if display of match pairs with no matching segments is not desired.\nMust be True when creating a new configuration, and for AUTO_RP_ASSIGN to work.',
+        'tooltip': 'Set to False if display of match pairs with no matching segments is not desired.',
         'default': True,
     },
     'CHROM_TRUE_SIZE': {
@@ -147,6 +147,18 @@ FIELD_DEFINITIONS = {
         'type': 'boolean',
         'label': 'SCALE_ON',
         'tooltip': 'Turn scale on and off.',
+        'default': True,
+    },
+    'SHOW_TIMES': {
+        'type': 'boolean',
+        'label': 'SHOW_TIMES',
+        'tooltip': 'Elapsed times are shown for each step.',
+        'default': True,
+    },
+    'SHOW_MATCH_PAIR_PROGRESS': {
+        'type': 'boolean',
+        'label': 'SHOW_MATCH_PAIR_PROGRESS',
+        'tooltip': 'Notifies the completion of each step.',
         'default': True,
     },
 
@@ -258,6 +270,8 @@ FIELD_SECTIONS = {
         'REPAIR_FILES',
         'FIR_TABLES',
         'SCALE_ON',
+        'SHOW_TIMES',
+        'SHOW_MATCH_PAIR_PROGRESS',
     ],
     'Numeric Parameters': [
         'RESOLUTION',

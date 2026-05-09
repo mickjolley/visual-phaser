@@ -33,7 +33,7 @@ USING THE GUI
 
 2. EDIT SETTINGS
    Paths:        Click "Browse..." buttons to select folders
-   Files:        Use "Select Files" or type names as comma-separated, one-per-line, or mixed entries
+   Files:        Use "Select Files" or type comma-separated names
    Boolean:      Choose True/False from dropdown
    Numbers:      Use up/down spinners or type values
    Text:         Type directly in text fields
@@ -64,10 +64,10 @@ PATHS AND DIRECTORIES:
   • MAP_PATH            - Where min_map.txt is located
 
 FILE MANAGEMENT:
-  • SIBLINGS            - Comma-separated names of the individuals to compare (2 minimum)
-  • PHASED_FILES        - Comma-separated names of the individuals in phased files
-  • EVIL_TWINS          - Comma-separated names of the individuals in evil-twin files
-  • COUSINS             - Comma-separated names of the individuals to compare with siblings
+   • SIBLINGS            - Comma-separated names of the individuals to compare (2 minimum)
+   • PHASED_FILES        - Comma-separated names of the individuals in phased files
+   • EVIL_TWINS          - Comma-separated names of the individuals in evil-twin files
+   • COUSINS             - Comma-separated names of the individuals to compare with siblings
   • CHROMOSOMES         - Which chromosomes (1-23, or blank for all)
   • EXCEL_FILE_NAME     - Name for output file
 
@@ -75,6 +75,8 @@ DISPLAY OPTIONS:
   • CHROM_TRUE_SIZE              - Use true vs. normalized sizes
   • LINEAR_CHROMOSOME            - Show linearized view
   • SHOW_NO_MATCHES              - Include unmatched pairs
+  • SHOW_TIMES                   - Display timing info
+  • SHOW_MATCH_PAIR_PROGRESS     - Show progress messages
   • FIR_TABLES                   - Display FIR analysis tables
 
 PROCESSING:

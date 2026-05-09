@@ -61,7 +61,6 @@
    - EVIL_TWINS: Comma-separated names of the individuals representing the non-matching side of a
      phased individual.
 
-
   Genetic Cutoffs
    - HIR_CUTOFF: Minimum segment length (in cM) for Half-Identical segments (Default:
      7 cM).

@@ -108,16 +108,16 @@ NO_CALL: Character assigned to a no-call IN PHASED FILES.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 # Path to DNA files.
-FILES_PATH = r'*******'
+FILES_PATH = ''
 
 # Path to .xlsx file.
-WORKING_DIRECTORY = r'*******'
+WORKING_DIRECTORY = ''
 
 # Path to min_map.txt file.
-MAP_PATH = r'********'
+MAP_PATH = ''
 
 # SIBLINGS to be compared. Make sure that no two files share the same name.
-SIBLINGS = ['****','****','****']
+SIBLINGS = []
 
 # Phased files to be compared to each other.
 PHASED_FILES = []
@@ -132,7 +132,7 @@ COUSINS = []
 CHROMOSOMES = []
 
 # Excel file name. Leave ".xlsx" out.
-EXCEL_FILE_NAME = '********'
+EXCEL_FILE_NAME = ''
 
 # Suppress no-matches. Set to True if display of no-matches is desired.
 SHOW_NO_MATCHES = True
@@ -197,8 +197,8 @@ FREEZE_COLUMN = 'A'
 # "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf"
 LINUX_FONT_STRING = '*/fonts/truetype/family/DejaVuSerif-Bold.ttf'
 
-# Set to True to show timeit profiles for each function.
-TIMEIT_PROFILE = False
+# Elapsed times are shown for each step.
+SHOW_TIMES = True
 
 # Notifies the completion of each step. Set to False if you don't want to see
 # this.

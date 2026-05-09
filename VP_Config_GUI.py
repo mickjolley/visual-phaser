@@ -1,6 +1,6 @@
 ﻿#Boa:Frame:VPConfigBoaFrame
 # -*- coding: utf-8 -*-
-"""Boa-managed configuration editor for Visual_Phaser.V1.0.py"""
+"""Boa-managed configuration editor for VP_configV1.py."""
 
 import os
 import re
@@ -14,17 +14,15 @@ import threading
 import wx
 from VP_Config_Resources import FIELD_DEFINITIONS
 
-from VP_Config_Resources import FIELD_DEFINITIONS
-
 
 TOOLTIPS = {
     'FILES_PATH': 'Path to folder where the DNA files are stored.',
     'WORKING_DIRECTORY': 'Folder where the .xlsx and .py files will be stored.',
     'MAP_PATH': 'Path to folder containing min_map.txt.',
-    'SIBLINGS': 'Comma-separated names of the individuals to compare.',
-    'PHASED_FILES': 'Comma-separated names of the individuals in phased files to compare with each other.',
-    'EVIL_TWINS': 'Comma-separated names of the individuals in evil-twin files to compare against all siblings.',
-    'COUSINS': 'Comma-separated names of the individuals to compare against siblings in an existing workbook.',
+      'SIBLINGS': 'Comma-separated names of the individuals to compare.',
+      'PHASED_FILES': 'Comma-separated names of the individuals in phased files to compare with each other.',
+      'EVIL_TWINS': 'Comma-separated names of the individuals in evil-twin files to compare against all siblings.',
+      'COUSINS': 'Comma-separated names of the individuals to compare against siblings in an existing workbook.',
     'CHROMOSOMES': 'Comma-separated chromosome numbers. Leave empty for all.',
     'EXCEL_FILE_NAME': 'Name of the output workbook without .xlsx.',
     'SHOW_NO_MATCHES': 'Set False to hide no-match rows.',
@@ -59,7 +57,7 @@ LINE_LIST_FIELDS = ('PHASED_FILES', 'EVIL_TWINS')
 BOOLEAN_FIELDS = (
     'SHOW_NO_MATCHES', 'CHROM_TRUE_SIZE', 'LINEAR_CHROMOSOME', 'MERGE_FILES',
     'AUTO_REC_PNTS', 'AUTO_RP_ASSIGN', 'REPAIR_FILES', 'FIR_TABLES',
-      'SCALE_ON'
+    'SCALE_ON', 'SHOW_TIMES', 'SHOW_MATCH_PAIR_PROGRESS'
 )
 INTEGER_FIELDS = (
     'RESOLUTION', 'ARP_TOLERANCE', 'HIR_CUTOFF', 'FIR_CUTOFF', 'X_HIR_CUTOFF',
@@ -87,6 +85,7 @@ def create(parent):
  wxID_VPCONFIGBOAFRAMECHROMTRUESIZELABEL, wxID_VPCONFIGBOAFRAMECLOSEBUTTON,
  wxID_VPCONFIGBOAFRAMECONFIGBOOK, wxID_VPCONFIGBOAFRAMECOUSINSLABEL,
  wxID_VPCONFIGBOAFRAMECOUSINSTEXT, wxID_VPCONFIGBOAFRAMEEVILTWINSLABEL,
+ wxID_VPCONFIGBOAFRAMEEVILTWINSSPACERPANEL,
  wxID_VPCONFIGBOAFRAMEEVILTWINSTEXT, wxID_VPCONFIGBOAFRAMEEXCELFILENAMELABEL,
  wxID_VPCONFIGBOAFRAMEEXCELFILENAMETEXT, wxID_VPCONFIGBOAFRAMEFILESPANEL,
  wxID_VPCONFIGBOAFRAMEFILESPATHLABEL, wxID_VPCONFIGBOAFRAMEFILESPATHTEXT,
@@ -104,7 +103,9 @@ def create(parent):
  wxID_VPCONFIGBOAFRAMEMMDISTLABEL, wxID_VPCONFIGBOAFRAMEMMDISTSPIN,
  wxID_VPCONFIGBOAFRAMENOCALLLABEL, wxID_VPCONFIGBOAFRAMENOCALLTEXT,
  wxID_VPCONFIGBOAFRAMENUMERICPANEL, wxID_VPCONFIGBOAFRAMEPATHSPANEL,
- wxID_VPCONFIGBOAFRAMEPHASEDFILESLABEL, wxID_VPCONFIGBOAFRAMEPHASEDFILESTEXT,
+ wxID_VPCONFIGBOAFRAMEPHASEDFILESLABEL,
+ wxID_VPCONFIGBOAFRAMEPHASEDFILESSPACERPANEL,
+ wxID_VPCONFIGBOAFRAMEPHASEDFILESTEXT,
  wxID_VPCONFIGBOAFRAMEPROGRAMOUTPUTCLEARBUTTON,
  wxID_VPCONFIGBOAFRAMEPROGRAMOUTPUTLABEL,
  wxID_VPCONFIGBOAFRAMEPROGRAMOUTPUTTEXT,
@@ -114,15 +115,18 @@ def create(parent):
  wxID_VPCONFIGBOAFRAMESAVEBUTTON, wxID_VPCONFIGBOAFRAMESCALEFACTORLABEL,
  wxID_VPCONFIGBOAFRAMESCALEFACTORTEXT, wxID_VPCONFIGBOAFRAMESCALEONCOMBO,
  wxID_VPCONFIGBOAFRAMESCALEONLABEL,
+ wxID_VPCONFIGBOAFRAMESHOWMATCHPAIRPROGRESSCOMBO,
+ wxID_VPCONFIGBOAFRAMESHOWMATCHPAIRPROGRESSLABEL,
  wxID_VPCONFIGBOAFRAMESHOWNOMATCHESCOMBO,
- wxID_VPCONFIGBOAFRAMESHOWNOMATCHESLABEL, wxID_VPCONFIGBOAFRAMESIBLINGSLABEL,
+ wxID_VPCONFIGBOAFRAMESHOWNOMATCHESLABEL, wxID_VPCONFIGBOAFRAMESHOWTIMESCOMBO,
+ wxID_VPCONFIGBOAFRAMESHOWTIMESLABEL, wxID_VPCONFIGBOAFRAMESIBLINGSLABEL,
  wxID_VPCONFIGBOAFRAMESIBLINGSTEXT, wxID_VPCONFIGBOAFRAMESTATICLINE1,
  wxID_VPCONFIGBOAFRAMESTATUSBAR, wxID_VPCONFIGBOAFRAMETITLETEXT,
  wxID_VPCONFIGBOAFRAMEWORKINGDIRECTORYLABEL,
  wxID_VPCONFIGBOAFRAMEWORKINGDIRTEXT, wxID_VPCONFIGBOAFRAMEXFIRCUTOFFLABEL,
  wxID_VPCONFIGBOAFRAMEXFIRCUTOFFSPIN, wxID_VPCONFIGBOAFRAMEXHIRCUTOFFLABEL,
  wxID_VPCONFIGBOAFRAMEXHIRCUTOFFSPIN,
-] = [wx.NewIdRef() for _init_ctrls in range(83)]
+] = [wx.NewIdRef() for _init_ctrls in range(89)]
 
 
 [wxID_VPCONFIGBOAFRAMEEXITITEM, wxID_VPCONFIGBOAFRAMELOADITEM,
@@ -220,6 +224,12 @@ class VPConfigBoaFrame(wx.Frame):
         parent.Add(self.scaleOnLabel, 0, border=5,
               flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
         parent.Add(self.scaleOnCombo, 0, border=5, flag=wx.ALL)
+        parent.Add(self.showTimesLabel, 0, border=5,
+              flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
+        parent.Add(self.showTimesCombo, 0, border=5, flag=wx.ALL)
+        parent.Add(self.showMatchPairProgressLabel, 0, border=5,
+              flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
+        parent.Add(self.showMatchPairProgressCombo, 0, border=5, flag=wx.ALL)
         parent.Add(self.freezeColumnLabel, 0, border=5,
               flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
         parent.Add(self.freezeColumnText, 0, border=5, flag=wx.ALL)
@@ -391,7 +401,7 @@ class VPConfigBoaFrame(wx.Frame):
         self.chromosomesSizer.Add(self.chromosomesText, 0, border=5,
               flag=int(wx.LEFT) | int(wx.RIGHT) | int(wx.BOTTOM) | int(wx.EXPAND))
 
-        self.boolGridSizer = wx.FlexGridSizer(cols=2, hgap=8, rows=12, vgap=0)
+        self.boolGridSizer = wx.FlexGridSizer(cols=2, hgap=8, rows=14, vgap=0)
 
         self.numericGridSizer = wx.FlexGridSizer(cols=2, hgap=8, rows=10,
               vgap=0)
@@ -434,7 +444,6 @@ class VPConfigBoaFrame(wx.Frame):
               id=wxID_VPCONFIGBOAFRAMEDOCUMENTATIONITEM)
         self.Bind(wx.EVT_MENU, self.OnAboutMenu,
               id=wxID_VPCONFIGBOAFRAMEABOUTITEM)
-        self.Bind(wx.EVT_CLOSE, self.OnWindowClose)
 
         self.statusBar = wx.StatusBar(id=wxID_VPCONFIGBOAFRAMESTATUSBAR,
               name='statusBar', parent=self, style=0)
@@ -515,7 +524,7 @@ class VPConfigBoaFrame(wx.Frame):
 
         self.siblingsLabel = wx.StaticText(id=wx.ID_ANY,
               label='Siblings (comma-separated)', name='siblingsLabel',
-              parent=self.filesPanel, pos=wx.Point(8, 8), size=wx.Size(187, 17),
+              parent=self.filesPanel, pos=wx.Point(8, 8), size=wx.Size(153, 17),
               style=0)
 
         self.siblingsText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMESIBLINGSTEXT,
@@ -528,6 +537,10 @@ class VPConfigBoaFrame(wx.Frame):
               parent=self.filesPanel, pos=wx.Point(8, 100), size=wx.Size(240,
               17), style=0)
 
+        self.phasedFilesSpacerPanel = wx.Panel(id=wxID_VPCONFIGBOAFRAMEPHASEDFILESSPACERPANEL,
+              name='phasedFilesSpacerPanel', parent=self.filesPanel,
+              pos=wx.Point(162, 93), size=wx.Size(1, 1), style=wx.NO_BORDER)
+
         self.phasedFilesText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMEPHASEDFILESTEXT,
               name='phasedFilesText', parent=self.filesPanel, pos=wx.Point(8,
               117), size=wx.Size(715, 21), style=0, value='')
@@ -537,6 +550,10 @@ class VPConfigBoaFrame(wx.Frame):
               label='Evil Twins (comma-separated)', name='evilTwinsLabel',
               parent=self.filesPanel, pos=wx.Point(8, 146), size=wx.Size(230,
               17), style=0)
+
+        self.evilTwinsSpacerPanel = wx.Panel(id=wxID_VPCONFIGBOAFRAMEEVILTWINSSPACERPANEL,
+              name='evilTwinsSpacerPanel', parent=self.filesPanel,
+              pos=wx.Point(154, 435), size=wx.Size(1, 1), style=wx.NO_BORDER)
 
         self.evilTwinsText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMEEVILTWINSTEXT,
               name='evilTwinsText', parent=self.filesPanel, pos=wx.Point(8,
@@ -650,6 +667,25 @@ class VPConfigBoaFrame(wx.Frame):
               parent=self.boolPanel, pos=wx.Point(214, 261), size=wx.Size(100,
               21), style=wx.CB_READONLY, value='True')
 
+        self.showTimesLabel = wx.StaticText(label='SHOW_TIMES',
+              name='showTimesLabel', parent=self.boolPanel, pos=wx.Point(13,
+              294), size=wx.Size(79, 17), style=0)
+
+        self.showTimesCombo = wx.ComboBox(choices=['True', 'False'],
+              id=wxID_VPCONFIGBOAFRAMESHOWTIMESCOMBO, name='showTimesCombo',
+              parent=self.boolPanel, pos=wx.Point(214, 292), size=wx.Size(100,
+              21), style=wx.CB_READONLY, value='True')
+
+        self.showMatchPairProgressLabel = wx.StaticText(label='SHOW_MATCH_PAIR_PROGRESS',
+              name='showMatchPairProgressLabel', parent=self.boolPanel,
+              pos=wx.Point(13, 325), size=wx.Size(183, 17), style=0)
+
+        self.showMatchPairProgressCombo = wx.ComboBox(choices=['True', 'False'],
+              id=wxID_VPCONFIGBOAFRAMESHOWMATCHPAIRPROGRESSCOMBO,
+              name='showMatchPairProgressCombo', parent=self.boolPanel,
+              pos=wx.Point(214, 323), size=wx.Size(100, 21),
+              style=wx.CB_READONLY, value='True')
+
         self.numericPanel = wx.Panel(id=wxID_VPCONFIGBOAFRAMENUMERICPANEL,
               name='numericPanel', parent=self.configBook, pos=wx.Point(0, 0),
               size=wx.Size(731, 517), style=wx.TAB_TRAVERSAL)
@@ -746,7 +782,7 @@ class VPConfigBoaFrame(wx.Frame):
 
         self.excelFileNameLabel = wx.StaticText(label='EXCEL_FILE_NAME',
               name='excelFileNameLabel', parent=self.pathsPanel, pos=wx.Point(8,
-              151), size=wx.Size(140, 17), style=0)
+              159), size=wx.Size(140, 17), style=0)
 
         self.excelFileNameText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMEEXCELFILENAMETEXT,
               name='excelFileNameText', parent=self.pathsPanel,
@@ -762,7 +798,6 @@ class VPConfigBoaFrame(wx.Frame):
               label='Clear', name='programOutputClearButton',
               parent=self.pathsPanel, pos=wx.Point(156, 186), size=wx.Size(75,
               23), style=0)
-              
         self.programOutputClearButton.Bind(wx.EVT_BUTTON,
               self.OnClearProgramOutputButton,
               id=wxID_VPCONFIGBOAFRAMEPROGRAMOUTPUTCLEARBUTTON)
@@ -847,9 +882,11 @@ class VPConfigBoaFrame(wx.Frame):
         self._apply_window_icon()
         bg = self.GetBackgroundColour()
         self.actionsSpacerPanel.SetBackgroundColour(bg)
-        self._base_title = self.GetTitle()
+        self.phasedFilesSpacerPanel.SetBackgroundColour(
+              self.filesPanel.GetBackgroundColour())
+        self.evilTwinsSpacerPanel.SetBackgroundColour(
+              self.filesPanel.GetBackgroundColour())
         self.config_path = self._resolve_startup_config_path()
-        self._apply_window_icon()
         self.controls = self._build_controls_map()
         self._loading_controls = False
         self._is_dirty = False
@@ -874,58 +911,11 @@ class VPConfigBoaFrame(wx.Frame):
         event.Skip()
 
     def _resolve_startup_config_path(self):
-        app_dir = self._get_app_directory()
         local_config = os.path.join(os.getcwd(), 'VP_configV1.py')
         if os.path.exists(local_config):
             return local_config
-        return os.path.join(app_dir, 'VP_configV1.py')
 
-    def _get_app_directory(self):
-        if getattr(sys, 'frozen', False):
-            return os.path.dirname(sys.executable)
-        return os.path.dirname(__file__)
-
-    def _apply_window_icon(self):
-        icon_path = os.path.join(self._get_app_directory(), 'VP_Config_GUI.ico')
-        if not os.path.exists(icon_path):
-                                    return
-
-        icon = wx.Icon(icon_path, wx.BITMAP_TYPE_ICO)
-        if icon.IsOk():
-                                    self.SetIcon(icon)
-
-    def _get_script_runner_command(self):
-        if not getattr(sys, 'frozen', False):
-            return [sys.executable]
-
-        for candidate in ('py', 'python'):
-            python_launcher = shutil.which(candidate)
-            if python_launcher:
-                return [python_launcher]
-
-        return None
-
-    def _require_config_path(self):
-        assert self.config_path is not None
-        return self.config_path
-
-    def _resolve_processor_launch(self):
-        app_dir = self._get_app_directory()
-        exe_candidates = sorted(glob.glob(os.path.join(app_dir, 'Visual_Phaser.V*.exe')))
-        if exe_candidates:
-                target_exe = exe_candidates[-1]
-                return [target_exe], os.path.basename(target_exe)
-
-        script_candidates = sorted(glob.glob(os.path.join(app_dir, 'Visual_Phaser.V*.py')))
-        if not script_candidates:
-                return None, None
-
-        runner_command = self._get_script_runner_command()
-        if runner_command is None:
-                return [], os.path.basename(script_candidates[-1])
-
-        target_script = script_candidates[-1]
-        return runner_command + [target_script], os.path.basename(target_script)
+        return os.path.join(os.path.dirname(__file__), 'VP_configV1.py')
 
     def _build_controls_map(self):
         return {
@@ -956,6 +946,8 @@ class VPConfigBoaFrame(wx.Frame):
             'SCALE_ON': self.scaleOnCombo,
             'FREEZE_COLUMN': self.freezeColumnText,
             'LINUX_FONT_STRING': self.linuxFontText,
+            'SHOW_TIMES': self.showTimesCombo,
+            'SHOW_MATCH_PAIR_PROGRESS': self.showMatchPairProgressCombo,
             'HIR_SNP_MIN': self.hirSnpMinSpin,
             'FIR_SNP_MIN': self.firSnpMinSpin,
             'MM_DIST': self.mmDistSpin,
@@ -967,29 +959,6 @@ class VPConfigBoaFrame(wx.Frame):
             tooltip = TOOLTIPS.get(var_name, '')
             if tooltip:
                 ctrl.SetToolTip(tooltip)
-
-    def _bind_change_tracking(self):
-        for ctrl in self.controls.values():
-            if isinstance(ctrl, wx.ComboBox):
-                ctrl.Bind(wx.EVT_COMBOBOX, self._on_input_widget_changed)
-            elif isinstance(ctrl, wx.SpinCtrl):
-                ctrl.Bind(wx.EVT_SPINCTRL, self._on_input_widget_changed)
-                ctrl.Bind(wx.EVT_TEXT, self._on_input_widget_changed)
-            elif isinstance(ctrl, wx.TextCtrl):
-                ctrl.Bind(wx.EVT_TEXT, self._on_input_widget_changed)
-
-    def _on_input_widget_changed(self, event):
-        if not self._suppress_change_tracking:
-            self.data_changed = True
-            self._refresh_dirty_state_ui()
-        event.Skip()
-
-    def _refresh_dirty_state_ui(self):
-        title = self._base_title + (' *' if self.data_changed else '')
-        self.SetTitle(title)
-        self.runButton.Enable(not self.data_changed)
-        if self.data_changed:
-            self.statusBar.SetStatusText('Input data has changed, save config before running!', 0)
 
     def _set_status(self, message):
         self.statusBar.SetStatusText(message, 0)
@@ -1030,47 +999,11 @@ class VPConfigBoaFrame(wx.Frame):
         finally:
             dialog.Destroy()
 
-    def _strip_wrapping_quotes(self, item):
-        cleaned = item.strip()
-        while len(cleaned) >= 2 and (
-              (cleaned[0] == '"' and cleaned[-1] == '"') or
-              (cleaned[0] == "'" and cleaned[-1] == "'")
-        ):
-              cleaned = cleaned[1:-1].strip()
-        return cleaned
-
     def _split_comma_list(self, value):
-        result = []
-        for item in value.replace('\n', ',').split(','):
-              cleaned = self._strip_wrapping_quotes(item)
-              if cleaned:
-                    result.append(cleaned)
-        return result
+        return [item.strip() for item in value.replace('\n', ',').split(',') if item.strip()]
 
     def _split_line_list(self, value):
-        # Accept either one-item-per-line or comma-separated input (or a mix).
-        normalized = value.replace('\r', '\n').replace(',', '\n')
-        result = []
-        for line in normalized.splitlines():
-              cleaned = self._strip_wrapping_quotes(line)
-              if cleaned:
-                    result.append(cleaned)
-        return result
-
-    def _parse_chromosomes(self, value):
-        chrom_tokens = self._split_comma_list(value)
-        chromosomes = []
-        for token in chrom_tokens:
-            try:
-                chrom = int(token)
-            except ValueError:
-                raise ValueError('CHROMOSOMES must be comma-separated integers (for example: 1,2,3).')
-
-            if chrom < 1 or chrom > 23:
-                raise ValueError('CHROMOSOMES values must be between 1 and 23. Invalid value: %s' % chrom)
-
-            chromosomes.append(chrom)
-        return chromosomes
+        return [line.strip() for line in value.splitlines() if line.strip()]
 
     def _format_value(self, var_name, value):
         if var_name in RAW_STRING_FIELDS:
@@ -1087,8 +1020,6 @@ class VPConfigBoaFrame(wx.Frame):
 
     def _collect_control_value(self, var_name, control):
         if var_name in LIST_FIELDS:
-            if var_name == 'CHROMOSOMES':
-                return self._parse_chromosomes(control.GetValue())
             return self._split_comma_list(control.GetValue())
         if var_name in LINE_LIST_FIELDS:
             return self._split_line_list(control.GetValue())
@@ -1133,16 +1064,14 @@ class VPConfigBoaFrame(wx.Frame):
 
     def LoadConfig(self):
         try:
-            config_path = self._require_config_path()
-            if not os.path.exists(config_path):
+            if not os.path.exists(self.config_path):
                 self._set_status('No configuration file found')
-                self.data_changed = False
-                self._refresh_dirty_state_ui()
                 return
 
             local_dict = {}
-            with open(config_path, 'r') as config_file:
+            with open(self.config_path, 'r') as config_file:
                 exec(config_file.read(), {}, local_dict)
+
             self._loading_controls = True
             for var_name, control in self.controls.items():
                 if var_name in local_dict:
@@ -1157,14 +1086,14 @@ class VPConfigBoaFrame(wx.Frame):
 
     def SaveConfig(self):
         try:
-            config_path = self._require_config_path()
-            with open(config_path, 'r') as config_file:
+            with open(self.config_path, 'r') as config_file:
                 lines = config_file.readlines()
 
             updated_lines = self._update_config_lines(lines)
 
-            with open(config_path, 'w') as config_file:
+            with open(self.config_path, 'w') as config_file:
                 config_file.writelines(updated_lines)
+
             self._is_dirty = False
             self._set_status('Configuration saved')
             wx.MessageBox('Configuration saved successfully.', 'Success',
@@ -1191,7 +1120,7 @@ class VPConfigBoaFrame(wx.Frame):
         self.OnSaveButton(event)
 
     def OnExitMenu(self, event):
-      self.Close()
+        self.Close(True)
 
     def OnDocumentationMenu(self, event):
         doc_path = os.path.join(os.path.dirname(__file__), 'VP_Config_GUI_README.html')
@@ -1222,22 +1151,7 @@ class VPConfigBoaFrame(wx.Frame):
             dialog.Destroy()
 
     def OnSaveButton(self, event):
-        default_dir = os.path.dirname(self.config_path) if self.config_path else os.getcwd()
-        default_file = os.path.basename(self.config_path) if self.config_path else 'VP_configV1.py'
-        dialog = wx.FileDialog(
-            self,
-            'Save Configuration File',
-            defaultDir=default_dir,
-            defaultFile=default_file,
-            wildcard='Python files (*.py)|*.py',
-            style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT,
-        )
-        try:
-            if dialog.ShowModal() == wx.ID_OK:
-                self.config_path = dialog.GetPath()
-                self.SaveConfig()
-        finally:
-            dialog.Destroy()
+        self.SaveConfig()
 
     def OnResetButton(self, event):
             self._load_defaults_from_field_definitions()
@@ -1246,24 +1160,7 @@ class VPConfigBoaFrame(wx.Frame):
         self.programOutputText.SetValue('')
 
     def OnCloseButton(self, event):
-        self.Close()
-
-    def OnWindowClose(self, event):
-        if self.data_changed:
-            dialog = wx.MessageDialog(
-                  self,
-                  'You have unsaved changes. Close without saving?',
-                  'Unsaved Changes',
-                  wx.YES_NO | wx.CANCEL | wx.ICON_WARNING)
-            try:
-                result = dialog.ShowModal()
-            finally:
-                dialog.Destroy()
-
-            if result != wx.ID_YES:
-                event.Veto()
-                return
-        event.Skip()
+        self.Close(True)
 
     def _stream_process_output(self, process, script_name):
         try:
@@ -1372,10 +1269,10 @@ class VPConfigBoaFrame(wx.Frame):
                   launch_cmd,
                   **popen_kwargs)
             output_thread = threading.Thread(target=self._stream_process_output,
-                  args=(self._run_process, target_name),
+                  args=(self._run_process, os.path.basename(target_script)),
                   daemon=True)
             output_thread.start()
-            self._set_status('Running %s' % target_name)
+            self._set_status('Running %s' % os.path.basename(target_script))
         except Exception as error:
             wx.MessageBox('Error launching script: %s' % error,
                   'Run Error', wx.OK | wx.ICON_ERROR)
@@ -1395,7 +1292,7 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         config_path = sys.argv[1]
         if os.path.exists(config_path):
-          frame.config_path = config_path
-          frame.LoadConfig()
+                frame.config_path = config_path
+                frame.LoadConfig()
     frame.Show(True)
     app.MainLoop()
