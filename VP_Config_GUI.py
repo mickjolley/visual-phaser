@@ -137,6 +137,29 @@ def create(parent):
 ] = [wx.NewIdRef() for _init_coll_helpMenu_Items in range(2)]
 
 class VPConfigBoaFrame(wx.Frame):
+    def _apply_window_icon(self):
+        if getattr(sys, 'frozen', False):
+                base_dir = os.path.dirname(sys.executable)
+                icon_candidates = [
+                    os.path.join(base_dir, 'VP_Config_GUI.ico'),
+                    os.path.join(os.path.dirname(base_dir), 'VP_Config_GUI.ico'),
+                ]
+        else:
+                base_dir = os.path.dirname(__file__)
+                icon_candidates = [
+                    os.path.join(base_dir, 'VP_Config_GUI.ico'),
+                    os.path.join(os.getcwd(), 'VP_Config_GUI.ico'),
+                ]
+
+        for icon_path in icon_candidates:
+                if not os.path.exists(icon_path):
+                    continue
+
+                icon = wx.Icon(icon_path, wx.BITMAP_TYPE_ICO)
+                if icon.IsOk():
+                    self.SetIcon(icon)
+                    break
+
     def _init_coll_numericGridSizer_Items(self, parent):
         # generated method, don't edit
 
@@ -856,6 +879,7 @@ class VPConfigBoaFrame(wx.Frame):
 
     def __init__(self, parent):
         self._init_ctrls(parent)
+        self._apply_window_icon()
         bg = self.GetBackgroundColour()
         self.actionsSpacerPanel.SetBackgroundColour(bg)
         self.phasedFilesSpacerPanel.SetBackgroundColour(
@@ -1184,6 +1208,8 @@ class VPConfigBoaFrame(wx.Frame):
             return
 
         self.configBook.SetSelection(0)
+        runtime_config_path = os.path.abspath(self.config_path) if self.config_path else ''
+
         if getattr(sys, 'frozen', False):
             # Running as a PyInstaller bundle: find Visual_Phaser.V*.exe.
             exe_dir = os.path.dirname(sys.executable)
@@ -1212,6 +1238,9 @@ class VPConfigBoaFrame(wx.Frame):
             target_script = candidates[-1]
             launch_cmd = [sys.executable, target_script]
 
+        if runtime_config_path and os.path.exists(runtime_config_path):
+            launch_cmd.append(runtime_config_path)
+
         running_process = getattr(self, '_run_process', None)
         if running_process and running_process.poll() is None:
             wx.MessageBox('A Visual Phaser run is already in progress.',
@@ -1232,6 +1261,10 @@ class VPConfigBoaFrame(wx.Frame):
             }
             if platform.system().lower() == 'windows':
                 popen_kwargs['creationflags'] = getattr(subprocess, 'CREATE_NO_WINDOW', 0)
+            if runtime_config_path and os.path.exists(runtime_config_path):
+                env = os.environ.copy()
+                env['VP_CONFIG_PATH'] = runtime_config_path
+                popen_kwargs['env'] = env
             self._run_process = subprocess.Popen(
                   launch_cmd,
                   **popen_kwargs)

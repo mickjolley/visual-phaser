@@ -45,6 +45,29 @@ from VP_configV1 import (
 worker_dna_cache = {}
 cache_lock = threading.Lock()
 
+CONFIG_VARIABLES = (
+    'FILES_PATH', 'WORKING_DIRECTORY', 'MAP_PATH', 'SIBLINGS', 'PHASED_FILES',
+    'EVIL_TWINS', 'COUSINS', 'CHROMOSOMES', 'EXCEL_FILE_NAME', 'SHOW_NO_MATCHES',
+    'CHROM_TRUE_SIZE', 'LINEAR_CHROMOSOME', 'MERGE_FILES', 'RESOLUTION',
+    'AUTO_REC_PNTS', 'ARP_TOLERANCE', 'AUTO_RP_ASSIGN', 'REPAIR_FILES',
+    'SCALE_FACTOR', 'HIR_CUTOFF', 'FIR_CUTOFF', 'X_HIR_CUTOFF', 'X_FIR_CUTOFF',
+    'FIR_TABLES', 'SCALE_ON', 'FREEZE_COLUMN', 'LINUX_FONT_STRING',
+    'HIR_SNP_MIN', 'FIR_SNP_MIN', 'MM_DIST', 'NO_CALL'
+)
+
+
+def _apply_runtime_config_overrides(config_path):
+    if not config_path or not os.path.exists(config_path):
+        return
+
+    loaded = {}
+    with open(config_path, 'r') as config_file:
+        exec(config_file.read(), {}, loaded)
+
+    for name in CONFIG_VARIABLES:
+        if name in loaded:
+            globals()[name] = loaded[name]
+
 
 def _looks_like_vcf(file_path):
     if str(file_path).lower().endswith('.vcf'):
@@ -806,8 +829,29 @@ def ensure_visible_worksheet(wb):
 
 if __name__ == "__main__":
     start_time = time.time()
+    runtime_config_path = sys.argv[1] if len(sys.argv) > 1 else os.environ.get('VP_CONFIG_PATH', '')
+    _apply_runtime_config_overrides(runtime_config_path)
     FILES_PATH, WORKING_DIRECTORY, MAP_PATH = map(os.path.normpath, [FILES_PATH, WORKING_DIRECTORY, MAP_PATH])
     wdir = WORKING_DIRECTORY + "/"
+
+    # Validate configured runtime paths early so bad values are reported clearly.
+    try:
+        os.listdir(FILES_PATH)
+    except OSError as error:
+        print("\n[VP_INPUT_ERROR] FILES_PATH is invalid or inaccessible.", flush=True)
+        print(f"[VP_INPUT_ERROR] FILES_PATH: {FILES_PATH}", flush=True)
+        print(f"[VP_INPUT_ERROR] {error}", flush=True)
+        sys.exit(2)
+
+    if not os.path.isdir(WORKING_DIRECTORY):
+        print("\n[VP_INPUT_ERROR] WORKING_DIRECTORY does not exist.", flush=True)
+        print(f"[VP_INPUT_ERROR] WORKING_DIRECTORY: {WORKING_DIRECTORY}", flush=True)
+        sys.exit(2)
+
+    if not os.path.isdir(MAP_PATH):
+        print("\n[VP_INPUT_ERROR] MAP_PATH does not exist.", flush=True)
+        print(f"[VP_INPUT_ERROR] MAP_PATH: {MAP_PATH}", flush=True)
+        sys.exit(2)
 
     # Pre-flight check: ensure all requested individuals have DNA files
     individuals = list(set(SIBLINGS) | set(PHASED_FILES) | set(EVIL_TWINS) | set(COUSINS))
