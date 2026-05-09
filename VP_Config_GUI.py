@@ -139,17 +139,21 @@ def create(parent):
 class VPConfigBoaFrame(wx.Frame):
     def _apply_window_icon(self):
         if getattr(sys, 'frozen', False):
-                base_dir = os.path.dirname(sys.executable)
-                icon_candidates = [
-                    os.path.join(base_dir, 'VP_Config_GUI.ico'),
-                    os.path.join(os.path.dirname(base_dir), 'VP_Config_GUI.ico'),
-                ]
+                  base_dir = os.path.dirname(sys.executable)
+                  icon_candidates = [
+                        os.path.join(base_dir, 'assets', 'VP_Config_GUI.ico'),
+                        os.path.join(base_dir, 'VP_Config_GUI.ico'),
+                        os.path.join(os.path.dirname(base_dir), 'assets', 'VP_Config_GUI.ico'),
+                        os.path.join(os.path.dirname(base_dir), 'VP_Config_GUI.ico'),
+                  ]
         else:
-                base_dir = os.path.dirname(__file__)
-                icon_candidates = [
-                    os.path.join(base_dir, 'VP_Config_GUI.ico'),
-                    os.path.join(os.getcwd(), 'VP_Config_GUI.ico'),
-                ]
+                  base_dir = os.path.dirname(__file__)
+                  icon_candidates = [
+                        os.path.join(base_dir, 'assets', 'VP_Config_GUI.ico'),
+                        os.path.join(base_dir, 'VP_Config_GUI.ico'),
+                        os.path.join(os.getcwd(), 'assets', 'VP_Config_GUI.ico'),
+                        os.path.join(os.getcwd(), 'VP_Config_GUI.ico'),
+                  ]
 
         for icon_path in icon_candidates:
                 if not os.path.exists(icon_path):
