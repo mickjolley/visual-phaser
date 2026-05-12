@@ -23,7 +23,7 @@ A wxPython-based graphical user interface for editing the Visual Phaser `VP_conf
 - **Tooltips**: Context-sensitive help from the original configuration file comments displayed on mouseover
 
 - **Load/Save**:
-  - Load configuration from VP_configV2.py (or VP_configV1.py for legacy support)
+  - Load configuration from VP_configV2.py (VCF-focused) for Visual_Phaser.V2.0.py
   - Save configuration back to file
   - Reset to defaults
 
@@ -102,13 +102,13 @@ python VP_Config_GUI.py path/to/VP_configV2.py
 
 - **VP_Config_GUI.py** - Main GUI application and entry point script
 - **VP_configV2.py** - V2.0 VCF-enabled configuration file edited by the GUI
-- **VP_configV1.py** - Legacy raw DNA configuration (still supported for backwards compatibility)
+- **VP_configV1.py** - Deprecated; use with Visual_Phaser.V1.1.py for legacy raw DNA workflows only
 - **VP_Config_Resources.py** - Additional project resources
 
 ## Notes
 
 - The current GUI implementation is in `VP_Config_GUI.py`.
-- It prefers `VP_configV2.py` at startup, with fallback to `VP_configV1.py` for legacy workflows.
+- It prefers `VP_configV2.py` at startup, with fallback to `VP_configV1.py` when V2 is not available (legacy support only).
 - V2.0 requires `SIBLINGS` and `COUSINS` to be exact sample names from the VCF header.
 
 ## Configuration Parameters Reference
@@ -185,12 +185,12 @@ sudo dnf install python3-wxpython
 
 ### File Not Found Errors
 
-- Ensure VP_configV1.py exists in the application directory
+- Ensure VP_configV2.py exists in the application directory (or VP_configV1.py for legacy workflows)
 - When loading a custom config file, use the "Load Configuration" button to browse
 
 ### Changes Not Saving
 
-- Check that you have write permissions to the VP_configV1.py file
+- Check that you have write permissions to the VP_configV2.py file (or VP_configV1.py for legacy)
 - Verify the file is not open in another editor or locked by antivirus software
 
 ## Development Notes

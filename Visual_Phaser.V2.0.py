@@ -129,7 +129,7 @@ def _parse_vcf_file(file_path, individuals, no_call_val):
 
     # Default to REF/ALT for non-genotype VCF rows.
     ref_series = raw[ref_col].fillna('').astype(str)
-    
+
     if format_col and len(header_columns) > 9:
         for i in range(9, raw.shape[1]):
             sample_col = header_columns[i]
@@ -137,16 +137,16 @@ def _parse_vcf_file(file_path, individuals, no_call_val):
                 format_tokens = raw[format_col].fillna('').astype(str).str.split(':')
                 gt_index = format_tokens.apply(lambda toks: toks.index('GT') if 'GT' in toks else -1)
                 sample_tokens = raw[sample_col].fillna('').astype(str).str.split(':')
-        
+
                 def decode_gt(gt_idx, sample_vals, ref_val, alt_val):
                     choices = [ref_val] + alt_val.split(',')
-                    
+
                     if gt_idx < 0 or gt_idx >= len(sample_vals):
                         return choices[0], choices[1] if len(choices) > 1 else choices[0]
-        
+
                     gt = sample_vals[gt_idx].replace('|', '/').strip()
                     parts = gt.split('/')
-        
+
                     def pick(part):
                         if not part or part == '.':
                             return ''
@@ -157,10 +157,10 @@ def _parse_vcf_file(file_path, individuals, no_call_val):
                         except ValueError:
                             pass
                         return ''
-        
+
                     a1 = pick(parts[0]) if len(parts) > 0 else ''
                     a2 = pick(parts[1]) if len(parts) > 1 else a1
-                    
+
                     # If any allele is missing/invalid, it's a no-call.
                     # _normalize_dna_dataframe will clean these up further.
                     if not a1:
@@ -168,7 +168,7 @@ def _parse_vcf_file(file_path, individuals, no_call_val):
                     if not a2:
                         a2 = a1
                     return a1, a2
-        
+
                 decoded = [
                     decode_gt(gt_idx, sample_vals, ref_val, alt_val)
                     for gt_idx, sample_vals, ref_val, alt_val in zip(
@@ -179,22 +179,22 @@ def _parse_vcf_file(file_path, individuals, no_call_val):
                         strict=True,
                     )
                 ]
-                
+
                 df = base_df.copy()
                 df['allele1'] = [pair[0] for pair in decoded]
                 df['allele2'] = [pair[1] for pair in decoded]
-        
+
                 # Populate missing IDs with chromosome-position token.
                 missing_id = df['rsid'].isin(['', '.', 'nan', 'None'])
                 df.loc[missing_id, 'rsid'] = (
                     df.loc[missing_id, 'chromosome'].astype(str) + ':' + df.loc[missing_id, 'position'].astype(str)
                 )
-                
+
                 df = _normalize_dna_dataframe(df, no_call_val)
-                
+
                 with cache_lock:
                     worker_dna_cache[sample_col] = df.sort_values(by='position').reset_index(drop=True)
-                
+
                 print(f"Loaded DNA from VCF for individual: {sample_col}", flush=True)
 
 
@@ -267,7 +267,7 @@ def _normalize_dna_dataframe(df, no_call_val):
     df['chromosome'] = df['chromosome'].str.strip().str.upper().str.replace('CHR', '', regex=False)
     df['chromosome'] = df['chromosome'].replace({'X': '23', 'XY': '23', 'MT': 'M'})
     df = df[~df['chromosome'].isin(['Y', 'M'])]
-    
+
     # Keep only valid autosomal chromosomes.
     df = df[df['chromosome'].str.isnumeric()]
     df['chromosome'] = df['chromosome'].astype(int)
@@ -280,7 +280,7 @@ def _normalize_dna_dataframe(df, no_call_val):
     # Clean alleles.
     df['allele1'] = _clean_allele(df['allele1'], no_call_val)
     df['allele2'] = _clean_allele(df['allele2'], no_call_val)
-    
+
     return df
 
 def agnostic_load_individual_dna(ind, files_path, no_call_val, return_error=False):
@@ -789,7 +789,6 @@ def format_sheet(ws):
     ws.column_dimensions["A"].width = 1
     for char, w in zip("BCDEFG", [5, 11, 12, 11, 13, 14], strict=True):
         ws.column_dimensions[char].width = w
-    ws.freeze_panes = "H1"
 
 def add_borders(ws, col):
     """Draws vertical borders to demarcate the chromosome visualization area."""
@@ -838,7 +837,7 @@ if __name__ == "__main__":
     start_time = time.time()
     FILES_PATH, WORKING_DIRECTORY, MAP_PATH = map(os.path.normpath, [FILES_PATH, WORKING_DIRECTORY, MAP_PATH])
     wdir = WORKING_DIRECTORY + "/"
-    
+
     individuals = list(set(SIBLINGS) | set(PHASED_FILES) | set(EVIL_TWINS) | set(COUSINS))
 
     if FILES_PATH.endswith('.vcf'):
@@ -847,7 +846,7 @@ if __name__ == "__main__":
         else:
             print('\n[VP_INPUT_ERROR] File extension is .vcf but content does not look like VCF.', flush=True)
             sys.exit(2)
-    else:           
+    else:
         # Pre-flight check: ensure all requested individuals have DNA files
         missing_individuals = [ind for ind in individuals if not any(ind + "_raw" in f for f in os.listdir(FILES_PATH))]
         if missing_individuals:
@@ -855,7 +854,7 @@ if __name__ == "__main__":
             print(f"[VP_INPUT_ERROR] Missing individuals: {', '.join(missing_individuals)}.", flush=True)
             print("[VP_INPUT_ERROR] Expected filename pattern includes '<name>_raw'.", flush=True)
             sys.exit(2)
-    
+
     # Pre-flight check: ensure every configured sibling loads into a usable DataFrame.
     sibling_load_failures = []
     for sibling in SIBLINGS:

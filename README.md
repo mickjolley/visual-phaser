@@ -2,8 +2,7 @@
 
 1. Introduction
 
-  Visual_Phaser.V1.1.py is a specialized bioinformatics application designed for
-  genetic genealogy. It analyzes raw autosomal DNA files to identify and visualize
+  Visual_Phaser is a genetic genealogy application suite. V2.0 analyzes VCF (Variant Call Format) files to identify and visualize
   shared segments (Half-Identical Regions (HIRs), Fully-Identical Regions
   (FIRs) and Non-Identical regions (NIRs)) between siblings, cousins, and other relatives.
 
@@ -20,8 +19,8 @@
            numpy pandas pillow openpyxl
 
   Project Structure
-   - Visual_Phaser.V1.1.py: The main execution engine.
-   - VP_configV1.py: The configuration and parameter file.
+   - Visual_Phaser.V2.0.py: The main VCF analysis engine (V1.1 legacy version also available).
+   - VP_configV2.py: The configuration file for V2.0 (VP_configV1.py for V1.1 legacy).
    - min_map.txt: (Required) A genetic map file mapping physical positions (Mb) to
      genetic distances (cM).
 
@@ -29,12 +28,11 @@
 
 3. Data Preparation
 
- Tab-delimited .txt files and comma-sparated .csv files may be used.
-   - Rename file, placing "_raw_dna" immediately after the name.
-     Example "37_H_Fred_Chrom_Autoso_2024477.csv" is renamed "37_H_Fred_raw_dnaChrom_Autoso_2024477.csv".
-     In the Input Files tab enter the siblings (or cousins) as Fred, Joe, Susan. 
-   - Supported Sources: Specifically optimized for AncestryDNA , 23andMe and other
-      non- Ancestry exports.
+  V2.0 supports VCF (Variant Call Format) files:
+   - Place single VCF files or folders containing .vcf/.vcf.gz files in FILES_PATH
+   - Sample names are extracted from VCF header; use these in SIBLINGS/COUSINS fields
+   - Supported File Types: Single .vcf, gzip-compressed .vcf.gz multi-sample VCF
+   - Legacy workflows (AncestryDNA, 23andMe raw DNA) require V1.1; see Visual_Phaser.V1.1.py
 
   Genetic Map (min_map.txt)
   Place this file in your designated MAP_PATH. This is used to accurately calculate
@@ -44,7 +42,7 @@
 
 4. Configuration Guide
 
-  All settings are managed within VP_configV1.py.
+  All settings are managed within VP_configV2.py for VCF workflows (or VP_configV1.py for V1.1 legacy workflows).
 
   Primary Paths
    - FILES_PATH: The folder containing your raw DNA .txt files.
