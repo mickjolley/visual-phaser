@@ -1,10 +1,11 @@
-﻿#Boa:Frame:VPConfigBoaFrame
+#Boa:Frame:VPConfigBoaFrame
 # -*- coding: utf-8 -*-
-"""Boa-managed configuration editor for VP_configV1.py."""
+"""Boa-managed configuration editor for VP_configV2.py (VCF workflow)."""
 
 import os
 import re
 import glob
+import gzip
 import platform
 import subprocess
 import webbrowser
@@ -16,13 +17,13 @@ from VP_Config_Resources import FIELD_DEFINITIONS
 
 
 TOOLTIPS = {
-    'FILES_PATH': 'Path to folder where the DNA files are stored.',
+    'FILES_PATH': 'Path to a VCF file or a folder containing DNA files.',
     'WORKING_DIRECTORY': 'Folder where the .xlsx and .py files will be stored.',
     'MAP_PATH': 'Path to folder containing min_map.txt.',
-      'SIBLINGS': 'Comma-separated names of the individuals to compare.',
-      'PHASED_FILES': 'Comma-separated names of the individuals in phased files to compare with each other.',
-      'EVIL_TWINS': 'Comma-separated names of the individuals in evil-twin files to compare against all siblings.',
-      'COUSINS': 'Comma-separated names of the individuals to compare against siblings in an existing workbook.',
+    'SIBLINGS': 'Comma-separated sample names from the VCF header to compare.',
+    'PHASED_FILES': 'Comma-separated names of the individuals in phased files to compare with each other.',
+    'EVIL_TWINS': 'Comma-separated names of the individuals in evil-twin files to compare against all siblings.',
+    'COUSINS': 'Comma-separated sample names from the VCF header to compare against siblings in an existing workbook.',
     'CHROMOSOMES': 'Comma-separated chromosome numbers. Leave empty for all.',
     'EXCEL_FILE_NAME': 'Name of the output workbook without .xlsx.',
     'SHOW_NO_MATCHES': 'Set False to hide no-match rows.',
@@ -71,99 +72,72 @@ def create(parent):
     return VPConfigBoaFrame(parent)
 
 
-[wxID_VPCONFIGBOAFRAME, wxID_VPCONFIGBOAFRAMEACTIONSSPACERPANEL,
- wxID_VPCONFIGBOAFRAMEARPTOLERANCELABEL,
- wxID_VPCONFIGBOAFRAMEARPTOLERANCESPIN, wxID_VPCONFIGBOAFRAMEAUTORECPNTSCOMBO,
- wxID_VPCONFIGBOAFRAMEAUTORECPNTSLABEL,
- wxID_VPCONFIGBOAFRAMEAUTORPASSIGNCOMBO,
- wxID_VPCONFIGBOAFRAMEAUTORPASSIGNLABEL, wxID_VPCONFIGBOAFRAMEBOOLPANEL,
- wxID_VPCONFIGBOAFRAMEBROWSEFILESPATHBUTTON,
- wxID_VPCONFIGBOAFRAMEBROWSEMAPPATHBUTTON,
- wxID_VPCONFIGBOAFRAMEBROWSEWORKINGDIRBUTTON,
- wxID_VPCONFIGBOAFRAMECHROMOSOMESLABEL, wxID_VPCONFIGBOAFRAMECHROMOSOMESTEXT,
- wxID_VPCONFIGBOAFRAMECHROMTRUESIZECOMBO,
- wxID_VPCONFIGBOAFRAMECHROMTRUESIZELABEL, wxID_VPCONFIGBOAFRAMECLOSEBUTTON,
- wxID_VPCONFIGBOAFRAMECONFIGBOOK, wxID_VPCONFIGBOAFRAMECOUSINSLABEL,
- wxID_VPCONFIGBOAFRAMECOUSINSTEXT, wxID_VPCONFIGBOAFRAMEEVILTWINSLABEL,
- wxID_VPCONFIGBOAFRAMEEVILTWINSSPACERPANEL,
- wxID_VPCONFIGBOAFRAMEEVILTWINSTEXT, wxID_VPCONFIGBOAFRAMEEXCELFILENAMELABEL,
- wxID_VPCONFIGBOAFRAMEEXCELFILENAMETEXT, wxID_VPCONFIGBOAFRAMEFILESPANEL,
- wxID_VPCONFIGBOAFRAMEFILESPATHLABEL, wxID_VPCONFIGBOAFRAMEFILESPATHTEXT,
- wxID_VPCONFIGBOAFRAMEFIRCUTOFFLABEL, wxID_VPCONFIGBOAFRAMEFIRCUTOFFSPIN,
- wxID_VPCONFIGBOAFRAMEFIRSNPMINLABEL, wxID_VPCONFIGBOAFRAMEFIRSNPMINSPIN,
- wxID_VPCONFIGBOAFRAMEFIRTABLESCOMBO, wxID_VPCONFIGBOAFRAMEFIRTABLESLABEL,
- wxID_VPCONFIGBOAFRAMEFREEZECOLUMNLABEL,
- wxID_VPCONFIGBOAFRAMEFREEZECOLUMNTEXT, wxID_VPCONFIGBOAFRAMEHIRCUTOFFLABEL,
- wxID_VPCONFIGBOAFRAMEHIRCUTOFFSPIN, wxID_VPCONFIGBOAFRAMEHIRSNPMINLABEL,
- wxID_VPCONFIGBOAFRAMEHIRSNPMINSPIN, wxID_VPCONFIGBOAFRAMELINEARCHROMCOMBO,
- wxID_VPCONFIGBOAFRAMELINEARCHROMLABEL, wxID_VPCONFIGBOAFRAMELINUXFONTLABEL,
- wxID_VPCONFIGBOAFRAMELINUXFONTTEXT, wxID_VPCONFIGBOAFRAMELOADBUTTON,
- wxID_VPCONFIGBOAFRAMEMAPPATHLABEL, wxID_VPCONFIGBOAFRAMEMAPPATHTEXT,
- wxID_VPCONFIGBOAFRAMEMERGEFILESCOMBO, wxID_VPCONFIGBOAFRAMEMERGEFILESLABEL,
- wxID_VPCONFIGBOAFRAMEMMDISTLABEL, wxID_VPCONFIGBOAFRAMEMMDISTSPIN,
- wxID_VPCONFIGBOAFRAMENOCALLLABEL, wxID_VPCONFIGBOAFRAMENOCALLTEXT,
- wxID_VPCONFIGBOAFRAMENUMERICPANEL, wxID_VPCONFIGBOAFRAMEPATHSPANEL,
- wxID_VPCONFIGBOAFRAMEPHASEDFILESLABEL,
- wxID_VPCONFIGBOAFRAMEPHASEDFILESSPACERPANEL,
- wxID_VPCONFIGBOAFRAMEPHASEDFILESTEXT,
- wxID_VPCONFIGBOAFRAMEPROGRAMOUTPUTCLEARBUTTON,
- wxID_VPCONFIGBOAFRAMEPROGRAMOUTPUTLABEL,
- wxID_VPCONFIGBOAFRAMEPROGRAMOUTPUTTEXT,
- wxID_VPCONFIGBOAFRAMEREPAIRFILESCOMBO, wxID_VPCONFIGBOAFRAMEREPAIRFILESLABEL,
- wxID_VPCONFIGBOAFRAMERESETBUTTON, wxID_VPCONFIGBOAFRAMERESOLUTIONLABEL,
- wxID_VPCONFIGBOAFRAMERESOLUTIONSPIN, wxID_VPCONFIGBOAFRAMERUNBUTTON,
- wxID_VPCONFIGBOAFRAMESAVEBUTTON, wxID_VPCONFIGBOAFRAMESCALEFACTORLABEL,
- wxID_VPCONFIGBOAFRAMESCALEFACTORTEXT, wxID_VPCONFIGBOAFRAMESCALEONCOMBO,
- wxID_VPCONFIGBOAFRAMESCALEONLABEL,
- wxID_VPCONFIGBOAFRAMESHOWMATCHPAIRPROGRESSCOMBO,
- wxID_VPCONFIGBOAFRAMESHOWMATCHPAIRPROGRESSLABEL,
- wxID_VPCONFIGBOAFRAMESHOWNOMATCHESCOMBO,
- wxID_VPCONFIGBOAFRAMESHOWNOMATCHESLABEL, wxID_VPCONFIGBOAFRAMESHOWTIMESCOMBO,
- wxID_VPCONFIGBOAFRAMESHOWTIMESLABEL, wxID_VPCONFIGBOAFRAMESIBLINGSLABEL,
- wxID_VPCONFIGBOAFRAMESIBLINGSTEXT, wxID_VPCONFIGBOAFRAMESTATICLINE1,
- wxID_VPCONFIGBOAFRAMESTATUSBAR, wxID_VPCONFIGBOAFRAMETITLETEXT,
- wxID_VPCONFIGBOAFRAMEWORKINGDIRECTORYLABEL,
- wxID_VPCONFIGBOAFRAMEWORKINGDIRTEXT, wxID_VPCONFIGBOAFRAMEXFIRCUTOFFLABEL,
- wxID_VPCONFIGBOAFRAMEXFIRCUTOFFSPIN, wxID_VPCONFIGBOAFRAMEXHIRCUTOFFLABEL,
- wxID_VPCONFIGBOAFRAMEXHIRCUTOFFSPIN,
+[wxID_VPCONFIGBOAFRAME, wxID_VPCONFIGBOAFRAMEACTIONSSPACERPANEL, 
+ wxID_VPCONFIGBOAFRAMEARPTOLERANCELABEL, 
+ wxID_VPCONFIGBOAFRAMEARPTOLERANCESPIN, wxID_VPCONFIGBOAFRAMEAUTORECPNTSCOMBO, 
+ wxID_VPCONFIGBOAFRAMEAUTORECPNTSLABEL, 
+ wxID_VPCONFIGBOAFRAMEAUTORPASSIGNCOMBO, 
+ wxID_VPCONFIGBOAFRAMEAUTORPASSIGNLABEL, wxID_VPCONFIGBOAFRAMEBOOLPANEL, 
+ wxID_VPCONFIGBOAFRAMEBROWSEFILESPATHBUTTON, 
+ wxID_VPCONFIGBOAFRAMEBROWSEMAPPATHBUTTON, 
+ wxID_VPCONFIGBOAFRAMEBROWSEWORKINGDIRBUTTON, 
+ wxID_VPCONFIGBOAFRAMECHROMOSOMESLABEL, wxID_VPCONFIGBOAFRAMECHROMOSOMESTEXT, 
+ wxID_VPCONFIGBOAFRAMECHROMTRUESIZECOMBO, 
+ wxID_VPCONFIGBOAFRAMECHROMTRUESIZELABEL, wxID_VPCONFIGBOAFRAMECLOSEBUTTON, 
+ wxID_VPCONFIGBOAFRAMECONFIGBOOK, wxID_VPCONFIGBOAFRAMECOUSINSLABEL, 
+ wxID_VPCONFIGBOAFRAMECOUSINSTEXT, wxID_VPCONFIGBOAFRAMEEVILTWINSLABEL, 
+ wxID_VPCONFIGBOAFRAMEEVILTWINSSPACERPANEL, 
+ wxID_VPCONFIGBOAFRAMEEVILTWINSTEXT, wxID_VPCONFIGBOAFRAMEEXCELFILENAMELABEL, 
+ wxID_VPCONFIGBOAFRAMEEXCELFILENAMETEXT, wxID_VPCONFIGBOAFRAMEFILESPANEL, 
+ wxID_VPCONFIGBOAFRAMEFILESPATHLABEL, wxID_VPCONFIGBOAFRAMEFILESPATHTEXT, 
+ wxID_VPCONFIGBOAFRAMEFIRCUTOFFLABEL, wxID_VPCONFIGBOAFRAMEFIRCUTOFFSPIN, 
+ wxID_VPCONFIGBOAFRAMEFIRSNPMINLABEL, wxID_VPCONFIGBOAFRAMEFIRSNPMINSPIN, 
+ wxID_VPCONFIGBOAFRAMEFIRTABLESCOMBO, wxID_VPCONFIGBOAFRAMEFIRTABLESLABEL, 
+ wxID_VPCONFIGBOAFRAMEFREEZECOLUMNLABEL, 
+ wxID_VPCONFIGBOAFRAMEFREEZECOLUMNTEXT, wxID_VPCONFIGBOAFRAMEHIRCUTOFFLABEL, 
+ wxID_VPCONFIGBOAFRAMEHIRCUTOFFSPIN, wxID_VPCONFIGBOAFRAMEHIRSNPMINLABEL, 
+ wxID_VPCONFIGBOAFRAMEHIRSNPMINSPIN, wxID_VPCONFIGBOAFRAMELINEARCHROMCOMBO, 
+ wxID_VPCONFIGBOAFRAMELINEARCHROMLABEL, wxID_VPCONFIGBOAFRAMELINUXFONTLABEL, 
+ wxID_VPCONFIGBOAFRAMELINUXFONTTEXT, wxID_VPCONFIGBOAFRAMELOADBUTTON, 
+ wxID_VPCONFIGBOAFRAMEMAPPATHLABEL, wxID_VPCONFIGBOAFRAMEMAPPATHTEXT, 
+ wxID_VPCONFIGBOAFRAMEMERGEFILESCOMBO, wxID_VPCONFIGBOAFRAMEMERGEFILESLABEL, 
+ wxID_VPCONFIGBOAFRAMEMMDISTLABEL, wxID_VPCONFIGBOAFRAMEMMDISTSPIN, 
+ wxID_VPCONFIGBOAFRAMENOCALLLABEL, wxID_VPCONFIGBOAFRAMENOCALLTEXT, 
+ wxID_VPCONFIGBOAFRAMENUMERICPANEL, wxID_VPCONFIGBOAFRAMEPATHSPANEL, 
+ wxID_VPCONFIGBOAFRAMEPHASEDFILESLABEL, 
+ wxID_VPCONFIGBOAFRAMEPHASEDFILESSPACERPANEL, 
+ wxID_VPCONFIGBOAFRAMEPHASEDFILESTEXT, 
+ wxID_VPCONFIGBOAFRAMEPROGRAMOUTPUTCLEARBUTTON, 
+ wxID_VPCONFIGBOAFRAMEPROGRAMOUTPUTLABEL, 
+ wxID_VPCONFIGBOAFRAMEPROGRAMOUTPUTTEXT, 
+ wxID_VPCONFIGBOAFRAMEREPAIRFILESCOMBO, wxID_VPCONFIGBOAFRAMEREPAIRFILESLABEL, 
+ wxID_VPCONFIGBOAFRAMERESETBUTTON, wxID_VPCONFIGBOAFRAMERESOLUTIONLABEL, 
+ wxID_VPCONFIGBOAFRAMERESOLUTIONSPIN, wxID_VPCONFIGBOAFRAMERUNBUTTON, 
+ wxID_VPCONFIGBOAFRAMESAVEBUTTON, wxID_VPCONFIGBOAFRAMESCALEFACTORLABEL, 
+ wxID_VPCONFIGBOAFRAMESCALEFACTORTEXT, wxID_VPCONFIGBOAFRAMESCALEONCOMBO, 
+ wxID_VPCONFIGBOAFRAMESCALEONLABEL, 
+ wxID_VPCONFIGBOAFRAMESHOWMATCHPAIRPROGRESSCOMBO, 
+ wxID_VPCONFIGBOAFRAMESHOWMATCHPAIRPROGRESSLABEL, 
+ wxID_VPCONFIGBOAFRAMESHOWNOMATCHESCOMBO, 
+ wxID_VPCONFIGBOAFRAMESHOWNOMATCHESLABEL, wxID_VPCONFIGBOAFRAMESHOWTIMESCOMBO, 
+ wxID_VPCONFIGBOAFRAMESHOWTIMESLABEL, wxID_VPCONFIGBOAFRAMESIBLINGSLABEL, 
+ wxID_VPCONFIGBOAFRAMESIBLINGSTEXT, wxID_VPCONFIGBOAFRAMESTATICLINE1, 
+ wxID_VPCONFIGBOAFRAMESTATUSBAR, wxID_VPCONFIGBOAFRAMETITLETEXT, 
+ wxID_VPCONFIGBOAFRAMEWORKINGDIRECTORYLABEL, 
+ wxID_VPCONFIGBOAFRAMEWORKINGDIRTEXT, wxID_VPCONFIGBOAFRAMEXFIRCUTOFFLABEL, 
+ wxID_VPCONFIGBOAFRAMEXFIRCUTOFFSPIN, wxID_VPCONFIGBOAFRAMEXHIRCUTOFFLABEL, 
+ wxID_VPCONFIGBOAFRAMEXHIRCUTOFFSPIN, 
 ] = [wx.NewIdRef() for _init_ctrls in range(89)]
 
 
-[wxID_VPCONFIGBOAFRAMEEXITITEM, wxID_VPCONFIGBOAFRAMELOADITEM,
- wxID_VPCONFIGBOAFRAMESAVEITEM,
+[wxID_VPCONFIGBOAFRAMEEXITITEM, wxID_VPCONFIGBOAFRAMELOADITEM, 
+ wxID_VPCONFIGBOAFRAMESAVEITEM, 
 ] = [wx.NewIdRef() for _init_coll_fileMenu_Items in range(3)]
 
-[wxID_VPCONFIGBOAFRAMEABOUTITEM, wxID_VPCONFIGBOAFRAMEDOCUMENTATIONITEM,
+[wxID_VPCONFIGBOAFRAMEABOUTITEM, wxID_VPCONFIGBOAFRAMEDOCUMENTATIONITEM, 
 ] = [wx.NewIdRef() for _init_coll_helpMenu_Items in range(2)]
 
 class VPConfigBoaFrame(wx.Frame):
-    def _apply_window_icon(self):
-        if getattr(sys, 'frozen', False):
-                  base_dir = os.path.dirname(sys.executable)
-                  icon_candidates = [
-                        os.path.join(base_dir, 'assets', 'VP_Config_GUI.ico'),
-                        os.path.join(base_dir, 'VP_Config_GUI.ico'),
-                        os.path.join(os.path.dirname(base_dir), 'assets', 'VP_Config_GUI.ico'),
-                        os.path.join(os.path.dirname(base_dir), 'VP_Config_GUI.ico'),
-                  ]
-        else:
-                  base_dir = os.path.dirname(__file__)
-                  icon_candidates = [
-                        os.path.join(base_dir, 'assets', 'VP_Config_GUI.ico'),
-                        os.path.join(base_dir, 'VP_Config_GUI.ico'),
-                        os.path.join(os.getcwd(), 'assets', 'VP_Config_GUI.ico'),
-                        os.path.join(os.getcwd(), 'VP_Config_GUI.ico'),
-                  ]
-
-        for icon_path in icon_candidates:
-                if not os.path.exists(icon_path):
-                    continue
-
-                icon = wx.Icon(icon_path, wx.BITMAP_TYPE_ICO)
-                if icon.IsOk():
-                    self.SetIcon(icon)
-                    break
-
     def _init_coll_numericGridSizer_Items(self, parent):
         # generated method, don't edit
 
@@ -332,6 +306,33 @@ class VPConfigBoaFrame(wx.Frame):
 
         parent.SetStatusWidths([-1])
 
+    def _apply_window_icon(self):
+        if getattr(sys, 'frozen', False):
+                  base_dir = os.path.dirname(sys.executable)
+                  icon_candidates = [
+                        os.path.join(base_dir, 'assets', 'VP_Config_GUI.ico'),
+                        os.path.join(base_dir, 'VP_Config_GUI.ico'),
+                        os.path.join(os.path.dirname(base_dir), 'assets', 'VP_Config_GUI.ico'),
+                        os.path.join(os.path.dirname(base_dir), 'VP_Config_GUI.ico'),
+                  ]
+        else:
+                  base_dir = os.path.dirname(__file__)
+                  icon_candidates = [
+                        os.path.join(base_dir, 'assets', 'VP_Config_GUI.ico'),
+                        os.path.join(base_dir, 'VP_Config_GUI.ico'),
+                        os.path.join(os.getcwd(), 'assets', 'VP_Config_GUI.ico'),
+                        os.path.join(os.getcwd(), 'VP_Config_GUI.ico'),
+                  ]
+
+        for icon_path in icon_candidates:
+                if not os.path.exists(icon_path):
+                    continue
+
+                icon = wx.Icon(icon_path, wx.BITMAP_TYPE_ICO)
+                if icon.IsOk():
+                    self.SetIcon(icon)
+                    break
+
     def _init_utils(self):
         # generated method, don't edit
         self.menuBar = wx.MenuBar()
@@ -434,7 +435,7 @@ class VPConfigBoaFrame(wx.Frame):
         wx.Frame.__init__(self, id=wxID_VPCONFIGBOAFRAME,
               name='VPConfigBoaFrame', parent=prnt, pos=wx.Point(431, 139),
               size=wx.Size(771, 641), style=wx.DEFAULT_FRAME_STYLE,
-              title='Visual Phaser Configuration Editor')
+              title='Visual Phaser V2.0 Configuration Editor')
         self._init_utils()
         self.SetClientSize(wx.Size(755, 602))
         self.SetMenuBar(self.menuBar)
@@ -466,19 +467,19 @@ class VPConfigBoaFrame(wx.Frame):
               size=wx.Size(731, 517), style=wx.TAB_TRAVERSAL)
 
         self.titleText = wx.StaticText(id=wxID_VPCONFIGBOAFRAMETITLETEXT,
-              label='Visual Phaser Configuration Settings', name='titleText',
-              parent=self.pathsPanel, pos=wx.Point(8, 8), size=wx.Size(208, 17),
-              style=0)
+              label='Visual Phaser V2.0 Configuration Settings',
+              name='titleText', parent=self.pathsPanel, pos=wx.Point(8, 8),
+              size=wx.Size(208, 17), style=0)
 
         self.filesPathLabel = wx.StaticText(id=wx.ID_ANY,
-              label='DNA Files Path', name='filesPathLabel',
+              label='Input Path (Folder or .vcf)', name='filesPathLabel',
               parent=self.pathsPanel, pos=wx.Point(8, 58), size=wx.Size(140,
               17), style=0)
 
         self.filesPathText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMEFILESPATHTEXT,
               name='filesPathText', parent=self.pathsPanel, pos=wx.Point(156,
               58), size=wx.Size(439, 21), style=0, value='')
-        self.filesPathText.SetToolTip('Path to where the raw DNA files are.')
+        self.filesPathText.SetToolTip('Path to a VCF file or a folder containing DNA files.')
 
         self.browseFilesPathButton = wx.Button(id=wxID_VPCONFIGBOAFRAMEBROWSEFILESPATHBUTTON,
               label='Browse...', name='browseFilesPathButton',
@@ -527,14 +528,14 @@ class VPConfigBoaFrame(wx.Frame):
               size=wx.Size(731, 517), style=wx.TAB_TRAVERSAL)
 
         self.siblingsLabel = wx.StaticText(id=wx.ID_ANY,
-              label='Siblings (comma-separated)', name='siblingsLabel',
-              parent=self.filesPanel, pos=wx.Point(8, 8), size=wx.Size(153, 17),
-              style=0)
+              label='Siblings (VCF sample names, comma-separated)',
+              name='siblingsLabel', parent=self.filesPanel, pos=wx.Point(8, 8),
+              size=wx.Size(330, 17), style=0)
 
         self.siblingsText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMESIBLINGSTEXT,
               name='siblingsText', parent=self.filesPanel, pos=wx.Point(8, 25),
               size=wx.Size(715, 21), style=0, value='')
-        self.siblingsText.SetToolTip("Example: '****','****','****'")
+        self.siblingsText.SetToolTip("Use exact sample names from the VCF header (columns after FORMAT).")
 
         self.phasedFilesLabel = wx.StaticText(id=wx.ID_ANY,
               label='Phased Files (comma-separated)', name='phasedFilesLabel',
@@ -565,14 +566,14 @@ class VPConfigBoaFrame(wx.Frame):
         self.evilTwinsText.SetToolTip("Example: '****','****','****'")
 
         self.cousinsLabel = wx.StaticText(id=wx.ID_ANY,
-              label='Cousins (comma-separated)', name='cousinsLabel',
-              parent=self.filesPanel, pos=wx.Point(8, 54), size=wx.Size(152,
-              17), style=0)
+              label='Cousins (VCF sample names, comma-separated)',
+              name='cousinsLabel', parent=self.filesPanel, pos=wx.Point(8, 54),
+              size=wx.Size(330, 17), style=0)
 
         self.cousinsText = wx.TextCtrl(id=wxID_VPCONFIGBOAFRAMECOUSINSTEXT,
               name='cousinsText', parent=self.filesPanel, pos=wx.Point(8, 71),
               size=wx.Size(715, 21), style=0, value='')
-        self.cousinsText.SetToolTip("Example: '****','****','****'")
+        self.cousinsText.SetToolTip("Use exact sample names from the same VCF header.")
 
         self.chromosomesLabel = wx.StaticText(id=wx.ID_ANY,
               label='Chromosomes (comma-separated)', name='chromosomesLabel',
@@ -915,11 +916,16 @@ class VPConfigBoaFrame(wx.Frame):
         event.Skip()
 
     def _resolve_startup_config_path(self):
-        local_config = os.path.join(os.getcwd(), 'VP_configV1.py')
-        if os.path.exists(local_config):
-            return local_config
-
-        return os.path.join(os.path.dirname(__file__), 'VP_configV1.py')
+            candidate_paths = [
+                  os.path.join(os.getcwd(), 'VP_configV2.py'),
+                  os.path.join(os.path.dirname(__file__), 'VP_configV2.py'),
+                  os.path.join(os.getcwd(), 'VP_configV1.py'),
+                  os.path.join(os.path.dirname(__file__), 'VP_configV1.py'),
+            ]
+            for path in candidate_paths:
+                  if os.path.exists(path):
+                        return path
+            return candidate_paths[0]
 
     def _build_controls_map(self):
         return {
@@ -1008,6 +1014,89 @@ class VPConfigBoaFrame(wx.Frame):
 
     def _split_line_list(self, value):
         return [line.strip() for line in value.splitlines() if line.strip()]
+
+    def _collect_vcf_candidates(self, files_path):
+            normalized = os.path.abspath(str(files_path).strip())
+            if not normalized:
+                  return []
+
+            lower_path = normalized.lower()
+            if os.path.isfile(normalized) and (lower_path.endswith('.vcf') or lower_path.endswith('.vcf.gz')):
+                  return [normalized]
+
+            if not os.path.isdir(normalized):
+                  return []
+
+            return sorted(
+                  glob.glob(os.path.join(normalized, '*.vcf')) +
+                  glob.glob(os.path.join(normalized, '*.vcf.gz'))
+            )
+
+    def _read_vcf_sample_names(self, vcf_path):
+            opener = gzip.open if vcf_path.lower().endswith('.gz') else open
+            with opener(vcf_path, 'rt', encoding='utf-8', errors='ignore') as handle:
+                  for line in handle:
+                        if line.startswith('#CHROM'):
+                              header = line.strip().split('\t')
+                              if len(header) > 9:
+                                    return header[9:]
+                              return []
+            return []
+
+    def _validate_vcf_name_inputs(self):
+            files_path = self.filesPathText.GetValue().strip()
+            vcf_candidates = self._collect_vcf_candidates(files_path)
+            if not vcf_candidates:
+                  message = (
+                        'This V2.0 VCF workflow requires FILES_PATH to point to a VCF file '
+                        'or a folder containing at least one .vcf/.vcf.gz file.'
+                  )
+                  wx.MessageBox(message, 'VCF Input Required', wx.OK | wx.ICON_ERROR)
+                  self._set_status('Run blocked: VCF input not found for FILES_PATH')
+                  return False
+
+            try:
+                  sample_names = self._read_vcf_sample_names(vcf_candidates[0])
+            except Exception as error:
+                  wx.MessageBox(
+                        'Unable to read VCF header from:\n%s\n\n%s' % (vcf_candidates[0], error),
+                        'VCF Read Error',
+                        wx.OK | wx.ICON_ERROR,
+                  )
+                  self._set_status('Run blocked: failed to read VCF header')
+                  return False
+
+            if not sample_names:
+                  wx.MessageBox(
+                        'No sample names were found in VCF header:\n%s\n\nExpected #CHROM header with sample columns.' % vcf_candidates[0],
+                        'VCF Header Error',
+                        wx.OK | wx.ICON_ERROR,
+                  )
+                  self._set_status('Run blocked: VCF has no sample columns')
+                  return False
+
+            defined_names = self._split_comma_list(self.siblingsText.GetValue()) + self._split_comma_list(self.cousinsText.GetValue())
+            missing = [name for name in defined_names if name not in sample_names]
+            if missing:
+                  preview = ', '.join(sample_names[:10])
+                  if len(sample_names) > 10:
+                        preview += ', ...'
+                  wx.MessageBox(
+                        'SIBLINGS/COUSINS must use exact sample names from the VCF header.\n\n'
+                        'VCF: %s\n'
+                        'Missing names: %s\n\n'
+                        'Available sample names: %s' % (
+                              os.path.basename(vcf_candidates[0]),
+                              ', '.join(missing),
+                              preview,
+                        ),
+                        'VCF Name Validation Error',
+                        wx.OK | wx.ICON_ERROR,
+                  )
+                  self._set_status('Run blocked: some SIBLINGS/COUSINS are not in VCF header')
+                  return False
+
+            return True
 
     def _format_value(self, var_name, value):
         if var_name in RAW_STRING_FIELDS:
@@ -1109,7 +1198,34 @@ class VPConfigBoaFrame(wx.Frame):
             return False
 
     def OnBrowseFilesPathButton(self, event):
-        self._choose_directory('Select DNA files folder', self.filesPathText)
+            chooser = wx.SingleChoiceDialog(
+                  self,
+                  'Choose input type for FILES_PATH:',
+                  'Select Input Type',
+                  ['VCF file (.vcf)', 'Folder containing DNA files'],
+            )
+            try:
+                  if chooser.ShowModal() != wx.ID_OK:
+                        return
+                  selected = chooser.GetStringSelection()
+            finally:
+                  chooser.Destroy()
+
+            if selected.startswith('VCF file'):
+                  dialog = wx.FileDialog(
+                        self,
+                        'Select VCF File',
+                        wildcard='VCF files (*.vcf)|*.vcf|All files (*.*)|*.*',
+                        style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST,
+                  )
+                  try:
+                        if dialog.ShowModal() == wx.ID_OK:
+                              self.filesPathText.SetValue(dialog.GetPath())
+                  finally:
+                        dialog.Destroy()
+                  return
+
+            self._choose_directory('Select DNA files folder', self.filesPathText)
 
     def OnBrowseWorkingDirectoryButton(self, event):
         self._choose_directory('Select working directory', self.workingDirText)
@@ -1136,7 +1252,7 @@ class VPConfigBoaFrame(wx.Frame):
 
     def OnAboutMenu(self, event):
         dialog = wx.MessageDialog(self,
-              'Visual Phaser Config Editor',
+                    'Visual Phaser V2.0 Config Editor\nVCF-ready workflow',
               'About VP Config GUI', wx.OK | wx.ICON_INFORMATION)
         try:
             dialog.ShowModal()
@@ -1210,6 +1326,9 @@ class VPConfigBoaFrame(wx.Frame):
                   wx.OK | wx.ICON_WARNING)
             self._set_status('Run blocked: save configuration first')
             return
+
+            if not self._validate_vcf_name_inputs():
+                  return
 
         self.configBook.SetSelection(0)
         runtime_config_path = os.path.abspath(self.config_path) if self.config_path else ''
@@ -1300,3 +1419,4 @@ if __name__ == '__main__':
                 frame.LoadConfig()
     frame.Show(True)
     app.MainLoop()
+

@@ -112,18 +112,18 @@ NO_CALL: Character assigned to a no-call IN PHASED FILES.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 # Path to DNA files. Add .vcf file to the end if .vcf file is to be processed.
-FILES_PATH = 'c:/dna/vdatabrit.vcf'
+FILES_PATH = 'vdatabrit.vcf'
 
 # Path to .xlsx file.
-WORKING_DIRECTORY = 'c:/vpphaser'
+WORKING_DIRECTORY = 'tmp'
 
 # Path to min_map.txt file.
-MAP_PATH = 'c:/minmap'
+MAP_PATH = ''
 
 # SIBLINGS to be compared. Make sure that no two files share the same name.
-SIBLINGS = ['HGDP00794','HGDP00796','HGDP00797','HGDP00798','HGDP00799','HGDP00800',
+SIBLINGS = ['HGDP00794', 'HGDP00796', 'HGDP00797', 'HGDP00798', 'HGDP00799', 'HGDP00800', 'HGDP00802', 'HGDP00803', 'HGDP00805', 'HGDP00806', 'HGDP00807', 'HGDP00808', 'HGDP00810',
             'HGDP00802','HGDP00803','HGDP00805','HGDP00806','HGDP00807','HGDP00808',
-            'HGDP00810'
+            'HGDP00810',
             ]
 
 # Phased files to be compared to each other.

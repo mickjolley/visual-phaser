@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-VP_Config_Resources.py - Resource definitions for Visual Phaser Config GUI
+VP_Config_Resources.py - Resource definitions for Visual Phaser V2.0 Config GUI
 
 This module contains all static resource definitions for the VP Config GUI,
 following boa-constructor methodology for modular resource management.
@@ -16,14 +16,14 @@ FIELD_DEFINITIONS = {
     # Path Fields
     'FILES_PATH': {
         'type': 'path_directory',
-        'label': 'DNA Files Path',
-        'tooltip': 'Path to folder where the DNA files are stored.',
+        'label': 'Input Path (Folder or .vcf)',
+        'tooltip': 'Path to a VCF file or a folder containing DNA files.',
         'required': True,
     },
     'WORKING_DIRECTORY': {
         'type': 'path_directory',
         'label': 'Working Directory',
-        'tooltip': 'Folder where the .xlsx and .py files will be stored.',
+        'tooltip': 'Folder where the output .xlsx file and runtime config are stored.',
         'required': True,
     },
     'MAP_PATH': {
@@ -293,9 +293,9 @@ FIELD_SECTIONS = {
 }
 
 # Application strings
-APP_TITLE = 'Visual Phaser Configuration Editor'
+APP_TITLE = 'Visual Phaser V2.0 Configuration Editor'
 APP_VERSION = '1.0'
-APP_DESCRIPTION = 'GUI Configuration Editor for Visual Phaser VP_configV1.py'
+APP_DESCRIPTION = 'GUI Configuration Editor for Visual Phaser VP_configV2.py (VCF-ready)'
 APP_AUTHOR = 'Ray Schumacher, Mick Jolley'
 APP_EMAIL = 'mickj1948@gmail.com'
 APP_COPYRIGHT = '© 2026 Mick Jolley'
