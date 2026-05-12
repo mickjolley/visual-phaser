@@ -1,16 +1,17 @@
-# Visual Phaser Configuration GUI
+# Visual Phaser V2.0 Configuration GUI
 
-A wxPython-based graphical user interface for editing the Visual Phaser `VP_configV1.py` configuration file.
+A wxPython-based graphical user interface for editing the Visual Phaser `VP_configV2.py` configuration file with VCF file support.
 
 ## Features
 
-- **Path Selection**: Browse and select directories using file dialogs for:
-  - `FILES_PATH` - DNA files directory
+- **Path Selection**: Browse and select using file dialogs for:
+  - `FILES_PATH` - VCF file or folder containing DNA files
   - `WORKING_DIRECTORY` - Output directory
   - `MAP_PATH` - Map file directory
 
 - **File Management**:
-  - Edit `SIBLINGS`, `PHASED_FILES`, `EVIL_TWINS`, `COUSINS`, and `CHROMOSOMES` as comma-separated lists
+  - Edit `SIBLINGS` and `COUSINS` using exact sample names from the VCF header
+  - Edit `PHASED_FILES`, `EVIL_TWINS`, and `CHROMOSOMES` as comma-separated lists
   - Set `EXCEL_FILE_NAME` for output
 
 - **Configuration Options**:
@@ -22,9 +23,13 @@ A wxPython-based graphical user interface for editing the Visual Phaser `VP_conf
 - **Tooltips**: Context-sensitive help from the original configuration file comments displayed on mouseover
 
 - **Load/Save**:
-  - Load configuration from any VP_configV1.py file
+  - Load configuration from VP_configV2.py (or VP_configV1.py for legacy support)
   - Save configuration back to file
   - Reset to defaults
+
+- **VCF Validation**:
+  - Validates that `SIBLINGS` and `COUSINS` names exist in the VCF header before run
+  - Shows available sample names if validation fails
 
 ## Installation
 
@@ -56,7 +61,7 @@ python VP_Config_GUI.py
 
 With an optional config file path:
 ```bash
-python VP_Config_GUI.py path/to/VP_configV1.py
+python VP_Config_GUI.py path/to/VP_configV2.py
 ```
 
 ### Using the GUI
@@ -64,7 +69,7 @@ python VP_Config_GUI.py path/to/VP_configV1.py
 1. **Load Configuration**:
    - Click menu: File → Load Config, or
    - Click "Load Configuration" button at bottom
-   - Select your VP_configV1.py file
+   - Select your VP_configV2.py file
 
 2. **Edit Settings**:
    - Use appropriate controls for each field type:
@@ -81,7 +86,7 @@ python VP_Config_GUI.py path/to/VP_configV1.py
 4. **Save Configuration**:
    - Click "Save Configuration" button, or
    - Use menu: File → Save Config
-   - Configuration will be saved to VP_configV1.py
+   - Configuration will be saved to VP_configV2.py
 
 5. **Reset Values**:
    - Click "Reset to Defaults" to reload original values
@@ -96,26 +101,28 @@ python VP_Config_GUI.py path/to/VP_configV1.py
 ## File Structure
 
 - **VP_Config_GUI.py** - Main GUI application and entry point script
-- **VP_configV1.py** - Configuration file edited by the GUI
+- **VP_configV2.py** - V2.0 VCF-enabled configuration file edited by the GUI
+- **VP_configV1.py** - Legacy raw DNA configuration (still supported for backwards compatibility)
 - **VP_Config_Resources.py** - Additional project resources
 
 ## Notes
 
 - The current GUI implementation is in `VP_Config_GUI.py`.
-- It supports loading a local `VP_configV1.py` at startup, or a custom path via CLI argument.
+- It prefers `VP_configV2.py` at startup, with fallback to `VP_configV1.py` for legacy workflows.
+- V2.0 requires `SIBLINGS` and `COUSINS` to be exact sample names from the VCF header.
 
 ## Configuration Parameters Reference
 
 ### Paths
-- **FILES_PATH**: Directory containing DNA files
+- **FILES_PATH**: VCF file path or directory containing .vcf/.vcf.gz files
 - **WORKING_DIRECTORY**: Where output files (.xlsx, .py) are saved
 - **MAP_PATH**: Directory containing min_map.txt
 
 ### File Lists
-- **SIBLINGS**: Comma-separated names of the individuals to compare (minimum 2)
+- **SIBLINGS**: Comma-separated **VCF sample names** to compare (minimum 2; must match VCF header exactly)
 - **PHASED_FILES**: Comma-separated names of the individuals in phased files to compare
 - **EVIL_TWINS**: Comma-separated names of the individuals in evil-twin files to compare with siblings
-- **COUSINS**: Comma-separated names of the individuals to compare with siblings
+- **COUSINS**: Comma-separated **VCF sample names** to compare with siblings (must match VCF header exactly)
 - **CHROMOSOMES**: Which chromosomes to process (1-23, or empty for all)
 
 ### Output

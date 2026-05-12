@@ -1,10 +1,10 @@
-Visual Phaser Config GUI Release Package
+Visual Phaser V2.0 Config GUI Release Package
 
 Contents required at runtime:
 - VP_Config_GUI.exe
-- Visual_Phaser.V1.0.exe
+- Visual_Phaser.V2.0.exe
 - _internal/
-- VP_configV1.py
+- VP_configV2.py
 - minmap/
 
 Icon assets:
@@ -15,9 +15,10 @@ Icon assets:
   The executable's embedded Windows icon is built from assets/VP_Config_GUI.ico.
 
 Notes:
-- The GUI looks for VP_configV1.py in its own folder.
-- The Run button launches Visual_Phaser.V1.0.exe from this package folder.
+- The GUI looks for VP_configV2.py (or VP_configV1.py for legacy) in its own folder.
+- The Run button launches the latest Visual_Phaser.V*.exe from this package folder.
 - Python and Python package dependencies are frozen into the packaged executables, so end users do not need to install Python separately.
+- V2.0 requires SIBLINGS and COUSINS names to be exact VCF header sample names.
 
 Suggested release zip:
 - Zip the entire VP_Config_GUI folder and upload that zip to GitHub Releases.

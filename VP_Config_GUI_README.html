@@ -175,15 +175,15 @@
 <!-- ════════════════════ MAIN ════════════════════ -->
 <main>
 
-<h1 id="overview">Visual Phaser Configuration GUI</h1>
-<p>A <strong>wxPython</strong> graphical editor for <code>VP_configV1.py</code> — the configuration file for
-<em>Visual_Phaser.V1.1.py</em>. It lets you browse paths, edit all settings through purpose-built
+<h1 id="overview">Visual Phaser V2.0 Configuration GUI</h1>
+<p>A <strong>wxPython</strong> graphical editor for <code>VP_configV2.py</code> — the configuration file for
+<em>Visual_Phaser.V2.0.py</em>. It lets you browse VCF files, select samples from VCF headers, edit all settings through purpose-built
 controls, validate inputs, and launch a run directly from the GUI.</p>
 
 <div class="note">
   <strong>Quick start:</strong> open a terminal in the <code>visual-phaser</code> folder and run
-  <code>python VP_Config_GUI.py</code>. The GUI loads <code>VP_configV1.py</code> from the same
-  folder automatically.
+  <code>python VP_Config_GUI.py</code>. The GUI loads <code>VP_configV2.py</code> from the same
+  folder automatically, or <code>VP_configV1.py</code> if V2 is not available.
 </div>
 
 <!-- ────────────────── FEATURES ────────────────── -->
@@ -196,7 +196,7 @@ controls, validate inputs, and launch a run directly from the GUI.</p>
   <div class="card"><strong>Tooltips</strong><br>Hover any field for a description drawn from the original config comments.</div>
   <div class="card"><strong>Unsaved-change Guard</strong><br>The Run button is blocked until the configuration has been saved.</div>
   <div class="card"><strong>Live Output</strong><br>Program stdout/stderr is streamed into the Program Output panel in real time.</div>
-  <div class="card"><strong>Input Validation</strong><br>If a sibling DNA file cannot be parsed, a popup identifies the failing individual and reason.</div>
+<div class="card"><strong>VCF Validation</strong><br>Sample names in SIBLINGS and COUSINS are validated against VCF header before running; mismatches are reported with available sample names.</div>
 </div>
 
 <!-- ────────────────── INSTALLATION ────────────────── -->
@@ -226,7 +226,7 @@ sudo dnf install python3-wxpython4</code></pre>
 
 <h3 id="usage-load">1 — Load a Configuration</h3>
 <ul>
-  <li>At startup the GUI loads <code>VP_configV1.py</code> from its own directory automatically.</li>
+  <li>At startup the GUI loads <code>VP_configV2.py</code> from its own directory automatically (falls back to <code>VP_configV1.py</code> if not found).</li>
   <li>To load a different file: <strong>File → Load Config</strong> or click <strong>Load Configuration</strong>.</li>
 </ul>
 
@@ -241,10 +241,10 @@ sudo dnf install python3-wxpython4</code></pre>
 
 <h3 id="usage-save">3 — Save &amp; Run</h3>
 <ol>
-  <li>Click <strong>Save Configuration</strong> (or <strong>File → Save Config</strong>) to write changes to <code>VP_configV1.py</code>.</li>
-  <li>Click the green <strong>Run</strong> button to launch the processor. If there are unsaved changes the Run button will show a warning instead of starting.</li>
+  <li>Click <strong>Save Configuration</strong> (or <strong>File → Save Config</strong>) to write changes to <code>VP_configV2.py</code>.</li>
+  <li>VCF sample names in SIBLINGS and COUSINS are validated against the VCF file before starting.</li>
+  <li>Click the green <strong>Run</strong> button to launch the processor. If there are unsaved changes or validation fails, a warning is shown.</li>
   <li>Watch progress in the <em>Program Output</em> panel on the Paths tab. Use <strong>Clear</strong> to reset it.</li>
-  <li>If a DNA file fails to load a popup describes which individual failed and why.</li>
 </ol>
 
 <!-- ────────────────── PARAMETER REFERENCE ────────────────── -->
@@ -253,7 +253,7 @@ sudo dnf install python3-wxpython4</code></pre>
 <h3 id="params-paths">Paths</h3>
 <table>
   <tr><th>Parameter</th><th>Description</th></tr>
-  <tr><td><code>FILES_PATH</code></td><td>Directory that contains the raw DNA files (e.g. <code>*_raw_dna.txt</code>).</td></tr>
+<tr><td><code>FILES_PATH</code></td><td>VCF file or folder containing VCF files (e.g. <code>samples.vcf</code> or <code>data/</code> folder with <code>.vcf.gz</code> files).</td></tr>
   <tr><td><code>WORKING_DIRECTORY</code></td><td>Directory where the output <code>.xlsx</code> file is written.</td></tr>
   <tr><td><code>MAP_PATH</code></td><td>Directory that contains <code>min_map.txt</code>.</td></tr>
 </table>
@@ -261,10 +261,10 @@ sudo dnf install python3-wxpython4</code></pre>
 <h3 id="params-files">File Lists</h3>
 <table>
   <tr><th>Parameter</th><th>Description</th></tr>
-  <tr><td><code>SIBLINGS</code></td><td>Comma-separated names of the individuals to compare (minimum 2). Each name must match the prefix of a <code>&lt;name&gt;_raw_dna*</code> file.</td></tr>
+<tr><td><code>SIBLINGS</code></td><td>Comma-separated VCF sample names of the individuals to compare (minimum 2). Each name must match a column header in the VCF #CHROM line.</td></tr>
   <tr><td><code>PHASED_FILES</code></td><td>Comma-separated names of the individuals in phased files to compare with each other (not with siblings).</td></tr>
   <tr><td><code>EVIL_TWINS</code></td><td>Comma-separated names of the individuals in evil-twin files to compare against all siblings.</td></tr>
-  <tr><td><code>COUSINS</code></td><td>Comma-separated names of the individuals to compare against siblings in an existing workbook. Leave blank to create a new file.</td></tr>
+<tr><td><code>COUSINS</code></td><td>Comma-separated VCF sample names of the individuals to compare against siblings in an existing workbook. Leave blank to create a new file.</td></tr>
   <tr><td><code>CHROMOSOMES</code></td><td>Comma-separated chromosome numbers (1–23). Leave blank to process all.</td></tr>
   <tr><td><code>EXCEL_FILE_NAME</code></td><td>Output workbook name without the <code>.xlsx</code> extension.</td></tr>
 </table>
@@ -315,15 +315,15 @@ sudo dnf install python3-wxpython4</code></pre>
 
 <!-- ────────────────── INPUT FILE FORMATS ────────────────── -->
 <h2 id="file-formats">Supported Input File Formats</h2>
-<p>Raw DNA files must be named <code>&lt;name&gt;_raw_dna&lt;extension&gt;</code> and placed in <code>FILES_PATH</code>.
-The loader automatically detects the delimiter (tab or comma) and column layout.</p>
+<p>VCF files (Variant Call Format) must be placed in <code>FILES_PATH</code> as a single file or within a folder.
+The loader automatically detects gzip compression, parses the VCF header to extract sample column names, and validates that
+SIBLINGS and COUSINS names match available VCF samples.</p>
 
 <table>
   <tr><th>Source</th><th>Format</th><th>Notes</th></tr>
-  <tr><td>AncestryDNA</td><td>Tab-delimited <code>.txt</code></td><td>Columns: rsid, chromosome, position, allele1, allele2</td></tr>
-  <tr><td>23andMe</td><td>Tab-delimited <code>.txt</code></td><td>Same column layout; chromosome X mapped to 23</td></tr>
-  <tr><td>MyHeritage / FTDNA</td><td>CSV or tab <code>.txt</code></td><td>Genotype column (two-character string) also accepted</td></tr>
-  <tr><td>VCF</td><td><code>.vcf</code> or <code>##fileformat=VCF</code> header</td><td>GT genotype field decoded; REF/ALT used as fallback</td></tr>
+<tr><td>VCF</td><td><code>.vcf</code> or <code>.vcf.gz</code> (gzip-compressed)</td><td>Standard Variant Call Format; GT field decoded; REF/ALT used as fallback</td></tr>
+  <tr><td>VCF (multi-sample)</td><td><code>.vcf</code> with multiple sample columns</td><td>Sample names extracted from #CHROM header; each sample can be listed in SIBLINGS/COUSINS</td></tr>
+  <tr><td>Legacy formats</td><td>AncestryDNA, 23andMe, MyHeritage (raw DNA)</td><td>V2.0 focuses on VCF; legacy format support available in V1.1</td></tr>
 </table>
 
 <div class="note">
@@ -342,9 +342,8 @@ The loader automatically detects the delimiter (tab or comma) and column layout.
 failing individual and the specific reason (missing file, unrecognised columns, no autosomal rows,
 etc.).</p>
 
-<h3>DNA file not found</h3>
-<p>Files must follow the pattern <code>&lt;name&gt;_raw_dna*</code> inside <code>FILES_PATH</code>. Check capitalisation
-and that the directory path in the GUI is correct.</p>
+<h3>VCF file or samples not found</h3>
+<p>Check that <code>FILES_PATH</code> points to a valid VCF file or folder containing <code>.vcf</code>/<code>.vcf.gz</code> files. Verify sample names in SIBLINGS/COUSINS match the VCF header exactly (case-sensitive).</p>
 
 <h3>Empty/missing workbook after run</h3>
 <p>If no chromosome sheets can be created (e.g. all individuals fail to load), a <em>Results</em>
@@ -366,7 +365,7 @@ running a frozen version.</p>
 
 <h3>Changes not saving</h3>
 <ul>
-  <li>Confirm write permission to <code>VP_configV1.py</code>.</li>
+  <li>Confirm write permission to <code>VP_configV2.py</code>.</li>
   <li>Make sure no other editor has the file locked.</li>
 </ul>
 
@@ -375,8 +374,8 @@ running a frozen version.</p>
 <table>
   <tr><th>File</th><th>Purpose</th></tr>
   <tr><td><code>VP_Config_GUI.py</code></td><td>Main GUI application and entry point</td></tr>
-  <tr><td><code>VP_configV1.py</code></td><td>Configuration file edited by the GUI</td></tr>
-  <tr><td><code>Visual_Phaser.V1.1.py</code></td><td>Core DNA analysis processor</td></tr>
+<tr><td><code>VP_configV2.py</code></td><td>Configuration file edited by the GUI (V2.0 VCF-focused)</td></tr>
+  <tr><td><code>Visual_Phaser.V2.0.py</code></td><td>Core DNA analysis processor</td></tr>
   <tr><td><code>VP_Config_Resources.py</code></td><td>Additional project resources</td></tr>
   <tr><td><code>minmap/min_map.txt</code></td><td>Genetic distance map (GRCh37/hg19)</td></tr>
   <tr><td><code>VP_Config_GUI_README.html</code></td><td>This documentation file</td></tr>

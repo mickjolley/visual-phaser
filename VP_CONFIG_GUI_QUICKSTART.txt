@@ -1,5 +1,5 @@
 ================================================================================
-VISUAL PHASER CONFIG GUI - QUICK START GUIDE
+VISUAL PHASER V2.0 CONFIG GUI - QUICK START GUIDE (VCF WORKFLOW)
 ================================================================================
 
 INSTALLATION (First Time)
@@ -20,7 +20,7 @@ Method 1: Simple Launch
    python VP_Config_GUI.py
 
 Method 2: With Config File
-   python VP_Config_GUI.py VP_configV1.py
+   python VP_Config_GUI.py VP_configV2.py
 
 
 USING THE GUI
@@ -29,11 +29,13 @@ USING THE GUI
 1. LOAD CONFIGURATION
    - File menu → Load Config, OR
    - Click "Load Configuration" button
-   - Select your VP_configV1.py file
+   - Select your VP_configV2.py file (VCF workflow) or VP_configV1.py (legacy)
 
 2. EDIT SETTINGS
-   Paths:        Click "Browse..." buttons to select folders
-   Files:        Use "Select Files" or type comma-separated names
+   Paths:        Click "Browse..." for VCF file or folder, or folders for MAP/WORK
+   SIBLINGS/     Use exact VCF sample names (comma-separated);
+   COUSINS:      GUI will validate these exist in the VCF header
+   Others:       Type comma-separated names
    Boolean:      Choose True/False from dropdown
    Numbers:      Use up/down spinners or type values
    Text:         Type directly in text fields
@@ -45,7 +47,7 @@ USING THE GUI
 4. SAVE YOUR WORK
    - Click "Save Configuration" button, OR
    - File menu → Save Config
-   - Your changes are written to VP_configV1.py
+   - Your changes are written to VP_configV2.py
 
 5. RESET / START OVER
    - Click "Reset to Defaults" button
@@ -59,15 +61,15 @@ FIELDS ORGANIZED BY CATEGORY
 -----------------------------
 
 PATHS AND DIRECTORIES:
-  • FILES_PATH          - Where your DNA files are stored
+  • FILES_PATH          - VCF file or folder with .vcf/.vcf.gz files
   • WORKING_DIRECTORY   - Where output files will be saved
   • MAP_PATH            - Where min_map.txt is located
 
 FILE MANAGEMENT:
-   • SIBLINGS            - Comma-separated names of the individuals to compare (2 minimum)
+   • SIBLINGS            - VCF sample names to compare (2+ required; must match VCF header)
    • PHASED_FILES        - Comma-separated names of the individuals in phased files
    • EVIL_TWINS          - Comma-separated names of the individuals in evil-twin files
-   • COUSINS             - Comma-separated names of the individuals to compare with siblings
+   • COUSINS             - VCF sample names to compare with siblings (must match VCF header)
   • CHROMOSOMES         - Which chromosomes (1-23, or blank for all)
   • EXCEL_FILE_NAME     - Name for output file
 
