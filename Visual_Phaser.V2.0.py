@@ -12,6 +12,7 @@ Optimized for speed using a Hybrid Multiprocessing + Multithreading Architecture
 import numpy as np
 import pandas as pd
 import sys
+import importlib.util
 from itertools import combinations
 import os
 from PIL import Image, ImageDraw, ImageFont
@@ -39,6 +40,65 @@ from VP_configV2 import (
     FIR_TABLES, SCALE_ON, FREEZE_COLUMN, LINUX_FONT_STRING,
     HIR_SNP_MIN, FIR_SNP_MIN, MM_DIST, NO_CALL
 )
+
+CONFIG_VARIABLE_NAMES = (
+    'FILES_PATH', 'WORKING_DIRECTORY', 'MAP_PATH', 'SIBLINGS', 'PHASED_FILES',
+    'EVIL_TWINS', 'COUSINS', 'CHROMOSOMES', 'EXCEL_FILE_NAME', 'SHOW_NO_MATCHES',
+    'CHROM_TRUE_SIZE', 'LINEAR_CHROMOSOME', 'MERGE_FILES', 'RESOLUTION',
+    'AUTO_REC_PNTS', 'ARP_TOLERANCE', 'AUTO_RP_ASSIGN', 'REPAIR_FILES',
+    'SCALE_FACTOR', 'HIR_CUTOFF', 'FIR_CUTOFF', 'X_HIR_CUTOFF', 'X_FIR_CUTOFF',
+    'FIR_TABLES', 'SCALE_ON', 'FREEZE_COLUMN', 'LINUX_FONT_STRING',
+    'HIR_SNP_MIN', 'FIR_SNP_MIN', 'MM_DIST', 'NO_CALL'
+)
+
+
+def _load_runtime_config_override():
+    """Load config overrides from argv/env/sidecar config when available."""
+    override_path = None
+
+    if len(sys.argv) > 1:
+        candidate = os.path.abspath(sys.argv[1])
+        if os.path.isfile(candidate):
+            override_path = candidate
+
+    env_candidate = os.environ.get('VP_CONFIG_PATH', '').strip()
+    if env_candidate:
+        env_candidate = os.path.abspath(env_candidate)
+        if os.path.isfile(env_candidate):
+            override_path = env_candidate
+
+    if not override_path:
+        if getattr(sys, 'frozen', False):
+            base_dir = os.path.dirname(sys.executable)
+        else:
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+
+        sidecar_candidate = os.path.join(base_dir, 'VP_configV2.py')
+        if os.path.isfile(sidecar_candidate):
+            override_path = sidecar_candidate
+
+    if not override_path:
+        return
+
+    try:
+        spec = importlib.util.spec_from_file_location('vp_runtime_config', override_path)
+        if spec is None or spec.loader is None:
+            print(f"[VP_CONFIG_WARNING] Unable to load config override from {override_path}", flush=True)
+            return
+
+        runtime_config = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(runtime_config)
+
+        for var_name in CONFIG_VARIABLE_NAMES:
+            if hasattr(runtime_config, var_name):
+                globals()[var_name] = getattr(runtime_config, var_name)
+
+        print(f"[VP_CONFIG] Loaded runtime config: {override_path}", flush=True)
+    except Exception as error:
+        print(f"[VP_CONFIG_WARNING] Failed to apply runtime config {override_path}: {error}", flush=True)
+
+
+_load_runtime_config_override()
 
 # Global cache to store loaded DNA data and a lock to manage concurrent access
 worker_dna_cache = {}
