@@ -7,7 +7,7 @@ One chromosome is analyzed at a time.
 Reults are saved to an output file and the segment colors for the matches images
 reported.
 
-© 2024 Mick Jolley (mickj1948@gmail.com)
+© 2026 Mick Jolley (mickj1948@gmail.com)
 """
 import os
 import pprint
