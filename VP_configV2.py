@@ -40,23 +40,18 @@ matches. If only siblings are being compared set this to True.
 
 CHROM_TRUE_SIZE: Set to True for true size. Set to False for normalized size.
 
-LINEAR_CHROMOSOME: Set to True if you want to see linearized chromosomes.
-In linear mode the display is mapped to a fixed grid: RESOLUTION=10 uses
-10000 bins, all other values use 1000 bins. CHROM_TRUE_SIZE is automatically
-set to False.
+LINEAR_CHROMOSOME: Set to True if you want to see the linearized chromosomes.
+RESOLUTION will be ignored unless it is 10 (10x resolution). CHROM_TRUE_SIZE is
+automatically set to False.
 
 MERGE_FILES: Set to True if merging of DNA files is desired. If it is desired
 to treat match pairs separately, set to False. This is useful if one of the
 files is missing a lot of SNPs or if LINEAR_CHROMOSOME is set to True. Missing
 SNPs are shown in gray. Default = True.
 
-RESOLUTION: Default value = 1. Valid user range is 1..100.
-For non-linear chromosomes, effective bins are approximately RESOLUTION * 1000,
-up to full data length; RESOLUTION=100 typically gives full detail.
-For LINEAR_CHROMOSOME mode, RESOLUTION=10 uses 10000 bins; all other values use
-1000 bins.
-At RESOLUTION=100 with typical SNP counts, div becomes 1 so dplot pixel width is
-approximately source_rows + 1.
+RESOLUTION: Default value = 1. For normalized size it is advised to keep it
+under 10. Set to 100 for full length chromosomes. If LINEAR_CHROMOSOME is set
+to "True", RESOLUTION is automatically set to 1, unless it is set to 10.
 
 AUTO_REC_PNTS: Set AUTO_REC_PNTS to True if calculation of RPs is desired. ARP
 is not activated in LINEAR_CHROMOSOME mode or when cousins are being added.
@@ -66,7 +61,8 @@ do not line up correctly, the SCALE_FACTOR needs to be adjusted (see below).
 
 ARP_TOLERANCE: When AUTO_REC_PNTS is activated, columns with pixel size
 less than this value will be deleted. Set to minimum desired column width
-(pixels). Default = 5.
+(pixels). Default = 5 (RESOLUTION is set to 1). ARP_TOLERANCE is adjusted for
+RESOLUTION.
 
 AUTO_RP_ASSIGN: Set AUTO_RP_ASSIGN to True if automatic assignment of
 recombination points is desired.
@@ -74,14 +70,12 @@ recombination points is desired.
 REPAIR_FILES: Converts isolated NIR and HIR SNPs to FIR. Converts isolated
 NIR SNPs to HIR. Default = True.
 
-SCALE_FACTOR: The column width per pixel factor. Default value = 0.1355. This may
+SCALE_FACTOR: The column width per pixel factor. Default value = 0.1351.This may
 require adjustment to correctly position the recombination points. If the RPs
 are to the right of where they should be, decrease SCALE_FACTOR (try 0.13 to
 start), and vice versa (try 0.14 to start). Repeat until the RPs line up
 correctly. It is suggested that this procedure is performed using two siblings
 and chromosome 1 only. This only has to be performed once.
-If near 1 pixel per source row is desired in non-linear mode, use
-RESOLUTION = 1
 
 HIR_CUTOFF: Default value = 7 cM
 
@@ -118,16 +112,16 @@ NO_CALL: Character assigned to a no-call IN PHASED FILES.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 # Path to DNA files. Add .vcf file to the end if .vcf file is to be processed.
-FILES_PATH = 'C:\\Users\\rjs\\AppData\\Local\\DNA_phasing\\DNA_files'
+FILES_PATH = ''
 
 # Path to .xlsx file.
-WORKING_DIRECTORY = 'C:\\Users\\rjs\\AppData\\Local\\DNA_phasing\\DNA_files\\tmp'
+WORKING_DIRECTORY = ''
 
 # Path to min_map.txt file.
-MAP_PATH = 'C:\\Users\\rjs\\AppData\\Local\\DNA_phasing\\DNA_files'
+MAP_PATH = ''
 
 # SIBLINGS to be compared. Make sure that no two files share the same name.
-SIBLINGS = ['Diane', 'Tom', 'Ray']
+SIBLINGS = []
 
 # Phased files to be compared to each other.
 PHASED_FILES = []
@@ -142,10 +136,10 @@ COUSINS = []
 CHROMOSOMES = []
 
 # Excel file name. Leave ".xlsx" out.
-EXCEL_FILE_NAME = 'RP_test'
+EXCEL_FILE_NAME = 'vcf'
 
 # Suppress no-matches. Set to True if display of no-matches is desired.
-SHOW_NO_MATCHES = True
+SHOW_NO_MATCHES = False
 
 # Chromosome true size. Set to False for normalized size.
 CHROM_TRUE_SIZE = False
@@ -156,17 +150,14 @@ LINEAR_CHROMOSOME = False
 # Select merging of DNA files. Default = True
 MERGE_FILES = True
 
-# Resolution. Default = 1. Valid range = 1..100.
-# Non-linear mode: effective bins are approximately RESOLUTION * 1000 up to full
-# data length (RESOLUTION=100 is typically full detail).
-# Linear mode: RESOLUTION=10 uses 10000 bins; all other values use 1000 bins.
-# At RESOLUTION=100 with typical SNP counts, dplot width is approximately
-# source_rows + 1 (div usually resolves to 1).
+# Resolution. Default = 1. Keep under 10. Set to 100 if full resolution is
+# desired. If LINEAR_CHROMOSOME is set to True, RESOLUTION will be automatically
+# set to 1, unless it is set to 10 (10x resolution).
 RESOLUTION = 1
 
 # Set AUTO_REC_PNTS to True if calculation of RPs is desired. ARP is not
 # activated in LINEAR_CHROMOSOME mode or when COUSINS is not empty.
-AUTO_REC_PNTS = True
+AUTO_REC_PNTS = False
 
 # When AUTO_REC_PNTS is activated, Columns with pixel numbers less than this
 # value will be deleted. Set to minimum desired column width (pixels).
@@ -175,20 +166,18 @@ ARP_TOLERANCE = 5
 
 # Set AUTO_RP_ASSIGN to True if automatic assignment of recombination points is
 # desired.
-AUTO_RP_ASSIGN = True
+AUTO_RP_ASSIGN = False
 
 # Repair files. Converts isolated NIR and HIR SNPs to FIR. Converts isolated
 # NIR SNPs to HIR.
 REPAIR_FILES = True
 
 # The column width per pixel factor. This may need adjustment depending on
-# the display resolution.
-# For near 1 pixel per source row in non-linear mode, use RESOLUTION=100 and
-# SCALE_FACTOR approximately 0.3483.
+#  the display resolution.
 SCALE_FACTOR = 0.1355
 
 # HIR Minimum segment length (cM). The default is 7.
-HIR_CUTOFF = 6
+HIR_CUTOFF = 7
 
 # FIR cutoff. FIRs less than 1cM in length are probably not significant.
 FIR_CUTOFF = 1
@@ -224,10 +213,10 @@ You shouldn't have to change the parameters below.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 # Minimum number of HIR SNPs.
-HIR_SNP_MIN = 150
+HIR_SNP_MIN = 200
 
 # Minimum number of FIR SNPs.
-FIR_SNP_MIN = 50
+FIR_SNP_MIN = 75
 
 # Number of Kbs between mismatches to end segment.
 MM_DIST = 1000

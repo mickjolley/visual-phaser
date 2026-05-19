@@ -1199,26 +1199,13 @@ class VPConfigBoaFrame(wx.Frame):
 
             self._is_dirty = False
             self._set_status('Configuration saved')
-            self._show_timed_message('Configuration saved successfully.')
+            wx.MessageBox('Configuration saved successfully.', 'Success',
+                  wx.OK | wx.ICON_INFORMATION)
             return True
         except Exception as error:
             wx.MessageBox('Error saving configuration: %s' % error, 'Error',
                   wx.OK | wx.ICON_ERROR)
             return False
-
-    def _show_timed_message(self, message, duration_ms=1000):
-        """Show a small message that auto-dismisses after duration_ms milliseconds."""
-        dlg = wx.Dialog(self, title='', style=wx.CAPTION | wx.FRAME_FLOAT_ON_PARENT)
-        sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(wx.StaticText(dlg, label=message), 0, wx.ALL | wx.CENTER, 20)
-        dlg.SetSizer(sizer)
-        sizer.Fit(dlg)
-        dlg.CenterOnParent()
-        timer = wx.Timer(dlg)
-        dlg.Bind(wx.EVT_TIMER, lambda e: dlg.EndModal(wx.ID_OK), timer)
-        timer.StartOnce(duration_ms)
-        dlg.ShowModal()
-        dlg.Destroy()
 
     def OnBrowseFilesPathButton(self, event):
             chooser = wx.SingleChoiceDialog(
