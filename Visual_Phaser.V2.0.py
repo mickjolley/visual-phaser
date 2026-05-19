@@ -692,7 +692,7 @@ def thread_chromosome(chrom, match_pairs, individuals, files_path, map_positions
     # Step 3: Graphical Preparation and Image Saving. Uses threading for concurrent image saving.
     all_rps, all_rnames, pair_images = [], [], []
     wdir = config_params['WORKING_DIRECTORY'] + "/"
-    last_dplot_len = 0
+    max_dplot_len = 0
 
     with ThreadPoolExecutor(max_workers=4) as image_threads:
         for q, pair in enumerate(match_pairs):
@@ -705,7 +705,7 @@ def thread_chromosome(chrom, match_pairs, individuals, files_path, map_positions
                                                    chr_len, siblings)
             all_rps.extend(rps)
             all_rnames.extend(rnames)
-            last_dplot_len = len(dplot)
+            max_dplot_len = max(max_dplot_len, len(dplot))
 
             if q == 0 and config_params['SCALE_ON']:
                 image_threads.submit(get_scale_img, dplot, chrom, wdir)
@@ -715,7 +715,7 @@ def thread_chromosome(chrom, match_pairs, individuals, files_path, map_positions
 
     return {
         'chrom': chrom, 'tables': tables_data, 'pair_images': pair_images,
-        'arp_info': (all_rps, all_rnames, last_dplot_len),
+        'arp_info': (all_rps, all_rnames, max_dplot_len),
         'dxtot_pairs': list(dxtot['pair'].unique()) if len(dxtot) > 0 else []
     }
 
@@ -761,15 +761,69 @@ def do_arp_main(ws, rps_list, rnames_list, dplot_len, siblings, auto_rp_assign, 
     rps_list = [0] + rps_list + [dplot_len - 1]
 
     rpsf = []
-    arp_tol = arp_tolerance * resolution
+    # Use tolerance as-is (plot units) without resolution scaling.
+    # High RESOLUTION causes arp_tolerance * resolution to become too aggressive,
+    # collapsing distinct recombination points and truncating column spans.
+    arp_tol = arp_tolerance
     for num in rps_list:
         if not any(abs(num - x) < arp_tol for x in rpsf):
             rpsf.append(num)
 
+    # Always preserve chromosome endpoint so columns span full width
+    if len(rpsf) > 0 and rpsf[-1] != dplot_len - 1:
+        rpsf.append(dplot_len - 1)
+
+    # Ensure start is always 0
+    if len(rpsf) > 0 and rpsf[0] != 0:
+        rpsf.insert(0, 0)
+
     rpsf_diff = np.subtract(rpsf[1:], rpsf[:-1])
-    for i, rp in enumerate(rpsf_diff):
-        ws.column_dimensions[cl(8 + i)].width = rp * scale_factor
-        ws.cell(arp_row, 8 + i).value = rp
+    # Excel column width units render narrower than raw image pixels on some
+    # installs, and the visual correction shifts with SCALE_FACTOR.
+    # Resolution-specific correction uses piecewise-linear interpolation across
+    # the user-facing 1..100 range (anchors from measured behavior):
+    #   1 -> 1.0687, 10 -> 0.5335, 100 -> 0.5336
+    scale_correction = max(0.1, 1.5180 - (1.1125 * scale_factor))
+    res = float(resolution)
+    # Clean 3-point interpolation with clamping to the configured 1..100 range.
+    # This keeps anchor behavior exactly while avoiding branch-heavy code.
+    res_anchors = np.array([1.0, 10.0, 100.0], dtype=float)
+    scale_anchors = np.array([1.0687, 0.5335, 0.5336], dtype=float)
+    res_clamped = float(np.clip(res, res_anchors[0], res_anchors[-1]))
+    resolution_visual_scale = float(np.interp(res_clamped, res_anchors, scale_anchors))
+
+    # Apply correction factors directly to recombination block widths.
+    # Don't target dplot_len; use the actual rpsf_diff structure as-is.
+    per_pixel_width = scale_factor * scale_correction * resolution_visual_scale
+
+    # Excel can visually cap very wide columns; split oversized ARP blocks so
+    # low-RP chromosomes (e.g., chr22) preserve total rendered span.
+    max_excel_col_width = 120.0
+    expanded_widths = []
+    expanded_rp_values = []
+    block_start_cols = []
+    col_offset = 0
+    for rp in rpsf_diff:
+        this_width = rp * per_pixel_width
+        if this_width <= max_excel_col_width:
+            block_start_cols.append(col_offset)
+            expanded_widths.append(this_width)
+            expanded_rp_values.append(rp)
+            col_offset += 1
+            continue
+
+        n_parts = int(np.ceil(this_width / max_excel_col_width))
+        part_width = this_width / n_parts
+        block_start_cols.append(col_offset)
+        for part_idx in range(n_parts):
+            expanded_widths.append(part_width)
+            expanded_rp_values.append(rp if part_idx == 0 else '')
+            col_offset += 1
+
+    total_excel_width = np.sum(expanded_widths)
+    for i, width in enumerate(expanded_widths):
+        ws.column_dimensions[cl(8 + i)].width = width
+        ws.cell(arp_row, 8 + i).value = expanded_rp_values[i]
         ws.cell(arp_row, 8 + i).alignment = Alignment(horizontal='center')
     ws.cell(arp_row, 7).value = 'Column Width'
     ws.cell(arp_row, 7).alignment = Alignment(horizontal='center')
@@ -781,9 +835,10 @@ def do_arp_main(ws, rps_list, rnames_list, dplot_len, siblings, auto_rp_assign, 
             flat = [s for pair in matches for s in pair]
             if flat:
                 keymax = Counter(flat).most_common(1)[0][0]
-                cell = ws.cell(arp_row - 3 * len(siblings), 8 + i)
+                start_col_offset = block_start_cols[i] if i < len(block_start_cols) else i
+                cell = ws.cell(arp_row - 3 * len(siblings), 8 + start_col_offset)
                 cell.value, cell.alignment, cell.font = keymax, Alignment(horizontal='right'), Font(bold=True)
-    return len(rpsf_diff) + 8
+    return len(expanded_widths) + 8
 
 def find_next_line(ws, col, addn):
     """Helper to find the next empty row in a given Excel column."""
@@ -818,10 +873,24 @@ def paste_tables(ws, dx, ds, pair_name, fir_tables, show_no_matches):
     if fir_tables and len(ds) > 0:
         _paste(ds, f"{pair_name} FIR Table")
 
-def paste_image_main(fflag, ws, pair_name, chrom, q, wdir, cousins, scale_on, show_no_matches, dxtot_pairs, im_width, dplot_len):
+def paste_image_main(fflag, ws, pair_name, chrom, q, wdir, cousins, scale_on, show_no_matches, dxtot_pairs, im_width, dplot_len, resolution, scale_factor=0.1355):
     """Inserts the generated DNA match images into the Excel worksheet."""
+    # Non-cousin image widths need a fitted visual scale factor to match Excel's
+    # rendered column widths at different SCALE_FACTOR values.
+    image_visual_scale = max(0.1, 0.5608 + (1.2610 * scale_factor))
+    res = float(resolution)
+    if res <= 1:
+        image_resolution_scale = 2.0
+    elif res < 10:
+        # Smoothly transition from 2.0x at RESOLUTION=1 to 1.0x at RESOLUTION=10.
+        image_resolution_scale = 2.0 - (res - 1.0) / 9.0
+    else:
+        image_resolution_scale = 1.0
+    image_visual_scale *= image_resolution_scale
     if q == 0 and not cousins and scale_on:
-        ws.add_image(XLImage(f"{wdir}scale {chrom}.png"), ws.cell(1, 8).coordinate)
+        scale_img = XLImage(f"{wdir}scale {chrom}.png")
+        scale_img.width = int(round(scale_img.width * image_visual_scale))
+        ws.add_image(scale_img, ws.cell(1, 8).coordinate)
     if not show_no_matches and pair_name not in dxtot_pairs:
         return
     if len(pair_name) > ws.column_dimensions["G"].width:
@@ -837,6 +906,7 @@ def paste_image_main(fflag, ws, pair_name, chrom, q, wdir, cousins, scale_on, sh
         else:
             next_line = find_next_line(ws, 7, 2)
     else:
+        img.width = int(round(img.width * image_visual_scale))
         # Normal sibling placement (offset by 2 rows from previous)
         next_line = 3 if q == 0 else find_next_line(ws, 7, 2)
 
@@ -1016,7 +1086,7 @@ if __name__ == "__main__":
             fflag = [True] * 24
 
             for q, (p_name, dplot_len) in enumerate(res['pair_images']):
-                paste_image_main(fflag, ws, p_name, chrom, q, wdir, COUSINS, SCALE_ON, SHOW_NO_MATCHES, res['dxtot_pairs'], im_width, dplot_len)
+                paste_image_main(fflag, ws, p_name, chrom, q, wdir, COUSINS, SCALE_ON, SHOW_NO_MATCHES, res['dxtot_pairs'], im_width, dplot_len, RESOLUTION, SCALE_FACTOR)
 
             # Post-processing: Add Recombination Points and Formatting
             if not COUSINS:

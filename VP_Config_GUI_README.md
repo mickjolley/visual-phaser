@@ -143,6 +143,8 @@ python VP_Config_GUI.py path/to/VP_configV2.py
 
 ### Quality Settings
 - **RESOLUTION**: Display resolution (1-100)
+- In non-linear mode, `RESOLUTION=100` typically gives full detail (`div` usually resolves to 1), so
+  graphic pixel width is approximately `source_rows + 1`.
 - **ARP_TOLERANCE**: Minimum column width for recombination points
 - **HIR_CUTOFF**: Minimum HIR segment length (cM)
 - **FIR_CUTOFF**: Minimum FIR segment length (cM)
@@ -154,6 +156,8 @@ python VP_Config_GUI.py path/to/VP_configV2.py
 
 ### Advanced
 - **SCALE_FACTOR**: Column width per pixel factor
+- For near `1 px per source row` in non-linear mode, use `RESOLUTION=100` and
+  `SCALE_FACTOR` approximately `0.3483`.
 - **SCALE_ON**: Enable/disable scale display
 - **FREEZE_COLUMN**: Column to freeze in display
 - **LINUX_FONT_STRING**: Font path for Linux systems
