@@ -754,36 +754,28 @@ def do_arp_main(ws, rps_list, rnames_list, dplot_len, siblings, auto_rp_assign, 
     Calculates where chromosomal crossovers likely occurred based on data from all sibling pairs.
     Sets Excel column widths based on recombination block lengths.
     """
-    rcomb_list = list(zip(rps_list, rnames_list))
+    rcomb_list = list(zip(rps_list, rnames_list, strict=True))
     next_line = find_next_line(ws, 7, 3)
     arp_row = next_line + len(siblings) * 3
-    raw_rps = sorted(list(set(int(x) for x in rps_list if 0 < int(x) < dplot_len - 1)))
+    rps_list = sorted(list(set(rps_list)))
+    rps_list = [0] + rps_list + [dplot_len - 1]
 
+    rpsf = []
     # Use tolerance as-is (plot units) without resolution scaling.
     # High RESOLUTION causes arp_tolerance * resolution to become too aggressive,
     # collapsing distinct recombination points and truncating column spans.
     arp_tol = arp_tolerance
-    # Consolidate nearby raw RP calls into one filtered RP using cluster median.
-    internal_rps = []
-    if raw_rps:
-        current_cluster = [raw_rps[0]]
-        for num in raw_rps[1:]:
-            if (num - current_cluster[-1]) <= arp_tol:
-                current_cluster.append(num)
-            else:
-                internal_rps.append(int(round(float(np.median(current_cluster)))))
-                current_cluster = [num]
-        internal_rps.append(int(round(float(np.median(current_cluster)))))
+    for num in rps_list:
+        if not any(abs(num - x) < arp_tol for x in rpsf):
+            rpsf.append(num)
 
-    # Enforce strict monotonicity and valid internal bounds.
-    deduped_internal = []
-    for num in internal_rps:
-        bounded = max(1, min(dplot_len - 2, int(num)))
-        if not deduped_internal or bounded > deduped_internal[-1]:
-            deduped_internal.append(bounded)
-    internal_rps = deduped_internal
+    # Always preserve chromosome endpoint so columns span full width
+    if len(rpsf) > 0 and rpsf[-1] != dplot_len - 1:
+        rpsf.append(dplot_len - 1)
 
-    rpsf = [0] + internal_rps + [dplot_len - 1]
+    # Ensure start is always 0
+    if len(rpsf) > 0 and rpsf[0] != 0:
+        rpsf.insert(0, 0)
 
     rpsf_diff = np.subtract(rpsf[1:], rpsf[:-1])
     # Excel column width units render narrower than raw image pixels on some
@@ -793,86 +785,58 @@ def do_arp_main(ws, rps_list, rnames_list, dplot_len, siblings, auto_rp_assign, 
     #   1 -> 1.0687, 10 -> 0.5335, 100 -> 0.5336
     scale_correction = max(0.1, 1.5180 - (1.1125 * scale_factor))
     res = float(resolution)
+    # Clean 3-point interpolation with clamping to the configured 1..100 range.
+    # This keeps anchor behavior exactly while avoiding branch-heavy code.
     res_anchors = np.array([1.0, 10.0, 100.0], dtype=float)
     scale_anchors = np.array([1.0687, 0.5335, 0.5336], dtype=float)
     res_clamped = float(np.clip(res, res_anchors[0], res_anchors[-1]))
     resolution_visual_scale = float(np.interp(res_clamped, res_anchors, scale_anchors))
 
+    # Apply correction factors directly to recombination block widths.
+    # Don't target dplot_len; use the actual rpsf_diff structure as-is.
     per_pixel_width = scale_factor * scale_correction * resolution_visual_scale
 
-    # Split only near Excel's practical per-column limit to avoid creating
-    # unnecessary identical-width sub-columns that look like false RP blocks.
-    max_excel_col_width = 255.0
+    # Excel can visually cap very wide columns; split oversized ARP blocks so
+    # low-RP chromosomes (e.g., chr22) preserve total rendered span.
+    max_excel_col_width = 120.0
     expanded_widths = []
     expanded_rp_values = []
     block_start_cols = []
-    block_end_cols = []
     col_offset = 0
     for rp in rpsf_diff:
         this_width = rp * per_pixel_width
         if this_width <= max_excel_col_width:
-            start_offset = col_offset
+            block_start_cols.append(col_offset)
             expanded_widths.append(this_width)
             expanded_rp_values.append(rp)
             col_offset += 1
-            block_start_cols.append(start_offset)
-            block_end_cols.append(col_offset - 1)
             continue
 
         n_parts = int(np.ceil(this_width / max_excel_col_width))
         part_width = this_width / n_parts
-        start_offset = col_offset
+        block_start_cols.append(col_offset)
         for part_idx in range(n_parts):
             expanded_widths.append(part_width)
-            expanded_rp_values.append(rp if part_idx == 0 else '>')
+            expanded_rp_values.append(rp if part_idx == 0 else '')
             col_offset += 1
-        block_start_cols.append(start_offset)
-        block_end_cols.append(col_offset - 1)
 
+    total_excel_width = np.sum(expanded_widths)
     for i, width in enumerate(expanded_widths):
         ws.column_dimensions[cl(8 + i)].width = width
         ws.cell(arp_row, 8 + i).value = expanded_rp_values[i]
-        if expanded_rp_values[i] == '>':
-            ws.cell(arp_row, 8 + i).alignment = Alignment(horizontal='right')
-        else:
-            ws.cell(arp_row, 8 + i).alignment = Alignment(horizontal='center')
+        ws.cell(arp_row, 8 + i).alignment = Alignment(horizontal='center')
     ws.cell(arp_row, 7).value = 'Column Width'
     ws.cell(arp_row, 7).alignment = Alignment(horizontal='center')
 
-    # Build sibling-support counters per filtered internal RP by assigning each
-    # raw recombination event to its nearest filtered RP.
-    rp_support = [Counter() for _ in internal_rps]
-    if internal_rps:
-        for raw_rp, raw_pair_name in rcomb_list:
-            raw_rp = int(raw_rp)
-            if raw_rp <= 0 or raw_rp >= dplot_len - 1:
-                continue
-            nearest_idx = min(range(len(internal_rps)), key=lambda idx: abs(raw_rp - internal_rps[idx]))
-            pair_tokens = str(raw_pair_name).split('-')
-            for name in pair_tokens:
-                if name in siblings:
-                    rp_support[nearest_idx][name] += 1
-
-    # Assign boundaries to specific siblings if auto-assignment is enabled.
-    # Place labels on the last column of the left-hand block so right-aligned
-    # text appears at the visual boundary; mark prior split parts with '>'.
+    # Assign blocks to specific siblings if auto-assignment is enabled
     if auto_rp_assign and len(siblings) > 2:
-        assignment_row = arp_row - 3 * len(siblings)
-        for i, _ in enumerate(internal_rps):
-            start_col_offset = block_start_cols[i] if i < len(block_start_cols) else i
-            end_col_offset = block_end_cols[i] if i < len(block_end_cols) else start_col_offset
-
-            # Mark continuation parts in assignment row for split columns.
-            if end_col_offset > start_col_offset:
-                for split_col_offset in range(start_col_offset, end_col_offset):
-                    split_cell = ws.cell(assignment_row, 8 + split_col_offset)
-                    split_cell.value = '>'
-                    split_cell.alignment = Alignment(horizontal='right')
-
-            if rp_support[i]:
-                keymax = rp_support[i].most_common(1)[0][0]
-                boundary_col_offset = end_col_offset
-                cell = ws.cell(assignment_row, 8 + boundary_col_offset)
+        for i, rp in enumerate(rpsf[1:-1]):
+            matches = [rn[1].split('-') for rn in rcomb_list if abs(rn[0] - rp) < arp_tol]
+            flat = [s for pair in matches for s in pair]
+            if flat:
+                keymax = Counter(flat).most_common(1)[0][0]
+                start_col_offset = block_start_cols[i] if i < len(block_start_cols) else i
+                cell = ws.cell(arp_row - 3 * len(siblings), 8 + start_col_offset)
                 cell.value, cell.alignment, cell.font = keymax, Alignment(horizontal='right'), Font(bold=True)
     return len(expanded_widths) + 8
 
@@ -961,19 +925,8 @@ def add_borders(ws, col):
     next_line = find_next_line(ws, 7, 3)
     side = Side(border_style="thick")
     border = Border(left=side)
-
-    # If ARP row is present, use split markers to avoid borders between
-    # continuation columns of the same oversized block.
-    arp_row = None
-    for i in range(ws.max_row, 0, -1):
-        if ws.cell(i, 7).value == 'Column Width':
-            arp_row = i
-            break
-
     for i in range(1, next_line):
         for j in range(8, col + 1):
-            if arp_row is not None and ws.cell(arp_row, j).value == '>':
-                continue
             ws.cell(i, j).border = border
 
 def add_chroms(ws, col, siblings, auto_rec_pnts):
