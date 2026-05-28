@@ -14,12 +14,16 @@ import pprint
 import sys
 from collections import Counter
 from copy import copy
+from typing import cast
 
 import numpy as np
 from openpyxl import load_workbook
+from openpyxl.cell.cell import Cell, MergedCell
 from openpyxl.styles import PatternFill
+from openpyxl.styles.fills import Fill
 from openpyxl.utils import column_index_from_string as cs
 from openpyxl.utils import get_column_letter as cl
+from openpyxl.worksheet.worksheet import Worksheet
 from PIL import Image
 
 from Segments_Fill_config_V1 import (
@@ -155,6 +159,17 @@ def filter_inds(ws, match_pair_name, sibs, i):
     return 99
 
 
+def copy_fill_between_cells(ws, src_row, src_col, dst_row, dst_col):
+    src = ws.cell(src_row, src_col)
+    dst = ws.cell(dst_row, dst_col)
+    if isinstance(src, MergedCell) or isinstance(dst, MergedCell):
+        return
+
+    src_cell = cast(Cell, src)
+    dst_cell = cast(Cell, dst)
+    dst_cell.fill = copy(cast(Fill, src_cell.fill))
+
+
 if __name__ == "__main__":
     xlsx_folder = os.path.normpath(XLSX_FOLDER)
     input_file = os.path.join(xlsx_folder,INPUT_FILE_NAME) + ".xlsx"
@@ -162,7 +177,7 @@ if __name__ == "__main__":
 
     # Load the workbook and worksheet
     wb = load_workbook(input_file)
-    ws = wb[f"Chr{CHROMOSOME}"]
+    ws = cast(Worksheet, wb[f"Chr{CHROMOSOME}"])
 
     # 1. Robust Metadata Extraction
     # Find the row containing segment widths (Column Width)
@@ -203,7 +218,9 @@ if __name__ == "__main__":
 
     images_mapped = 0
 
-    for img_idx, img_ref in enumerate(ws._images):
+    # Use guarded access because _images is a private attribute and may be absent on sheet-like objects.
+    worksheet_images = list(getattr(ws, "_images", []))
+    for img_idx, img_ref in enumerate(worksheet_images):
         if img_idx == 0:
             continue
 
@@ -431,27 +448,44 @@ if __name__ == "__main__":
 
                     if color == "green":
                         ind2 = find_ind2(sibs, match_pair_name, curr_ind)
+                        # Only propagate fills when we can resolve the counterpart sibling.
                         if ind2 is not None:
                             fir_paste(ws, sibs, ind2, curr_ind, i, colors)
                             if i > 8:
                                 for k in range(i - 1, 7, -1):
                                     if ws.cell(rp_row, k).value != sibs[ind2][0]:
-                                        ws.cell(sibs[ind2][1], k).fill = copy(
-                                            ws.cell(sibs[ind2][1], i).fill
+                                        copy_fill_between_cells(
+                                            ws,
+                                            sibs[ind2][1],
+                                            i,
+                                            sibs[ind2][1],
+                                            k,
                                         )
-                                        ws.cell(sibs[ind2][1] + 1, k).fill = copy(
-                                            ws.cell(sibs[ind2][1] + 1, i).fill
+                                        copy_fill_between_cells(
+                                            ws,
+                                            sibs[ind2][1] + 1,
+                                            i,
+                                            sibs[ind2][1] + 1,
+                                            k,
                                         )
                                     else:
                                         break
                             for k in range(i + 1, last_col + 1):
                                 if ws.cell(rp_row, i).value == sibs[ind2][0]:
                                     break
-                                ws.cell(sibs[ind2][1], k).fill = copy(
-                                    ws.cell(sibs[ind2][1], i).fill
+                                copy_fill_between_cells(
+                                    ws,
+                                    sibs[ind2][1],
+                                    i,
+                                    sibs[ind2][1],
+                                    k,
                                 )
-                                ws.cell(sibs[ind2][1] + 1, k).fill = copy(
-                                    ws.cell(sibs[ind2][1] + 1, i).fill
+                                copy_fill_between_cells(
+                                    ws,
+                                    sibs[ind2][1] + 1,
+                                    i,
+                                    sibs[ind2][1] + 1,
+                                    k,
                                 )
                                 if ws.cell(rp_row, k).value == sibs[ind2][0]:
                                     break
@@ -463,22 +497,38 @@ if __name__ == "__main__":
                             if i > 8:
                                 for k in range(i - 1, 7, -1):
                                     if ws.cell(rp_row, k).value != sibs[ind2][0]:
-                                        ws.cell(sibs[ind2][1], k).fill = copy(
-                                            ws.cell(sibs[ind2][1], i).fill
+                                        copy_fill_between_cells(
+                                            ws,
+                                            sibs[ind2][1],
+                                            i,
+                                            sibs[ind2][1],
+                                            k,
                                         )
-                                        ws.cell(sibs[ind2][1] + 1, k).fill = copy(
-                                            ws.cell(sibs[ind2][1] + 1, i).fill
+                                        copy_fill_between_cells(
+                                            ws,
+                                            sibs[ind2][1] + 1,
+                                            i,
+                                            sibs[ind2][1] + 1,
+                                            k,
                                         )
                                     else:
                                         break
                             for k in range(i + 1, last_col + 1):
                                 if ws.cell(rp_row, i).value == sibs[ind2][0]:
                                     break
-                                ws.cell(sibs[ind2][1], k).fill = copy(
-                                    ws.cell(sibs[ind2][1], i).fill
+                                copy_fill_between_cells(
+                                    ws,
+                                    sibs[ind2][1],
+                                    i,
+                                    sibs[ind2][1],
+                                    k,
                                 )
-                                ws.cell(sibs[ind2][1] + 1, k).fill = copy(
-                                    ws.cell(sibs[ind2][1] + 1, i).fill
+                                copy_fill_between_cells(
+                                    ws,
+                                    sibs[ind2][1] + 1,
+                                    i,
+                                    sibs[ind2][1] + 1,
+                                    k,
                                 )
                                 if ws.cell(rp_row, k).value == sibs[ind2][0]:
                                     break
