@@ -70,8 +70,8 @@
      bad SNPs.
 
   Display & Scaling
-   - RESOLUTION: Scaling factor for the visual plot. 1 is default; 10 provides 10x
-     detail.
+   - RESOLUTION: Scaling factor for the visual plot. 1 is default. It is recommended that RESOLUTION should
+     be kept below 10. 
    - SCALE_FACTOR: This depends on the display reso;ution. Adjusts the column width
      in Excel to ensure visual blocks align with data. Manual adjust to line up
      recombination points correctly. This only has to be done once.
