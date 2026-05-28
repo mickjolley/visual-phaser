@@ -81,7 +81,7 @@ start), and vice versa (try 0.14 to start). Repeat until the RPs line up
 correctly. It is suggested that this procedure is performed using two siblings
 and chromosome 1 only. This only has to be performed once.
 If near 1 pixel per source row is desired in non-linear mode, use
-RESOLUTION = 1
+RESOLUTION = 100
 
 HIR_CUTOFF: Default value = 7 cM
 
