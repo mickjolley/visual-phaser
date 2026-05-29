@@ -31,8 +31,30 @@ from typing import Any, cast
 from openpyxl.cell.cell import Cell
 from openpyxl.drawing.image import Image as XLImage
 
-# Re-import all config variables from the external configuration file
-from VP_configV1 import (
+def _load_runtime_config_module():
+    """Load config from VP_CONFIG_PATH/argv when provided, else VP_configV1."""
+    override_path = os.environ.get('VP_CONFIG_PATH', '').strip()
+    if len(sys.argv) > 1:
+        arg_path = str(sys.argv[1]).strip()
+        if arg_path.lower().endswith('.py') and os.path.exists(arg_path):
+            override_path = arg_path
+
+    if override_path:
+        import importlib.util
+        cfg_path = os.path.abspath(override_path)
+        spec = importlib.util.spec_from_file_location('VP_configV1_runtime', cfg_path)
+        if spec is None or spec.loader is None:
+            raise RuntimeError(f'Could not load config file: {cfg_path}')
+        cfg_module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cfg_module)
+        return cfg_module
+
+    import VP_configV1 as cfg_module
+    return cfg_module
+
+
+_cfg = _load_runtime_config_module()
+(
     FILES_PATH, WORKING_DIRECTORY, MAP_PATH, SIBLINGS, PHASED_FILES,
     EVIL_TWINS, COUSINS, CHROMOSOMES, EXCEL_FILE_NAME, SHOW_NO_MATCHES,
     CHROM_TRUE_SIZE, LINEAR_CHROMOSOME, MERGE_FILES, RESOLUTION,
@@ -40,7 +62,17 @@ from VP_configV1 import (
     SCALE_FACTOR, HIR_CUTOFF, FIR_CUTOFF, X_HIR_CUTOFF, X_FIR_CUTOFF,
     FIR_TABLES, SCALE_ON, FREEZE_COLUMN, LINUX_FONT_STRING,
     HIR_SNP_MIN, FIR_SNP_MIN, MM_DIST, NO_CALL
-)
+) = [
+    getattr(_cfg, name) for name in (
+        'FILES_PATH', 'WORKING_DIRECTORY', 'MAP_PATH', 'SIBLINGS', 'PHASED_FILES',
+        'EVIL_TWINS', 'COUSINS', 'CHROMOSOMES', 'EXCEL_FILE_NAME', 'SHOW_NO_MATCHES',
+        'CHROM_TRUE_SIZE', 'LINEAR_CHROMOSOME', 'MERGE_FILES', 'RESOLUTION',
+        'AUTO_REC_PNTS', 'ARP_TOLERANCE', 'AUTO_RP_ASSIGN', 'REPAIR_FILES',
+        'SCALE_FACTOR', 'HIR_CUTOFF', 'FIR_CUTOFF', 'X_HIR_CUTOFF', 'X_FIR_CUTOFF',
+        'FIR_TABLES', 'SCALE_ON', 'FREEZE_COLUMN', 'LINUX_FONT_STRING',
+        'HIR_SNP_MIN', 'FIR_SNP_MIN', 'MM_DIST', 'NO_CALL'
+    )
+]
 
 # Global cache to store loaded DNA data and a lock to manage concurrent access
 worker_dna_cache = {}
@@ -823,6 +855,11 @@ if __name__ == "__main__":
 
     # Pre-flight check: ensure every configured individual loads into a usable DataFrame.
     print(f"Loading DNA for {len(individuals)} individuals...", flush=True)
+    if not individuals:
+        print("\n[VP_INPUT_ERROR] No individuals are configured to process.", flush=True)
+        print("[VP_INPUT_ERROR] Add one or more names to SIBLINGS (or relevant lists) in VP_configV1.py.", flush=True)
+        sys.exit(2)
+
     load_failures = []
     with ThreadPoolExecutor(max_workers=min(len(individuals), 8)) as executor:
         futures = {executor.submit(agnostic_load_individual_dna, ind, FILES_PATH, NO_CALL, True): ind for ind in individuals}
