@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-VP_configV1.py is the configuration file for Visual_Phaser.V1.1.py.
+VP_configV1.py is the configuration file for Visual_Phaser.V*.py.
 
 FILES_PATH: Path to folder where the DNA files are stored.
 

@@ -87,11 +87,21 @@ python VP_Config_GUI.py path/to/VP_configV1.py
    - Click "Reset to Defaults" to reload original values
    - Your edits must be saved first to see the saved values
 
-6. Run
+6. **Run**:
    - Click "Save Configuration" button if modifications have been made
-  - Click the "Run" button to run the main program
-  - The app switches to the Paths tab and streams STDIO into Program output
-  - Use the Program output "Clear" button to clear the output box
+   - Click the "Run" button to run the main program
+   - The app switches to the Paths tab and streams STDIO into Program output
+   - Use the Program output "Clear" button to clear the output box
+
+### Visual_Phaser Version Selection
+
+The GUI uses an automatic version detection system to select which Visual_Phaser processor to run:
+
+- **Dynamic Selection**: The GUI searches for all `Visual_Phaser.V*.py` files using a glob pattern
+- **Version Strategy**: It uses `sorted(...)[−1]` to automatically select the **LATEST version** by string-sort order
+- **Execution**: The selected script is executed via `subprocess.Popen()` in `VP_Config_GUI.py:1288`
+- **Current Behavior**: With both V1.1 and V1.2 present, the GUI will execute **V1.2** (the latest)
+- **Upgrade Path**: This design allows you to upgrade Visual_Phaser versions without modifying the GUI—it automatically detects and runs the newest version
 
 ## File Structure
 

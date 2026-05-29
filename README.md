@@ -2,7 +2,7 @@
 
 1. Introduction
 
-  Visual_Phaser.V1.1.py is a specialized bioinformatics application designed for
+  Visual_Phaser.V*.py is a specialized bioinformatics application designed for
   genetic genealogy. It analyzes raw autosomal DNA files to identify and visualize
   shared segments (Half-Identical Regions (HIRs), Fully-Identical Regions
   (FIRs) and Non-Identical regions (NIRs)) between siblings, cousins, and other relatives.
@@ -20,7 +20,7 @@
            numpy pandas pillow openpyxl
 
   Project Structure
-   - Visual_Phaser.V1.1.py: The main execution engine.
+   - Visual_Phaser.V*1.2*.py: The main execution engine.
    - VP_configV1.py: The configuration and parameter file.
    - min_map.txt: (Required) A genetic map file mapping physical positions (Mb) to
      genetic distances (cM).
@@ -32,7 +32,7 @@
  Tab-delimited .txt files and comma-sparated .csv files may be used.
    - Rename file, placing "_raw_dna" immediately after the name.
      Example "37_H_Fred_Chrom_Autoso_2024477.csv" is renamed "37_H_Fred_raw_dnaChrom_Autoso_2024477.csv".
-     In the Input Files tab enter the siblings (or cousins) as Fred, Joe, Susan. 
+     In the Input Files tab enter the siblings (or cousins) as Fred, Joe, Susan.
    - Supported Sources: Specifically optimized for AncestryDNA , 23andMe and other
       non- Ancestry exports.
 
@@ -71,7 +71,7 @@
 
   Display & Scaling
    - RESOLUTION: Scaling factor for the visual plot. 1 is default. It is recommended that RESOLUTION should
-     be kept below 10. 
+     be kept below 10.
    - SCALE_FACTOR: This depends on the display reso;ution. Adjusts the column width
      in Excel to ensure visual blocks align with data. Manual adjust to line up
      recombination points correctly. This only has to be done once.

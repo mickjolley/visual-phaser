@@ -798,23 +798,23 @@ if __name__ == "__main__":
     start_time = time.time()
     FILES_PATH, WORKING_DIRECTORY, MAP_PATH = map(os.path.normpath, [FILES_PATH, WORKING_DIRECTORY, MAP_PATH])
     wdir = WORKING_DIRECTORY + "/"
-    
+
     # Load or create the Excel workbook
     xlname = os.path.join(wdir, f"{EXCEL_FILE_NAME}.xlsx")
     wb = load_workbook(xlname) if COUSINS else Workbook()
     if not COUSINS:
         del wb["Sheet"]
-    else:    
+    else:
         chroms = [c for c in wb.sheetnames if c.startswith("Chr")]
         ws0 = wb[chroms[0]]
-    
+
     # Pre-flight check: ensure all requested individuals have DNA files
     if not COUSINS:
         individuals = list(set(SIBLINGS) | set(PHASED_FILES) | set(EVIL_TWINS) | set(COUSINS))
     else:
-        SIBLINGS = [ws0.cell(i,7).value for i in range(1, ws0.max_row + 1) if ws0.cell(i,7).value and '-' not in str(ws0.cell(i,7).value) and ws0.cell(i,7).value != 'Column Width']
+        SIBLINGS = [str(ws0.cell(i,7).value) for i in range(1, ws0.max_row + 1) if ws0.cell(i,7).value and '-' not in str(ws0.cell(i,7).value) and ws0.cell(i,7).value != 'Column Width']
         individuals = list(set(SIBLINGS) | set(COUSINS))
-    missing_individuals = [ind for ind in individuals if not any(ind + "_raw" in f for f in os.listdir(FILES_PATH))]
+    missing_individuals = [ind for ind in individuals if isinstance(ind, str) and not any(ind + "_raw" in f for f in os.listdir(FILES_PATH))]
     if missing_individuals:
         print("\n[VP_INPUT_ERROR] DNA file(s) not found.", flush=True)
         print(f"[VP_INPUT_ERROR] Missing individuals: {', '.join(missing_individuals)}.", flush=True)

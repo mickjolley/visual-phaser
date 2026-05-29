@@ -177,7 +177,7 @@
 
 <h1 id="overview">Visual Phaser Configuration GUI</h1>
 <p>A <strong>wxPython</strong> graphical editor for <code>VP_configV1.py</code> — the configuration file for
-<em>Visual_Phaser.V1.1.py</em>. It lets you browse paths, edit all settings through purpose-built
+<em>Visual_Phaser.V*.py</em>. It lets you browse paths, edit all settings through purpose-built
 controls, validate inputs, and launch a run directly from the GUI.</p>
 
 <div class="note">
@@ -246,6 +246,16 @@ sudo dnf install python3-wxpython4</code></pre>
   <li>Watch progress in the <em>Program Output</em> panel on the Paths tab. Use <strong>Clear</strong> to reset it.</li>
   <li>If a DNA file fails to load a popup describes which individual failed and why.</li>
 </ol>
+
+<h3>Visual_Phaser Version Selection</h3>
+<p>The GUI uses an automatic version detection system to select which Visual_Phaser processor to run:</p>
+<ul>
+  <li><strong>Dynamic Selection:</strong> The GUI searches for all <code>Visual_Phaser.V*.py</code> files using a glob pattern.</li>
+  <li><strong>Version Strategy:</strong> It uses <code>sorted(...)[−1]</code> to automatically select the <strong>LATEST version</strong> by string-sort order.</li>
+  <li><strong>Execution:</strong> The selected script is executed via <code>subprocess.Popen()</code> in <code>VP_Config_GUI.py:1288</code>.</li>
+  <li><strong>Current Behavior:</strong> With both V1.1 and V1.2 present, the GUI will execute <strong>V1.2</strong> (the latest).</li>
+  <li><strong>Upgrade Path:</strong> This design allows you to upgrade Visual_Phaser versions without modifying the GUI—it automatically detects and runs the newest version.</li>
+</ul>
 
 <!-- ────────────────── PARAMETER REFERENCE ────────────────── -->
 <h2 id="params">Parameter Reference</h2>
@@ -376,7 +386,7 @@ running a frozen version.</p>
   <tr><th>File</th><th>Purpose</th></tr>
   <tr><td><code>VP_Config_GUI.py</code></td><td>Main GUI application and entry point</td></tr>
   <tr><td><code>VP_configV1.py</code></td><td>Configuration file edited by the GUI</td></tr>
-  <tr><td><code>Visual_Phaser.V1.1.py</code></td><td>Core DNA analysis processor</td></tr>
+  <tr><td><code>Visual_Phaser.V*.py</code></td><td>Core DNA analysis processor</td></tr>
   <tr><td><code>VP_Config_Resources.py</code></td><td>Additional project resources</td></tr>
   <tr><td><code>minmap/min_map.txt</code></td><td>Genetic distance map (GRCh37/hg19)</td></tr>
   <tr><td><code>VP_Config_GUI_README.html</code></td><td>This documentation file</td></tr>
