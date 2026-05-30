@@ -19,10 +19,10 @@ TOOLTIPS = {
     'FILES_PATH': 'Path to folder where the DNA files are stored.',
     'WORKING_DIRECTORY': 'Folder where the .xlsx and .py files will be stored.',
     'MAP_PATH': 'Path to folder containing min_map.txt.',
-      'SIBLINGS': 'Comma-separated names of the individuals to compare.',
-      'PHASED_FILES': 'Comma-separated names of the individuals in phased files to compare with each other.',
-      'EVIL_TWINS': 'Comma-separated names of the individuals in evil-twin files to compare against all siblings.',
-      'COUSINS': 'Comma-separated names of the individuals to compare against siblings in an existing workbook.',
+      'SIBLINGS': 'Comma-separated names of the individuals to compare. Names are case-sensitive.',
+      'PHASED_FILES': 'Comma-separated names of the individuals in phased files to compare with each other. Names are case-sensitive.',
+      'EVIL_TWINS': 'Comma-separated names of the individuals in evil-twin files to compare against all siblings. Names are case-sensitive.',
+      'COUSINS': 'Comma-separated names of the individuals to compare against siblings in an existing workbook. Names are case-sensitive.',
     'CHROMOSOMES': 'Comma-separated chromosome numbers. Leave empty for all.',
     'EXCEL_FILE_NAME': 'Name of the output workbook without .xlsx.',
     'SHOW_NO_MATCHES': 'Set False to hide no-match rows.',
@@ -1004,7 +1004,7 @@ class VPConfigBoaFrame(wx.Frame):
             dialog.Destroy()
 
     def _split_comma_list(self, value):
-        return [item.strip() for item in value.replace('\n', ',').split(',') if item.strip()]
+      return [item.strip() for item in value.split(',') if item.strip()]
 
     def _split_line_list(self, value):
         return [line.strip() for line in value.splitlines() if line.strip()]
@@ -1026,7 +1026,8 @@ class VPConfigBoaFrame(wx.Frame):
         if var_name in LIST_FIELDS:
             return self._split_comma_list(control.GetValue())
         if var_name in LINE_LIST_FIELDS:
-            return self._split_line_list(control.GetValue())
+                  # Parse list entries as comma-separated only.
+                  return self._split_comma_list(control.GetValue())
         if var_name in BOOLEAN_FIELDS:
             return control.GetValue() == 'True'
         if var_name in INTEGER_FIELDS:
@@ -1039,7 +1040,7 @@ class VPConfigBoaFrame(wx.Frame):
         if var_name in LIST_FIELDS:
             control.SetValue(', '.join(str(item) for item in value))
         elif var_name in LINE_LIST_FIELDS:
-            control.SetValue('\n'.join(str(item) for item in value))
+                  control.SetValue(', '.join(str(item) for item in value))
         elif var_name in BOOLEAN_FIELDS:
             control.SetValue('True' if value else 'False')
         elif var_name in INTEGER_FIELDS:
@@ -1048,23 +1049,49 @@ class VPConfigBoaFrame(wx.Frame):
             control.SetValue(str(value))
 
     def _update_config_lines(self, lines):
-        updated_lines = []
-        pattern = re.compile(r'^([A-Z_]+)\s*=')
-        for line in lines:
-            match = pattern.match(line)
-            if not match:
-                updated_lines.append(line)
-                continue
+            updated_lines = []
+            pattern = re.compile(r'^([A-Z_]+)\s*=')
+            for line in lines:
+                  match = pattern.match(line)
+                  if not match:
+                        updated_lines.append(line)
+                        continue
 
-            var_name = match.group(1)
-            control = self.controls.get(var_name)
-            if control is None:
-                updated_lines.append(line)
-                continue
+                  var_name = match.group(1)
+                  control = self.controls.get(var_name)
+                  if control is None:
+                        updated_lines.append(line)
+                        continue
 
-            value = self._collect_control_value(var_name, control)
-            updated_lines.append('%s = %s\n' % (var_name, self._format_value(var_name, value)))
-        return updated_lines
+                  value = self._collect_control_value(var_name, control)
+                  updated_lines.append('%s = %s\n' % (var_name, self._format_value(var_name, value)))
+            return updated_lines
+
+    def _validate_comma_only_fields(self):
+            fields = [
+                  ('SIBLINGS', self.siblingsText),
+                  ('PHASED_FILES', self.phasedFilesText),
+                  ('EVIL_TWINS', self.evilTwinsText),
+                  ('COUSINS', self.cousinsText),
+                  ('CHROMOSOMES', self.chromosomesText),
+            ]
+            invalid = []
+            for var_name, control in fields:
+                  value = control.GetValue()
+                  if '\n' in value or '\r' in value:
+                        invalid.append(var_name)
+
+            if not invalid:
+                  return True
+
+            message = (
+                  'These fields are comma-separated only (no new lines):\n\n'
+                  + '\n'.join(invalid)
+                  + '\n\nUse format like: name1, name2, name3\nNames are case-sensitive.'
+            )
+            wx.MessageBox(message, 'Invalid List Format', wx.OK | wx.ICON_WARNING)
+            self._set_status('Save blocked: newline characters found in comma-only fields')
+            return False
 
     def LoadConfig(self):
         try:
@@ -1090,6 +1117,9 @@ class VPConfigBoaFrame(wx.Frame):
 
     def SaveConfig(self):
         try:
+            if not self._validate_comma_only_fields():
+                return False
+
             with open(self.config_path, 'r') as config_file:
                 lines = config_file.readlines()
 
@@ -1104,7 +1134,7 @@ class VPConfigBoaFrame(wx.Frame):
             return True
         except Exception as error:
             wx.MessageBox('Error saving configuration: %s' % error, 'Error',
-                  wx.OK | wx.ICON_ERROR)
+                    wx.OK | wx.ICON_ERROR)
             return False
 
     def _show_timed_message(self, message, duration_ms=1000):
@@ -1199,6 +1229,7 @@ class VPConfigBoaFrame(wx.Frame):
                 message = (
                       'Visual Phaser could not load usable data for one or more SIBLINGS.\n\n'
                       + '\n'.join(cleaned)
+                      + '\n\nNote: names are case-sensitive and must match DNA filenames exactly.'
                 )
                 wx.CallAfter(wx.MessageBox, message, 'Input Data Error', wx.OK | wx.ICON_ERROR)
             elif return_code != 0:
