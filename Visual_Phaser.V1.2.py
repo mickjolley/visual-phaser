@@ -772,6 +772,82 @@ def thread_chromosome(chrom, match_pairs, individuals, files_path, map_positions
         'dxtot_pairs': list(dxtot['pair'].unique()) if len(dxtot) > 0 else []
     }
 
+def export_segments(segments, working_directory, excel_file_name, run_parameters):
+    """
+    Writes the segment tables as CSV and JSON next to the .xlsx.
+
+    The workbook is good for reading; it is poor for feeding anything else.
+    These files let segment data reach the tools genealogists actually use -
+    DNA Painter, spreadsheets, GEDmatch-style comparison - without retyping.
+
+    Three files are produced:
+      <name>_segments.csv     every segment, long format, one row per segment
+      <name>_dnapainter.csv   DNA Painter import layout (Chr/Start/End/cM/SNPs/Match)
+      <name>_segments.json    the same data plus the parameters of the run
+
+    The JSON carries the run parameters because a segment list is not
+    interpretable without them: HIR_CUTOFF and FIR_CUTOFF alone determine what
+    was reported and what was discarded.
+
+    `segments` is a list of (chromosome, pair_name, hir_frame, fir_frame).
+    """
+    import json
+
+    rows = []
+    for chrom, pair_name, hir, fir in segments:
+        for kind, frame in (("HIR", hir), ("FIR", fir)):
+            if frame is None or len(frame) == 0:
+                continue
+            for _, seg in frame.iterrows():
+                rows.append({
+                    "Pair": pair_name,
+                    "Type": kind,
+                    "Chr": int(seg["Chr"]),
+                    "Start": int(seg["Start Mb"]),
+                    "End": int(seg["Finish Mb"]),
+                    "SNPs": int(seg["No. SNPs"]),
+                    "cM": float(seg["Length (cM)"]),
+                })
+
+    if not rows:
+        print("[VP_EXPORT] No segments to export.", flush=True)
+        return []
+
+    table = pd.DataFrame(rows).sort_values(["Pair", "Type", "Chr", "Start"]).reset_index(drop=True)
+    base = os.path.join(working_directory, excel_file_name)
+    written = []
+
+    csv_path = f"{base}_segments.csv"
+    table.to_csv(csv_path, index=False)
+    written.append(csv_path)
+
+    # DNA Painter expects Chr/Start/End required, cM/SNPs/Match optional. Only
+    # HIR is exported: DNA Painter paints DNA shared with a match, and an FIR
+    # region is a property of a sibling pair rather than a segment to paint.
+    painter = table[table["Type"] == "HIR"][["Chr", "Start", "End", "cM", "SNPs", "Pair"]].copy()
+    painter.columns = ["Chr", "Start Position", "End Position", "cM", "SNPs", "Match"]
+    painter_path = f"{base}_dnapainter.csv"
+    painter.to_csv(painter_path, index=False)
+    written.append(painter_path)
+
+    json_path = f"{base}_segments.json"
+    with open(json_path, "w") as handle:
+        json.dump(
+            {
+                "parameters": run_parameters,
+                "segment_count": {"HIR": int((table["Type"] == "HIR").sum()),
+                                  "FIR": int((table["Type"] == "FIR").sum())},
+                "segments": table.to_dict(orient="records"),
+            },
+            handle,
+            indent=2,
+        )
+    written.append(json_path)
+
+    print(f"[VP_EXPORT] {len(table)} segments -> {os.path.basename(csv_path)}, "
+          f"{os.path.basename(painter_path)}, {os.path.basename(json_path)}", flush=True)
+    return written
+
 def get_image_file(dplot, pair_name, chrom, wdir):
     """Generates and saves a visual representation of DNA matches for a sibling pair."""
     img = Image.new("RGB", (len(dplot), 35), color="white")
@@ -1059,6 +1135,7 @@ if __name__ == "__main__":
                    chr_lens[c-1], SIBLINGS, config_params): c for c in chrom_list}
 
         chromosome_results = {}
+        collected_segments = []
 
         for future in as_completed(futures):
             res = future.result()
@@ -1091,6 +1168,7 @@ if __name__ == "__main__":
             # Write data tables and images to Excel
             for p_name, dx, ds in res['tables']:
                 paste_tables(ws, dx, ds, p_name, FIR_TABLES, SHOW_NO_MATCHES)
+                collected_segments.append((chrom, p_name, dx, ds))
 
             fflag = [True] * 24
 
@@ -1125,6 +1203,16 @@ if __name__ == "__main__":
         wb.move_sheet(target_sheet, idx - wb.index(target_sheet))
 
     # Final Save and Cleanup
+    export_segments(collected_segments, WORKING_DIRECTORY, EXCEL_FILE_NAME, {
+        'siblings': SIBLINGS, 'phased_files': PHASED_FILES, 'cousins': COUSINS,
+        'evil_twins': EVIL_TWINS, 'chromosomes': CHROMOSOMES or list(range(1, 24)),
+        'hir_cutoff': HIR_CUTOFF, 'fir_cutoff': FIR_CUTOFF,
+        'x_hir_cutoff': X_HIR_CUTOFF, 'x_fir_cutoff': X_FIR_CUTOFF,
+        'hir_snp_min': HIR_SNP_MIN, 'fir_snp_min': FIR_SNP_MIN,
+        'mm_dist': MM_DIST, 'no_call': NO_CALL, 'repair_files': REPAIR_FILES,
+        'merge_files': MERGE_FILES,
+    })
+
     ensure_visible_worksheet(wb)
     wb.save(xlname)
     delete_images(wdir)
