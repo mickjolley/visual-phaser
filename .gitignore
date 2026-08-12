@@ -6,3 +6,8 @@ nuitka*
 setup.*
 *.spec
 *.ps1
+
+# Local test environment
+.venv/
+__pycache__/
+.pytest_cache/

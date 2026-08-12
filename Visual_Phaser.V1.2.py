@@ -374,18 +374,26 @@ def agnostic_load_individual_dna(ind, files_path, no_call_val, return_error=Fals
 def apply_conditions_vectorized(al1x, al2x, al1y, al2y, no_call_val):
     """
     Determines the match type (HIR, FIR, NIR) for a set of alleles using vectorized operations.
-    - Crimson: Fully Identical (Both alleles match on both chromosomes).
-    - Limegreen: Half Identical (At least one allele matches).
-    - Yellow: No match (Different alleles on both chromosomes).
+    - Limegreen: Fully Identical (FIR) - both alleles match on both chromosomes.
+    - Yellow: Half Identical (HIR) - at least one allele is shared.
+    - Crimson: No match (NIR) - no allele is shared.
     """
-    cond_nc = (al1x == no_call_val) | (al1y == no_call_val)
+    # A no-call must be detected in EITHER allele of EITHER individual. Checking
+    # only allele1 lets the no-call token through into the comparisons below,
+    # where it is matched against itself as though it were a real base.
+    cond_nc = ((al1x == no_call_val) | (al2x == no_call_val)
+               | (al1y == no_call_val) | (al2y == no_call_val))
     cond_crimson = (al1x == al2x) & (al1y == al2y) & (al1x != al1y)
     cond_limegreen = ((al1x == al1y) & (al2x == al2y)) | ((al1x == al2y) & (al2x == al1y))
 
     res = np.full(al1x.shape, 'yellow', dtype=object)
     res[cond_limegreen] = 'limegreen'
     res[cond_crimson] = 'crimson'
-    res[cond_nc] = 'limegreen' # Treat no-calls as limegreen for continuity
+    # No-calls are uninformative. 'yellow' keeps the enclosing HIR segment alive
+    # (scan_genomes_optimized continues on both 'yellow' and 'limegreen'), but
+    # unlike 'limegreen' it contributes no evidence to an FIR call. Short
+    # no-call gaps inside a genuine FIR are rejoined by repair_files_optimized.
+    res[cond_nc] = 'yellow'
     return res
 
 def scan_genomes_optimized(dm, chrom, hir_cutoff, fir_cutoff, hir_snp_min, fir_snp_min, mm_dist, dmap_positions, dmap_cms):
