@@ -393,11 +393,13 @@ def apply_conditions_vectorized(al1x, al2x, al1y, al2y, no_call_val):
     res = np.full(al1x.shape, 'yellow', dtype=object)
     res[cond_limegreen] = 'limegreen'
     res[cond_crimson] = 'crimson'
-    # No-calls are uninformative. 'yellow' keeps the enclosing HIR segment alive
-    # (scan_genomes_optimized continues on both 'yellow' and 'limegreen'), but
-    # unlike 'limegreen' it contributes no evidence to an FIR call. Short
-    # no-call gaps inside a genuine FIR are rejoined by repair_files_optimized.
-    res[cond_nc] = 'yellow'
+    # A no-call is an absence of observation, not a state. It gets 'grey', the
+    # vocabulary this codebase already uses for "no data", and
+    # scan_genomes_optimized skips it: it neither supports a segment nor breaks
+    # one. Assigning any of the three real states fabricates evidence -
+    # 'limegreen' inflates FIR, 'yellow' fragments it - so the only correct
+    # answer is to make the absence explicit.
+    res[cond_nc] = 'grey'
     return res
 
 def check_coordinate_consistency(dna_by_individual, sample_size=20000, tolerance=0.01, min_shared=100):
@@ -526,6 +528,11 @@ def scan_genomes_optimized(dm, chrom, hir_cutoff, fir_cutoff, hir_snp_min, fir_s
     # Iterative scan through the DNA sequence to find segments
     for i in range(length):
         m, p = matches[i], positions[i]
+        if m == 'grey':
+            # No data here. Skip without counting it toward a segment and
+            # without treating it as a mismatch: an unobserved marker is
+            # neither evidence for a segment nor evidence against one.
+            continue
         if not segflag:
             if m in ('yellow', 'limegreen'):
                 nsnps, segflag, stpos = 1, True, p

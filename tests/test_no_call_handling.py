@@ -62,17 +62,60 @@ class TestNoCallDetection:
             "call from two unknown alleles"
         )
 
-    def test_no_call_still_preserves_hir_continuity(self, vp):
+    def test_no_call_is_marked_as_absent_data(self, vp):
         """
-        The author's stated intent is that no-calls do not shatter segments.
-        That must be preserved: a no-call has to remain a class that
-        `scan_genomes_optimized` counts as continuing an HIR run, i.e. one of
-        ('yellow', 'limegreen') — never 'crimson'.
+        A no-call is an absence of observation, not a state. It must not be
+        assigned any of the three real classes: 'limegreen' inflates FIR,
+        'yellow' fragments it (measured on real data: FIR segment count 150 ->
+        760 purely from no-call runs splitting genuine segments), and 'crimson'
+        invents an exclusion. 'grey' is this codebase's existing vocabulary for
+        "no data" and is skipped by scan_genomes_optimized.
         """
         result = classify_one(vp, f"A{NO_CALL}", f"G{NO_CALL}")
-        assert result in ("yellow", "limegreen"), (
-            f"a no-call was classified as '{result}', which terminates the "
-            f"enclosing HIR segment instead of bridging it"
+        assert result == "grey", (
+            f"a no-call was classified as '{result}'; it must be 'grey' so the "
+            f"scanner can skip it rather than counting it for or against a segment"
+        )
+
+    def test_no_call_gap_neither_extends_nor_splits_a_segment(self, vp, genetic_map):
+        """
+        The decisive property. A run of no-calls sitting inside a genuine FIR
+        must leave that FIR intact and unlengthened — one segment, same cM as
+        if the gap were simply absent.
+        """
+        chromosome = 1
+        map_positions, map_cms = genetic_map[chromosome]
+
+        clean = ["AG"] * 400
+        gapped = ["AG"] * 180 + [f"{NO_CALL}{NO_CALL}"] * 40 + ["AG"] * 180
+
+        results = {}
+        for name, genotypes in (("clean", clean), ("gapped", gapped)):
+            d1 = make_individual(genotypes, chromosome, 100_000_000, 20_000)
+            d2 = make_individual(genotypes, chromosome, 100_000_000, 20_000)
+            dm = merge_pair(d1, d2, chromosome)
+            dm["match"] = classify(vp, dm)
+            _, firs = vp.scan_genomes_optimized(
+                dm, chromosome, HIR_CUTOFF, FIR_CUTOFF,
+                HIR_SNP_MIN, FIR_SNP_MIN, MM_DIST, map_positions, map_cms,
+            )
+            results[name] = firs
+
+        assert len(results["gapped"]) == 1, (
+            f"a no-call gap split one FIR into {len(results['gapped'])} segments; "
+            f"missing data must not fragment a genuine segment"
+        )
+        assert len(results["clean"]) == 1, "control case should yield one FIR"
+
+        clean_cm = results["clean"]["Length (cM)"].iloc[0]
+        gapped_cm = results["gapped"]["Length (cM)"].iloc[0]
+        assert gapped_cm == pytest.approx(clean_cm, abs=0.2), (
+            f"the no-call gap changed the reported FIR length "
+            f"({clean_cm} -> {gapped_cm} cM); it should be neutral"
+        )
+        # And the SNP count must exclude the unobserved markers.
+        assert results["gapped"]["No. SNPs"].iloc[0] == 360, (
+            "no-call markers were counted as supporting SNPs"
         )
 
 
