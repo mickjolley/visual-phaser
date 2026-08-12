@@ -383,7 +383,11 @@ def apply_conditions_vectorized(al1x, al2x, al1y, al2y, no_call_val):
     # where it is matched against itself as though it were a real base.
     cond_nc = ((al1x == no_call_val) | (al2x == no_call_val)
                | (al1y == no_call_val) | (al2y == no_call_val))
-    cond_crimson = (al1x == al2x) & (al1y == al2y) & (al1x != al1y)
+    # An exclusion is "no allele in common", whatever the zygosity. Requiring
+    # both individuals to be homozygous missed every exclusion involving a
+    # heterozygote, which then fell through to 'yellow' (half identical) and
+    # actively extended an HIR segment across a region of non-identity.
+    cond_crimson = ~((al1x == al1y) | (al1x == al2y) | (al2x == al1y) | (al2x == al2y))
     cond_limegreen = ((al1x == al1y) & (al2x == al2y)) | ((al1x == al2y) & (al2x == al1y))
 
     res = np.full(al1x.shape, 'yellow', dtype=object)
