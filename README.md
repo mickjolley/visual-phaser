@@ -121,9 +121,9 @@
   Data Export
   V1.3 writes three files alongside the .xlsx:
 
-  <name>_segments.csv     every segment, long format (Pair/Type/Chr/Start/End/SNPs/cM)
-  <name>_dnapainter.csv   DNA Painter import layout (Chr/Start/End/cM/SNPs/Match)
-  <name>_segments.json    the same data plus the parameters of the run
+  name_segments.csv (every segment, long format (Pair/Type/Chr/Start/End/SNPs/cM)),
+  name_dnapainter.csv (DNA Painter import layout (Chr/Start/End/cM/SNPs/Match)) and
+  name_segments.json (the same data plus the parameters of the run).
 
   Only HIR goes to the DNA Painter file: that tool paints DNA shared with a
   match, whereas an FIR region is a property of a sibling pair rather than a
