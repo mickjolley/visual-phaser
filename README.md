@@ -118,6 +118,17 @@
   feature attempts to attribute these segments to specific siblings based on matching
   patterns.
 
+  Data Export
+  V1.3 writes three files alongside the .xlsx:
+
+  <name>_segments.csv     every segment, long format (Pair/Type/Chr/Start/End/SNPs/cM)
+  <name>_dnapainter.csv   DNA Painter import layout (Chr/Start/End/cM/SNPs/Match)
+  <name>_segments.json    the same data plus the parameters of the run
+
+  Only HIR goes to the DNA Painter file: that tool paints DNA shared with a
+  match, whereas an FIR region is a property of a sibling pair rather than a
+  segment to paint. The full CSV and JSON carry both.
+
   ---
 
 7. Technical Architecture
