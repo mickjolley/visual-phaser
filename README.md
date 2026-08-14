@@ -109,16 +109,19 @@
        - Orange Bar: Confirmed FIR segment.
 
   Data Tables
+  
   Tables list each segment's start and end positions (Mb), the number of SNPs in the
   segment, and the genetic length (cM).
 
   Recombination Points (ARP)
+  
   If AUTO_REC_PNTS is enabled, the bottom of each sheet will display Column Width
   data. These represent segments of DNA between crossover points. The AUTO_RP_ASSIGN
   feature attempts to attribute these segments to specific siblings based on matching
   patterns.
 
   Data Export
+  
   V1.3 writes three files alongside the .xlsx:
 
   name_segments.csv (every segment, long format (Pair/Type/Chr/Start/End/SNPs/cM)),
