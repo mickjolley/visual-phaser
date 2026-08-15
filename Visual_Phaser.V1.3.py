@@ -9,7 +9,7 @@ Optimized for speed using a Hybrid Multiprocessing + Multithreading Architecture
 - Multiprocessing: Distributes chromosome analysis across CPU cores.
 - Multithreading: Handles concurrent file I/O (DNA loading) and image generation.
 
-V1.2 does not require DNA files to be converted to PCV format.
+V1.3 produces three data files.
 """
 import numpy as np
 import pandas as pd
