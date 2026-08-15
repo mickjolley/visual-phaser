@@ -374,19 +374,120 @@ def agnostic_load_individual_dna(ind, files_path, no_call_val, return_error=Fals
 def apply_conditions_vectorized(al1x, al2x, al1y, al2y, no_call_val):
     """
     Determines the match type (HIR, FIR, NIR) for a set of alleles using vectorized operations.
-    - Crimson: Fully Identical (Both alleles match on both chromosomes).
-    - Limegreen: Half Identical (At least one allele matches).
-    - Yellow: No match (Different alleles on both chromosomes).
+    - Limegreen: Fully Identical (FIR) - both alleles match on both chromosomes.
+    - Yellow: Half Identical (HIR) - at least one allele is shared.
+    - Crimson: No match (NIR) - no allele is shared.
     """
-    cond_nc = (al1x == no_call_val) | (al1y == no_call_val)
-    cond_crimson = (al1x == al2x) & (al1y == al2y) & (al1x != al1y)
+    # A no-call must be detected in EITHER allele of EITHER individual. Checking
+    # only allele1 lets the no-call token through into the comparisons below,
+    # where it is matched against itself as though it were a real base.
+    cond_nc = ((al1x == no_call_val) | (al2x == no_call_val)
+               | (al1y == no_call_val) | (al2y == no_call_val))
+    # An exclusion is "no allele in common", whatever the zygosity. Requiring
+    # both individuals to be homozygous missed every exclusion involving a
+    # heterozygote, which then fell through to 'yellow' (half identical) and
+    # actively extended an HIR segment across a region of non-identity.
+    cond_crimson = ~((al1x == al1y) | (al1x == al2y) | (al2x == al1y) | (al2x == al2y))
     cond_limegreen = ((al1x == al1y) & (al2x == al2y)) | ((al1x == al2y) & (al2x == al1y))
 
     res = np.full(al1x.shape, 'yellow', dtype=object)
     res[cond_limegreen] = 'limegreen'
     res[cond_crimson] = 'crimson'
-    res[cond_nc] = 'limegreen' # Treat no-calls as limegreen for continuity
+    # A no-call is an absence of observation, not a state. It gets 'grey', the
+    # vocabulary this codebase already uses for "no data", and
+    # scan_genomes_optimized skips it: it neither supports a segment nor breaks
+    # one. Assigning any of the three real states fabricates evidence -
+    # 'limegreen' inflates FIR, 'yellow' fragments it - so the only correct
+    # answer is to make the absence explicit.
+    res[cond_nc] = 'grey'
     return res
+
+def check_coordinate_consistency(dna_by_individual, sample_size=20000, tolerance=0.01, min_shared=100):
+    """
+    Verifies that all loaded individuals use the same genomic coordinate system.
+
+    Everything downstream assumes GRCh37: min_map.txt is a build 37 map and
+    chr_lens holds build 37 lengths. Nothing else checks that the input files
+    agree. Because 'position' is part of the pair merge key, two files on
+    different builds carry the same rsIDs at different coordinates, almost
+    nothing joins, and the run reports that the two people share no DNA - with
+    no error anywhere in the output.
+
+    This compares the individuals pairwise on the rsIDs they share. A marker
+    sitting at two different positions in two files means those files are not on
+    a common coordinate system. That conclusion comes purely from the data, so
+    it needs no build-reference table and cannot itself be wrong about a build.
+
+    Returns a list of human-readable problems; empty when the input is consistent.
+    """
+    problems = []
+    names = sorted(name for name, dna in dna_by_individual.items() if dna is not None and not dna.empty)
+
+    for name_a, name_b in combinations(names, 2):
+        # Duplicate rsIDs would inflate this comparison, so key on first occurrence.
+        cols = ['rsid', 'chromosome', 'position']
+        dna_a = dna_by_individual[name_a][cols].drop_duplicates(subset=['rsid', 'chromosome'])
+        dna_b = dna_by_individual[name_b][cols].drop_duplicates(subset=['rsid', 'chromosome'])
+
+        # Deterministic thinning keeps the check cheap on genome-scale files.
+        stride = max(1, len(dna_a) // sample_size)
+        dna_a = dna_a.iloc[::stride]
+
+        shared = pd.merge(dna_a, dna_b, on=['rsid', 'chromosome'], suffixes=('_a', '_b'))
+        if len(shared) < min_shared:
+            problems.append(
+                f"{name_a} and {name_b} share only {len(shared):,} markers by rsid. "
+                f"These files may come from incompatible sources; comparisons between "
+                f"them will be based on very little data."
+            )
+            continue
+
+        disagreeing = (shared['position_a'] != shared['position_b'])
+        fraction = disagreeing.mean()
+        if fraction > tolerance:
+            example = shared[disagreeing].iloc[0]
+            problems.append(
+                f"{name_a} and {name_b} disagree on the position of "
+                f"{fraction:.1%} of the {len(shared):,} markers they share "
+                f"(e.g. {example['rsid']} on chr{example['chromosome']}: "
+                f"{int(example['position_a']):,} vs {int(example['position_b']):,}). "
+                f"These files are on different genome builds. Visual Phaser assumes "
+                f"GRCh37/hg19 throughout; convert them to a common build before "
+                f"comparing, or the comparison will silently report no shared DNA."
+            )
+
+    return problems
+
+def check_map_coverage(chrom, positions, dmap_positions):
+    """
+    Reports SNPs lying outside the span the genetic map actually covers.
+
+    np.interp clamps rather than raising, so a position past either end of the
+    map silently takes the boundary cM value. Segments there are measured short
+    - or, when both endpoints fall outside, as exactly 0.0 cM and dropped below
+    cutoff. Returns a warning string, or None when the map covers the data.
+    """
+    if len(dmap_positions) == 0:
+        return f"Chromosome {chrom}: no genetic map data. Segment lengths cannot be calculated."
+    if len(positions) == 0:
+        return None
+
+    map_lo, map_hi = dmap_positions[0], dmap_positions[-1]
+    below = int(np.sum(positions < map_lo))
+    above = int(np.sum(positions > map_hi))
+    if not (below or above):
+        return None
+
+    parts = []
+    if below:
+        parts.append(f"{below:,} below {int(map_lo):,}")
+    if above:
+        parts.append(f"{above:,} above {int(map_hi):,}")
+    return (
+        f"Chromosome {chrom}: {' and '.join(parts)} - these SNPs fall outside the "
+        f"genetic map. Segment lengths overlapping those regions are measured "
+        f"against a clamped boundary value and will be understated."
+    )
 
 def scan_genomes_optimized(dm, chrom, hir_cutoff, fir_cutoff, hir_snp_min, fir_snp_min, mm_dist, dmap_positions, dmap_cms):
     """
@@ -405,7 +506,21 @@ def scan_genomes_optimized(dm, chrom, hir_cutoff, fir_cutoff, hir_snp_min, fir_s
     stpos = pos = fstpos = fpos = nsnps = fsnps = mmpos = 0
 
     def get_dcm(start, end):
-        """Interpolates cM distance between two genomic positions."""
+        """
+        Interpolates cM distance between two genomic positions.
+
+        np.interp clamps out-of-range input to the boundary value, so an
+        interval lying entirely outside the map would collapse to exactly
+        0.0 cM. That is a fabricated measurement, not a zero-length segment;
+        NaN is returned instead so no meaningless length can reach an output
+        table. Downstream behaviour is unchanged - NaN fails the `> cutoff`
+        test exactly as 0.0 did.
+        """
+        if len(dmap_positions) == 0:
+            return float('nan')
+        map_lo, map_hi = dmap_positions[0], dmap_positions[-1]
+        if (start < map_lo and end < map_lo) or (start > map_hi and end > map_hi):
+            return float('nan')
         stcm = np.interp(start, dmap_positions, dmap_cms)
         fincm = np.interp(end, dmap_positions, dmap_cms)
         return fincm - stcm
@@ -413,6 +528,11 @@ def scan_genomes_optimized(dm, chrom, hir_cutoff, fir_cutoff, hir_snp_min, fir_s
     # Iterative scan through the DNA sequence to find segments
     for i in range(length):
         m, p = matches[i], positions[i]
+        if m == 'grey':
+            # No data here. Skip without counting it toward a segment and
+            # without treating it as a mismatch: an unobserved marker is
+            # neither evidence for a segment nor evidence against one.
+            continue
         if not segflag:
             if m in ('yellow', 'limegreen'):
                 nsnps, segflag, stpos = 1, True, p
@@ -651,6 +771,82 @@ def thread_chromosome(chrom, match_pairs, individuals, files_path, map_positions
         'arp_info': (all_rps, all_rnames, last_dplot_len),
         'dxtot_pairs': list(dxtot['pair'].unique()) if len(dxtot) > 0 else []
     }
+
+def export_segments(segments, working_directory, excel_file_name, run_parameters):
+    """
+    Writes the segment tables as CSV and JSON next to the .xlsx.
+
+    The workbook is good for reading; it is poor for feeding anything else.
+    These files let segment data reach the tools genealogists actually use -
+    DNA Painter, spreadsheets, GEDmatch-style comparison - without retyping.
+
+    Three files are produced:
+      <name>_segments.csv     every segment, long format, one row per segment
+      <name>_dnapainter.csv   DNA Painter import layout (Chr/Start/End/cM/SNPs/Match)
+      <name>_segments.json    the same data plus the parameters of the run
+
+    The JSON carries the run parameters because a segment list is not
+    interpretable without them: HIR_CUTOFF and FIR_CUTOFF alone determine what
+    was reported and what was discarded.
+
+    `segments` is a list of (chromosome, pair_name, hir_frame, fir_frame).
+    """
+    import json
+
+    rows = []
+    for chrom, pair_name, hir, fir in segments:
+        for kind, frame in (("HIR", hir), ("FIR", fir)):
+            if frame is None or len(frame) == 0:
+                continue
+            for _, seg in frame.iterrows():
+                rows.append({
+                    "Pair": pair_name,
+                    "Type": kind,
+                    "Chr": int(seg["Chr"]),
+                    "Start": int(seg["Start Mb"]),
+                    "End": int(seg["Finish Mb"]),
+                    "SNPs": int(seg["No. SNPs"]),
+                    "cM": float(seg["Length (cM)"]),
+                })
+
+    if not rows:
+        print("[VP_EXPORT] No segments to export.", flush=True)
+        return []
+
+    table = pd.DataFrame(rows).sort_values(["Pair", "Type", "Chr", "Start"]).reset_index(drop=True)
+    base = os.path.join(working_directory, excel_file_name)
+    written = []
+
+    csv_path = f"{base}_segments.csv"
+    table.to_csv(csv_path, index=False)
+    written.append(csv_path)
+
+    # DNA Painter expects Chr/Start/End required, cM/SNPs/Match optional. Only
+    # HIR is exported: DNA Painter paints DNA shared with a match, and an FIR
+    # region is a property of a sibling pair rather than a segment to paint.
+    painter = table[table["Type"] == "HIR"][["Chr", "Start", "End", "cM", "SNPs", "Pair"]].copy()
+    painter.columns = ["Chr", "Start Position", "End Position", "cM", "SNPs", "Match"]
+    painter_path = f"{base}_dnapainter.csv"
+    painter.to_csv(painter_path, index=False)
+    written.append(painter_path)
+
+    json_path = f"{base}_segments.json"
+    with open(json_path, "w") as handle:
+        json.dump(
+            {
+                "parameters": run_parameters,
+                "segment_count": {"HIR": int((table["Type"] == "HIR").sum()),
+                                  "FIR": int((table["Type"] == "FIR").sum())},
+                "segments": table.to_dict(orient="records"),
+            },
+            handle,
+            indent=2,
+        )
+    written.append(json_path)
+
+    print(f"[VP_EXPORT] {len(table)} segments -> {os.path.basename(csv_path)}, "
+          f"{os.path.basename(painter_path)}, {os.path.basename(json_path)}", flush=True)
+    return written
 
 def get_image_file(dplot, pair_name, chrom, wdir):
     """Generates and saves a visual representation of DNA matches for a sibling pair."""
@@ -907,6 +1103,28 @@ if __name__ == "__main__":
     }
 
     chrom_list = [int(c) for c in CHROMOSOMES] if CHROMOSOMES else list(range(1, 24))
+
+    # Coordinate-system validation. Everything below assumes GRCh37/hg19, and a
+    # build mismatch is otherwise silent: the pair merge keys on 'position', so
+    # files on different builds join on almost nothing and the run reports that
+    # the individuals share no DNA.
+    coordinate_problems = check_coordinate_consistency(worker_dna_cache)
+    if coordinate_problems:
+        print("\n[VP_INPUT_ERROR] The DNA files are not on a common genomic coordinate system.", flush=True)
+        for problem in coordinate_problems:
+            print(f"[VP_INPUT_ERROR] {problem}", flush=True)
+        sys.exit(2)
+
+    for c in chrom_list:
+        chrom_map = dmap_source[dmap_source["Chromosome"] == c].sort_values("Position")["Position"].values
+        loaded = np.concatenate([
+            dna.loc[dna['chromosome'] == c, 'position'].values
+            for dna in worker_dna_cache.values() if dna is not None
+        ]) if worker_dna_cache else np.array([])
+        coverage_warning = check_map_coverage(c, loaded, chrom_map)
+        if coverage_warning:
+            print(f"[VP_MAP_WARNING] {coverage_warning}", flush=True)
+
     print(f"\nProcessing {len(chrom_list)} chromosomes using Threads and Multiprocessing...\nThis will take a few seconds. Please be patient...\n", flush=True)
 
     # STEP 4: Parallel Processing Loop
@@ -917,6 +1135,7 @@ if __name__ == "__main__":
                    chr_lens[c-1], SIBLINGS, config_params): c for c in chrom_list}
 
         chromosome_results = {}
+        collected_segments = []
 
         for future in as_completed(futures):
             res = future.result()
@@ -949,6 +1168,7 @@ if __name__ == "__main__":
             # Write data tables and images to Excel
             for p_name, dx, ds in res['tables']:
                 paste_tables(ws, dx, ds, p_name, FIR_TABLES, SHOW_NO_MATCHES)
+                collected_segments.append((chrom, p_name, dx, ds))
 
             fflag = [True] * 24
 
@@ -983,6 +1203,16 @@ if __name__ == "__main__":
         wb.move_sheet(target_sheet, idx - wb.index(target_sheet))
 
     # Final Save and Cleanup
+    export_segments(collected_segments, WORKING_DIRECTORY, EXCEL_FILE_NAME, {
+        'siblings': SIBLINGS, 'phased_files': PHASED_FILES, 'cousins': COUSINS,
+        'evil_twins': EVIL_TWINS, 'chromosomes': CHROMOSOMES or list(range(1, 24)),
+        'hir_cutoff': HIR_CUTOFF, 'fir_cutoff': FIR_CUTOFF,
+        'x_hir_cutoff': X_HIR_CUTOFF, 'x_fir_cutoff': X_FIR_CUTOFF,
+        'hir_snp_min': HIR_SNP_MIN, 'fir_snp_min': FIR_SNP_MIN,
+        'mm_dist': MM_DIST, 'no_call': NO_CALL, 'repair_files': REPAIR_FILES,
+        'merge_files': MERGE_FILES,
+    })
+
     ensure_visible_worksheet(wb)
     wb.save(xlname)
     delete_images(wdir)
