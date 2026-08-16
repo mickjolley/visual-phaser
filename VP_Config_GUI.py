@@ -43,8 +43,7 @@ TOOLTIPS = {
     'SCALE_ON': 'True to display the scale.',
     'FREEZE_COLUMN': 'Column to freeze. Use A to disable freezing.',
     'LINUX_FONT_STRING': 'Linux font path if needed for rendering.',
-    'SHOW_TIMES': 'True to show elapsed times.',
-    'SHOW_MATCH_PAIR_PROGRESS': 'True to show progress for each match pair.',
+    'SAVE_SEG_FILES': 'True to save segment files.',
     'HIR_SNP_MIN': 'Minimum number of HIR SNPs.',
     'FIR_SNP_MIN': 'Minimum number of FIR SNPs.',
     'MM_DIST': 'Mismatch distance in Kbs.',
@@ -57,7 +56,7 @@ LINE_LIST_FIELDS = ('PHASED_FILES', 'EVIL_TWINS')
 BOOLEAN_FIELDS = (
     'SHOW_NO_MATCHES', 'CHROM_TRUE_SIZE', 'LINEAR_CHROMOSOME', 'MERGE_FILES',
     'AUTO_REC_PNTS', 'AUTO_RP_ASSIGN', 'REPAIR_FILES', 'FIR_TABLES',
-    'SCALE_ON', 'SHOW_TIMES', 'SHOW_MATCH_PAIR_PROGRESS'
+    'SCALE_ON', 'SAVE_SEG_FILES'
 )
 INTEGER_FIELDS = (
     'RESOLUTION', 'ARP_TOLERANCE', 'HIR_CUTOFF', 'FIR_CUTOFF', 'X_HIR_CUTOFF',
@@ -115,18 +114,18 @@ def create(parent):
  wxID_VPCONFIGBOAFRAMESAVEBUTTON, wxID_VPCONFIGBOAFRAMESCALEFACTORLABEL,
  wxID_VPCONFIGBOAFRAMESCALEFACTORTEXT, wxID_VPCONFIGBOAFRAMESCALEONCOMBO,
  wxID_VPCONFIGBOAFRAMESCALEONLABEL,
- wxID_VPCONFIGBOAFRAMESHOWMATCHPAIRPROGRESSCOMBO,
- wxID_VPCONFIGBOAFRAMESHOWMATCHPAIRPROGRESSLABEL,
  wxID_VPCONFIGBOAFRAMESHOWNOMATCHESCOMBO,
- wxID_VPCONFIGBOAFRAMESHOWNOMATCHESLABEL, wxID_VPCONFIGBOAFRAMESHOWTIMESCOMBO,
- wxID_VPCONFIGBOAFRAMESHOWTIMESLABEL, wxID_VPCONFIGBOAFRAMESIBLINGSLABEL,
+ wxID_VPCONFIGBOAFRAMESHOWNOMATCHESLABEL, 
+ wxID_VPCONFIGBOAFRAMESAVESEGFILESCOMBO,
+ wxID_VPCONFIGBOAFRAMESAVESEGFILESLABEL, 
+ wxID_VPCONFIGBOAFRAMESIBLINGSLABEL,
  wxID_VPCONFIGBOAFRAMESIBLINGSTEXT, wxID_VPCONFIGBOAFRAMESTATICLINE1,
  wxID_VPCONFIGBOAFRAMESTATUSBAR, wxID_VPCONFIGBOAFRAMETITLETEXT,
  wxID_VPCONFIGBOAFRAMEWORKINGDIRECTORYLABEL,
  wxID_VPCONFIGBOAFRAMEWORKINGDIRTEXT, wxID_VPCONFIGBOAFRAMEXFIRCUTOFFLABEL,
  wxID_VPCONFIGBOAFRAMEXFIRCUTOFFSPIN, wxID_VPCONFIGBOAFRAMEXHIRCUTOFFLABEL,
  wxID_VPCONFIGBOAFRAMEXHIRCUTOFFSPIN,
-] = [wx.NewIdRef() for _init_ctrls in range(89)]
+] = [wx.NewIdRef() for _init_ctrls in range(87)]
 
 
 [wxID_VPCONFIGBOAFRAMEEXITITEM, wxID_VPCONFIGBOAFRAMELOADITEM,
@@ -228,12 +227,9 @@ class VPConfigBoaFrame(wx.Frame):
         parent.Add(self.scaleOnLabel, 0, border=5,
               flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
         parent.Add(self.scaleOnCombo, 0, border=5, flag=wx.ALL)
-        parent.Add(self.showTimesLabel, 0, border=5,
+        parent.Add(self.saveSegFilesLabel, 0, border=5,
               flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
-        parent.Add(self.showTimesCombo, 0, border=5, flag=wx.ALL)
-        parent.Add(self.showMatchPairProgressLabel, 0, border=5,
-              flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
-        parent.Add(self.showMatchPairProgressCombo, 0, border=5, flag=wx.ALL)
+        parent.Add(self.saveSegFilesCombo, 0, border=5, flag=wx.ALL)
         parent.Add(self.freezeColumnLabel, 0, border=5,
               flag=int(wx.ALIGN_CENTER_VERTICAL) | int(wx.ALL))
         parent.Add(self.freezeColumnText, 0, border=5, flag=wx.ALL)
@@ -671,22 +667,13 @@ class VPConfigBoaFrame(wx.Frame):
               parent=self.boolPanel, pos=wx.Point(214, 261), size=wx.Size(100,
               21), style=wx.CB_READONLY, value='True')
 
-        self.showTimesLabel = wx.StaticText(label='SHOW_TIMES',
-              name='showTimesLabel', parent=self.boolPanel, pos=wx.Point(13,
-              294), size=wx.Size(79, 17), style=0)
-
-        self.showTimesCombo = wx.ComboBox(choices=['True', 'False'],
-              id=wxID_VPCONFIGBOAFRAMESHOWTIMESCOMBO, name='showTimesCombo',
-              parent=self.boolPanel, pos=wx.Point(214, 292), size=wx.Size(100,
-              21), style=wx.CB_READONLY, value='True')
-
-        self.showMatchPairProgressLabel = wx.StaticText(label='SHOW_MATCH_PAIR_PROGRESS',
-              name='showMatchPairProgressLabel', parent=self.boolPanel,
+        self.saveSegFilesLabel = wx.StaticText(label='SAVE_SEG_FILES',
+              name='saveSegFilesLabel', parent=self.boolPanel,
               pos=wx.Point(13, 325), size=wx.Size(183, 17), style=0)
 
-        self.showMatchPairProgressCombo = wx.ComboBox(choices=['True', 'False'],
-              id=wxID_VPCONFIGBOAFRAMESHOWMATCHPAIRPROGRESSCOMBO,
-              name='showMatchPairProgressCombo', parent=self.boolPanel,
+        self.saveSegFilesCombo = wx.ComboBox(choices=['True', 'False'],
+              id=wxID_VPCONFIGBOAFRAMESAVESEGFILESCOMBO,
+              name='saveSegFilesCombo', parent=self.boolPanel,
               pos=wx.Point(214, 323), size=wx.Size(100, 21),
               style=wx.CB_READONLY, value='True')
 
@@ -950,8 +937,7 @@ class VPConfigBoaFrame(wx.Frame):
             'SCALE_ON': self.scaleOnCombo,
             'FREEZE_COLUMN': self.freezeColumnText,
             'LINUX_FONT_STRING': self.linuxFontText,
-            'SHOW_TIMES': self.showTimesCombo,
-            'SHOW_MATCH_PAIR_PROGRESS': self.showMatchPairProgressCombo,
+            'SAVE_SEG_FILES': self.saveSegFilesCombo,
             'HIR_SNP_MIN': self.hirSnpMinSpin,
             'FIR_SNP_MIN': self.firSnpMinSpin,
             'MM_DIST': self.mmDistSpin,

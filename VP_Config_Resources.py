@@ -149,16 +149,10 @@ FIELD_DEFINITIONS = {
         'tooltip': 'Turn scale on and off.',
         'default': True,
     },
-    'SHOW_TIMES': {
+    'SAVE_SEG_FILES': {
         'type': 'boolean',
-        'label': 'SHOW_TIMES',
-        'tooltip': 'Elapsed times are shown for each step.',
-        'default': True,
-    },
-    'SHOW_MATCH_PAIR_PROGRESS': {
-        'type': 'boolean',
-        'label': 'SHOW_MATCH_PAIR_PROGRESS',
-        'tooltip': 'Notifies the completion of each step.',
+        'label': 'SAVE_SEG_FILES',
+        'tooltip': 'Save segment files.',
         'default': True,
     },
 
@@ -270,8 +264,7 @@ FIELD_SECTIONS = {
         'REPAIR_FILES',
         'FIR_TABLES',
         'SCALE_ON',
-        'SHOW_TIMES',
-        'SHOW_MATCH_PAIR_PROGRESS',
+        'SAVE_SEG_FILES',
     ],
     'Numeric Parameters': [
         'RESOLUTION',
