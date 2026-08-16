@@ -122,7 +122,7 @@
 
   Data Export
   
-  V1.3 writes three files alongside the .xlsx:
+  When SAVE_SEG_FILES is set to True, V1.3 writes three files alongside the .xlsx file:
 
   name_segments.csv (every segment, long format (Pair/Type/Chr/Start/End/SNPs/cM)),
   name_dnapainter.csv (DNA Painter import layout (Chr/Start/End/cM/SNPs/Match)) and
