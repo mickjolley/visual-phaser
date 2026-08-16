@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-VP_configV1.py is the configuration file for Visual_Phaser.V*.py.
+VP_configV1.py is the configuration file for Visual_Phaser.V1.*.py.
 
 FILES_PATH: Path to folder where the DNA files are stored.
 
@@ -8,15 +8,11 @@ WORKING_DIRECTORY: Folder where the .xlsx and .py files will be stored.
 
 MAP_PATH: Path to folder containing min_map.txt.
 
-SIBLINGS: Two minimum. Make sure that the DNA files are in the
-PixelChromosomeView (PCV) format. Examples are 'Ancestry_Fred_raw_dna.txt' and
-'23andMe_Susan_raw_dna.txt'. These files must tab delimited .txt files. Use
-ancestry_csv_to_tab_converter.py or not_ancestry_csv_to_tab_converter.py to
-convert .csv files to the correct format.
+SIBLINGS: Two minimum. Files must contain "_raw_dna" after the name. 
 
 PHASED_FILES: Enter comma-separated names of the individuals in phased files to
 be compared to each other. They will not be compared to siblings. The default
-assignment for no calls is "X".
+assignment for no-calls is "X".
 
 EVIL_TWINS: Enter comma-separated names of the individuals in evil-twin files
 to be compared to SIBLINGS.
@@ -90,10 +86,7 @@ FREEZE_COLUMN: Set to "A" if freezing not desired. Default = "A".
 LINUX_FONT_STRING: Linux users only. Enter the path to your font. If you don't
 know it, set SCALE_ON to False.
 
-SHOW_TIMES: Elapsed times are shown for each step. Default =True
-
-SHOW_MATCH_PAIR_PROGRESS: Notifies the completion of each step. Set to
-False if you don't want to see this. Default = True
+SAVE_SEG_FILES: Save segment files. Default = True
 
 HIR_SNP_MIN: Minimum number of HIR SNPs. Default value = 200
 
@@ -108,25 +101,25 @@ NO_CALL: Character assigned to a no-call IN PHASED FILES.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 # Path to DNA files.
-FILES_PATH = ''
+FILES_PATH = r'*********'
 
 # Path to .xlsx file.
-WORKING_DIRECTORY = ''
+WORKING_DIRECTORY = r'*********'
 
 # Path to min_map.txt file.
-MAP_PATH = ''
+MAP_PATH = r'********'
 
 # SIBLINGS to be compared. Make sure that no two files share the same name.
-SIBLINGS = []
+SIBLINGS = ['****','****','****']
 
 # Phased files to be compared to each other.
-PHASED_FILES = []
+PHASED_FILES = ['****','****','****']
 
 # Evil Twin files to be compared to SIBLINGS.
-EVIL_TWINS = []
+EVIL_TWINS = ['****','****','****']
 
 # COUSINS to be compared with SIBLINGS in a pre-existing file.
-COUSINS = []
+COUSINS = ['****','****','****']
 
 # Chromosome selected. Leave empty to select all the chromosomes.
 CHROMOSOMES = []
@@ -197,12 +190,8 @@ FREEZE_COLUMN = 'A'
 # "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf"
 LINUX_FONT_STRING = '*/fonts/truetype/family/DejaVuSerif-Bold.ttf'
 
-# Elapsed times are shown for each step.
-SHOW_TIMES = True
-
-# Notifies the completion of each step. Set to False if you don't want to see
-# this.
-SHOW_MATCH_PAIR_PROGRESS = True
+# Save segment files.
+SAVE_SEG_FILES = True
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 You shouldn't have to change the parameters below.
