@@ -1017,12 +1017,13 @@ if __name__ == "__main__":
             # Write data tables and images to Excel
             for p_name, dx, ds in res['tables']:
                 paste_tables(ws, dx, ds, p_name, FIR_TABLES, SHOW_NO_MATCHES)
-
+                collected_segments.append((chrom, p_name, dx, ds))
+                
             fflag = [True] * 24
 
             for q, (p_name, dplot_len) in enumerate(res['pair_images']):
                 paste_image_main(fflag, ws, p_name, chrom, q, wdir, COUSINS, SCALE_ON, SHOW_NO_MATCHES, res['dxtot_pairs'], im_width, dplot_len)
-                collected_segments.append((chrom, p_name, dx, ds))
+               
 
             # Post-processing: Add Recombination Points and Formatting
             if not COUSINS:
