@@ -378,6 +378,93 @@ def apply_conditions_vectorized(al1x, al2x, al1y, al2y, no_call_val):
     res[cond_nc] = 'limegreen' # Treat phased no-calls as limegreen for continuity
     return res
 
+def check_coordinate_consistency(dna_by_individual, sample_size=20000, tolerance=0.01, min_shared=100):
+    """
+    Verifies that all loaded individuals use the same genomic coordinate system.
+
+    Everything downstream assumes GRCh37: min_map.txt is a build 37 map and
+    chr_lens holds build 37 lengths. Nothing else checks that the input files
+    agree. Because 'position' is part of the pair merge key, two files on
+    different builds carry the same rsIDs at different coordinates, almost
+    nothing joins, and the run reports that the two people share no DNA - with
+    no error anywhere in the output.
+
+    This compares the individuals pairwise on the rsIDs they share. A marker
+    sitting at two different positions in two files means those files are not on
+    a common coordinate system. That conclusion comes purely from the data, so
+    it needs no build-reference table and cannot itself be wrong about a build.
+
+    Returns a list of human-readable problems; empty when the input is consistent.
+    """
+    problems = []
+    names = sorted(name for name, dna in dna_by_individual.items() if dna is not None and not dna.empty)
+
+    for name_a, name_b in combinations(names, 2):
+        # Duplicate rsIDs would inflate this comparison, so key on first occurrence.
+        cols = ['rsid', 'chromosome', 'position']
+        dna_a = dna_by_individual[name_a][cols].drop_duplicates(subset=['rsid', 'chromosome'])
+        dna_b = dna_by_individual[name_b][cols].drop_duplicates(subset=['rsid', 'chromosome'])
+
+        # Deterministic thinning keeps the check cheap on genome-scale files.
+        stride = max(1, len(dna_a) // sample_size)
+        dna_a = dna_a.iloc[::stride]
+
+        shared = pd.merge(dna_a, dna_b, on=['rsid', 'chromosome'], suffixes=('_a', '_b'))
+        if len(shared) < min_shared:
+            problems.append(
+                f"{name_a} and {name_b} share only {len(shared):,} markers by rsid. "
+                f"These files may come from incompatible sources; comparisons between "
+                f"them will be based on very little data."
+            )
+            continue
+
+        disagreeing = (shared['position_a'] != shared['position_b'])
+        fraction = disagreeing.mean()
+        if fraction > tolerance:
+            example = shared[disagreeing].iloc[0]
+            problems.append(
+                f"{name_a} and {name_b} disagree on the position of "
+                f"{fraction:.1%} of the {len(shared):,} markers they share "
+                f"(e.g. {example['rsid']} on chr{example['chromosome']}: "
+                f"{int(example['position_a']):,} vs {int(example['position_b']):,}). "
+                f"These files are on different genome builds. Visual Phaser assumes "
+                f"GRCh37/hg19 throughout; convert them to a common build before "
+                f"comparing, or the comparison will silently report no shared DNA."
+            )
+
+    return problems
+
+def check_map_coverage(chrom, positions, dmap_positions):
+    """
+    Reports SNPs lying outside the span the genetic map actually covers.
+
+    np.interp clamps rather than raising, so a position past either end of the
+    map silently takes the boundary cM value. Segments there are measured short
+    - or, when both endpoints fall outside, as exactly 0.0 cM and dropped below
+    cutoff. Returns a warning string, or None when the map covers the data.
+    """
+    if len(dmap_positions) == 0:
+        return f"Chromosome {chrom}: no genetic map data. Segment lengths cannot be calculated."
+    if len(positions) == 0:
+        return None
+
+    map_lo, map_hi = dmap_positions[0], dmap_positions[-1]
+    below = int(np.sum(positions < map_lo))
+    above = int(np.sum(positions > map_hi))
+    if not (below or above):
+        return None
+
+    parts = []
+    if below:
+        parts.append(f"{below:,} below {int(map_lo):,}")
+    if above:
+        parts.append(f"{above:,} above {int(map_hi):,}")
+    return (
+        f"Chromosome {chrom}: {' and '.join(parts)} - these SNPs fall outside the "
+        f"genetic map. Segment lengths overlapping those regions are measured "
+        f"against a clamped boundary value and will be understated."
+    )
+
 def scan_genomes_optimized(dm, chrom, hir_cutoff, fir_cutoff, hir_snp_min, fir_snp_min, mm_dist, dmap_positions, dmap_cms):
     """
     Identifies contiguous segments of matching DNA (HIR and FIR).
@@ -395,7 +482,21 @@ def scan_genomes_optimized(dm, chrom, hir_cutoff, fir_cutoff, hir_snp_min, fir_s
     stpos = pos = fstpos = fpos = nsnps = fsnps = mmpos = 0
 
     def get_dcm(start, end):
-        """Interpolates cM distance between two genomic positions."""
+        """
+        Interpolates cM distance between two genomic positions.
+
+        np.interp clamps out-of-range input to the boundary value, so an
+        interval lying entirely outside the map would collapse to exactly
+        0.0 cM. That is a fabricated measurement, not a zero-length segment;
+        NaN is returned instead so no meaningless length can reach an output
+        table. Downstream behaviour is unchanged - NaN fails the `> cutoff`
+        test exactly as 0.0 did.
+        """
+        if len(dmap_positions) == 0:
+            return float('nan')
+        map_lo, map_hi = dmap_positions[0], dmap_positions[-1]
+        if (start < map_lo and end < map_lo) or (start > map_hi and end > map_hi):
+            return float('nan')
         stcm = np.interp(start, dmap_positions, dmap_cms)
         fincm = np.interp(end, dmap_positions, dmap_cms)
         return fincm - stcm
@@ -944,6 +1045,17 @@ if __name__ == "__main__":
             print(f"[VP_INPUT_ERROR] {ind}: {reason}", flush=True)
         sys.exit(2)
 
+    # Coordinate-system validation. Everything below assumes GRCh37/hg19, and a
+    # build mismatch is otherwise silent: the pair merge keys on 'position', so
+    # files on different builds join on almost nothing and the run reports that
+    # the individuals share no DNA.
+    coordinate_problems = check_coordinate_consistency(worker_dna_cache)
+    if coordinate_problems:
+        print("\n[VP_INPUT_ERROR] The DNA files are not on a common genomic coordinate system.", flush=True)
+        for problem in coordinate_problems:
+            print(f"[VP_INPUT_ERROR] {problem}", flush=True)
+        sys.exit(2)
+
     # Load genetic map (Distance vs genomic position)
     dmap_source = pd.read_csv(os.path.join(MAP_PATH, "min_map.txt"), sep="\t", header=0)
     # Standard chromosome lengths for GRCh37/hg19
@@ -974,6 +1086,19 @@ if __name__ == "__main__":
 
     chrom_list = [int(c) for c in CHROMOSOMES] if CHROMOSOMES else list(range(1, 24))
     print(f"\nProcessing {len(chrom_list)} chromosomes using Threads and Multiprocessing...\nThis will take a few seconds. Please be patient...\n", flush=True)
+
+    # np.interp clamps rather than raising, so a segment reaching past the mapped
+    # region is measured against a boundary value. Warn per chromosome instead of
+    # letting a silently shortened cM length reach an output table.
+    for c in chrom_list:
+        chrom_map = dmap_source[dmap_source["Chromosome"] == c].sort_values("Position")["Position"].values
+        loaded = np.concatenate([
+            dna.loc[dna['chromosome'] == c, 'position'].values
+            for dna in worker_dna_cache.values() if dna is not None
+        ]) if worker_dna_cache else np.array([])
+        coverage_warning = check_map_coverage(c, loaded, chrom_map)
+        if coverage_warning:
+            print(f"[VP_MAP_WARNING] {coverage_warning}", flush=True)
 
     # STEP 4: Parallel Processing Loop
     with ThreadPoolExecutor(max_workers=multiprocessing.cpu_count()) as executor:
