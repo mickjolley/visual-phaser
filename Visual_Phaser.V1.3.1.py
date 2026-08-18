@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Visual_Phaser.V1.3.py performs comparisons between siblings and cousins and
+Visual_Phaser.V1.3.1.py performs comparisons between siblings and cousins and
 stores the results in a .xlsx file.
 
 © 2026 Mick Jolley (mickj1948@gmail.com)
