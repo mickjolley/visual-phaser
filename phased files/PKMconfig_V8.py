@@ -1,24 +1,24 @@
 # -*- coding: utf-8 -*-
 """
-PKMconfig_V8.py is the configuration file for Phased_Kit_Maker_V8.py.
+PKMconfig_V8.py is the configuration file for Phased_Kit_Maker_V8.exe.
 
-DNA file names must have _raw_dna immediately after name. Both ,csv and .txt
+DNA file names must have _raw_dna immediately after name. Both .csv and .txt
 files from all testing companies may be used.
 
 @author: mickjolley (mickj1948@gmail.com)   © 2026
 """
 
 # Path to folder where DNA files are stored.
-DNA_FOLDER = r"c:/test files"
+DNA_FOLDER = r"***********"
 
 # Names of sibs.
-SIB_NAMES = ['Duraev','Jea','Mick']
+SIB_NAMES = ['****','****','****']
 
 # Name of parent.
-PARENT = 'Mum'
+PARENT = '****'
 
 # Relationship of parent to sibs. Enter "Mother" or "Father".
-RELATIONSHIP = 'Mother'
+RELATIONSHIP = '******'
 
 # Select output mode.
 """
@@ -30,7 +30,7 @@ reference (suffix "mm"). "ET" generates an Evil Twin phased kit. The
 suffix will be "etm" or "etp" depending on whether a maternal or paternal 
 kit is used as reference.
 """
-MODE = 'ET'
+MODE = '********'
 
 # Select character to be used to designate no calls
 NO_CALLS = 'X'
