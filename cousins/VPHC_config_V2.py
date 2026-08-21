@@ -2,7 +2,7 @@
 """
 VPHC_config_V2.py.
 
-VP_html_Cousins_V1.py configuration file.
+VP_html_Cousins_V1.exe configuration file.
 
 When entering the Excel file name, leave the '.xlsx' out. The program adds it
 automatically. The .xlsx file must already exist.
