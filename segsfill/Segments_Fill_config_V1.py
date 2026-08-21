@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Segments_Fill_config_V1.py is the configuration file for Segments_Fill_V1.py.
+Segments_Fill_config_V1.py is the configuration file for Segments_Fill_V1.exe.
 
 One chromosome is processed at a time.
 
