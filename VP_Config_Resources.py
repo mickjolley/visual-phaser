@@ -43,13 +43,15 @@ FIELD_DEFINITIONS = {
     'PHASED_FILES': {
         'type': 'list_files',
         'label': 'Phased Files (comma-separated names)',
-        'tooltip': 'Comma-separated names of the individuals in phased files to compare with each other.',
+        'tooltip': 'Comma-separated names of the individuals in phased files to compare with each other.
+        Enter phased files when creating a new .xlsx file. If there are no phased files to upload, leave empty.',
         'required': False,
     },
     'EVIL_TWINS': {
         'type': 'list_files',
         'label': 'Evil Twins (comma-separated names)',
-        'tooltip': 'Comma-separated names of the individuals in evil-twin files to compare against all SIBLINGS.',
+        'tooltip': 'Comma-separated names of the individuals in evil-twin files to compare against all SIBLINGS.
+        Maye be added when creating a new .xlsx file or after. Leave empty if there are noe evil-twin files to upload.',
         'required': False,
     },
     'COUSINS': {
