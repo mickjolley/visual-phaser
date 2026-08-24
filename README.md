@@ -11,7 +11,7 @@
   chromosomal maps and detailed segment data tables.
 
   IMPORTANT (FIRST TIME USERS): The configuration file provided with the release is for information purposes only. Before entering
-  information into the GUI for the first time, click on "Reload Defaults" to empty fields.
+  information into the GUI for the first time, click on "Reload Defaults" to empty fields. Cousins must be left empty when creating a new   .xlsx file. Cousins can only be added to existing .xlsx files.
 
   ---
 
