@@ -51,7 +51,7 @@ FIELD_DEFINITIONS = {
         'type': 'list_files',
         'label': 'Evil Twins (comma-separated names)',
         'tooltip': 'Comma-separated names of the individuals in evil-twin files to compare against all SIBLINGS.
-        Maye be added when creating a new .xlsx file or after. Leave empty if there are noe evil-twin files to upload.',
+        May be added when creating a new .xlsx file or after. Leave empty if there are noe evil-twin files to upload.',
         'required': False,
     },
     'COUSINS': {
