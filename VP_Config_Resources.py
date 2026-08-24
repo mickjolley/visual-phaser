@@ -55,7 +55,7 @@ FIELD_DEFINITIONS = {
     'COUSINS': {
         'type': 'list_text',
         'label': 'Cousins (comma-separated names)',
-        'tooltip': 'Comma-separated names of the individuals to compare with all SIBLINGS in a pre-existing file.',
+        'tooltip': 'Comma-separated names of the individuals to compare with all SIBLINGS in a pre-existing file. Leave empty when creating a new .xlsx file.',
         'required': False,
     },
     'CHROMOSOMES': {
