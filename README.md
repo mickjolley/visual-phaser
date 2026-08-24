@@ -10,6 +10,9 @@
   The software produces a comprehensive Excel (.xlsx) workbook featuring color-coded
   chromosomal maps and detailed segment data tables.
 
+  IMPORTANT (FIRST TIME USERS): The configuration file provided with the release is for information purposes only. Before entering
+  information into the GUI for the first time, click on "Reload Defaults" to empty fields.
+
   ---
 
 2. System Requirements & Installation
@@ -55,11 +58,11 @@
   Comparison Lists
    - SIBLINGS: Comma-separated list of individuals to be compared against one another.
    - PHASED_FILES: Comma-separated names of the individuals in phased files (usually derived from
-     parent/child comparisons).
+     parent/child comparisons). PHASED_FILES can only be added when creating a new .xlsx file.
    - COUSINS: Comma-separated names of the individuals to be compared against the sibling list in an existing
      project.
    - EVIL_TWINS: Comma-separated names of the individuals representing the non-matching side of a
-     phased individual.
+     phased individual. EVIL_TWINS can be added to a new .xlsx file or an existing one.
 
   Genetic Cutoffs
    - HIR_CUTOFF: Minimum segment length (in cM) for Half-Identical segments (Default:
