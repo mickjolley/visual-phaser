@@ -49,23 +49,23 @@ SNP_DENS_MIN: Min SNP densiy (SNPs/Mb). Default = 20.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 # Path to DNA files.
-DNA_FILES_PATH = r'c:/dna files' 
+DNA_FILES_PATH = r'*********' 
 
 # Path to .xlsx file.
-WORKING_DIRECTORY = r'c:/vpphaser'
+WORKING_DIRECTORY = r'*********'
 
 # Path to min_map.txt file.
-MAP_PATH = r'c:/minmap'
+MAP_PATH = r'c:/**********'
 
 # SUBJECTS to be compared from DNA_FILES_PATH. 
 # Enter ['*'] to load all subjects. Leave empty ([]) to load none.
-SUBJECTS = ['High']
+SUBJECTS = ['****', '****', '****']
 
 # Chromosome selected. Leave empty to select all the chromosomes.
 CHROMOSOMES = []
 
 # Excel file name. Leave ".xlsx" out.
-EXCEL_FILE_NAME = 'roh'
+EXCEL_FILE_NAME = '*******'
 
 # Suppress no-matches. Set to True if display of no-matches is desired.
 SHOW_NO_ROHS = False
