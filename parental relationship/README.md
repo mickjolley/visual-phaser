@@ -1,9 +1,10 @@
 Parental Relationship
 
-Parental_Relationship_V4.py calculates runs of homozygosity (ROHs) for an
-individual. Default values of 1% error rate, 50 SNPs minimum, a SNP density
-of a least 20 SNPs per Mb and a ROH cutoff of 5 Mb are used. The result is a
-.xlsx file of the ROHs per chromosome (if found) and a summary .csv file. 
+Parental_Relationship_V4.py estimates the relationsip between an individual's 
+parents by calculating runs of homozygosity (ROHs) for that individual. 
+Default values of 1% error rate, 50 SNPs minimum, a SNP density of a least 20 
+SNPs per Mb and a ROH cutoff of 5 Mb are used. The result is a .xlsx file of 
+the ROHs per chromosome (if found) and a summary .csv file. 
 
 Multiply the total ROH cMs by four to approximate sibling comparison cMs.
 For example, if the total cM of the ROHs is 200, then 4 times this is 800 cM,
