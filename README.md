@@ -1,4 +1,4 @@
-There are three tools in this release:
+There are four tools in this release:
 
 1) Segments_Fill_V1.exe (configuration file Segments_Fill_config_V1.py).
    Automatically fills sibling chromosome segments with appropriate colors.
@@ -10,6 +10,10 @@ There are three tools in this release:
 3) Phased_Kit_Maker_V8.exe (configuration file PKMconfig_V8.py).
    Makes maternal and paternal phased files and evil twin files. Needs a parent
    DNA file.
+   
+4) Parental_Relationship_V4.exe (configuration file PR_config_V4.py).
+   Estimates the relationship between an individual's parents by calculating
+   the total cMs of runs of homozygosity (ROHs).   
 
 Use any text editor to edit the configuration files.
 
@@ -58,7 +62,7 @@ VP_HTML_COUSINS_V2.EXE
    
 PHASED_KIT_MAKER_V8.EXE
 
-1) DNA file names must have _raw_dna immediately after name. Both ,csv and .txt
+1) DNA file names must have _raw_dna immediately after name. Both .csv and .txt
    files from all testing companies may be used.
    
 2) Phased files are in Ancestry format.
@@ -75,6 +79,22 @@ PHASED_KIT_MAKER_V8.EXE
    Namemm.txt - Maternal phased file with mother as reference.
    Nameetp.txt - Paternal evil twin file with father as reference.
    Nameetm.txt - Maternal evil twin file with mother as reference.
+   
+PARENTAL_RELATIONSHIP_V4.EXE
+
+1) Parental_Relationship_V4.exe estimates the relationsip between an individual's parents 
+   by calculating runs of homozygosity (ROHs) for that individual. Default values of 1% 
+   error rate, 50 SNPs minimum, a SNP density of a least 20 SNPs per Mb and a ROH cutoff 
+   of 5 Mb are used. The result is a .xlsx file of the ROHs per chromosome (if found) and 
+   a summary .csv file.
+
+2) Multiply the total ROH cMs by four to approximate sibling comparison cMs. For example, 
+   if the total cM of the ROHs is 200, then 4 times this is 800 cM, which approximates to 
+   first cousins.
+
+3) An example of an individual from an endogamous population is Ancestry_Samaritan _raw_dna.
+   txt'. The total cMs of ROHs for this individual is 289.7 cM, which means that this 
+   individual's parents were probably first cousins.
    
 © 2026 Mick Jolley (mickj1948@gmail.com) 
 
