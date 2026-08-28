@@ -1,3 +1,5 @@
+Parental Relationship
+
 Parental_Relationship_V4.py calculates runs of homozygosity (ROHs) for an
 individual. Default values of 1% error rate, 50 SNPs minimum, a SNP density
 of a least 20 SNPs per Mb and a ROH cutoff of 5 Mb are used. The result is a
