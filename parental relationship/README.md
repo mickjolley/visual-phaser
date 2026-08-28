@@ -9,6 +9,10 @@ Multiply the total ROH cMs by four to approximate sibling comparison cMs.
 For example, if the total cM of the ROHs is 200, then 4 times this is 800 cM,
 which approximates to first cousins. 
 
+An example of an individual from an endogamous population is Ancestry_Samaritan
+_raw_dan.txt'. The total cMs of ROHs for this individual is 289.7 cM, which 
+means that this individual's parents were probably first cousins.
+
 PR_config_V4.py is the configuration file for Parental_Relationship_V4.py.
 
 DNA_FILES_PATH: Path to DNA files.
