@@ -2,7 +2,7 @@
 
 1. Introduction
 
-  Visual_Phaser.V1.3.1.exe is a specialized bioinformatics application designed for
+  Visual_Phaser.V1.3.2.exe is a specialized bioinformatics application designed for
   genetic genealogy. It analyzes raw autosomal DNA files to identify and visualize
   shared segments (Half-Identical Regions (HIRs), Fully-Identical Regions
   (FIRs) and Non-Identical regions (NIRs)) between siblings, cousins, and other relatives.
@@ -21,9 +21,10 @@
    - DNA Files:
            Build 37 files only.
            V1.3.1 checks DNA file build and warns when SNPs are outside the Genetic Map. 
-
+           V1.3.2 skips siblings and cousins when DNA file is missing a chromosome.
+     
   Project Structure
-   - Visual_Phaser.V1.3.1.exe: The main execution engine.
+   - Visual_Phaser.V1.3.2.exe: The main execution engine.
    - VP_configV1.py: The configuration and parameter file.
    - min_map.txt: (Required) A genetic map file mapping physical positions (Mb) to
      genetic distances (cM).
@@ -125,7 +126,7 @@
 
   Data Export
   
-  When SAVE_SEG_FILES is set to True, V1.3 writes three files alongside the .xlsx file:
+  When SAVE_SEG_FILES is set to True, V1.3.2 writes three files alongside the .xlsx file:
 
   name_segments.csv (every segment, long format (Pair/Type/Chr/Start/End/SNPs/cM)),
   name_dnapainter.csv (DNA Painter import layout (Chr/Start/End/cM/SNPs/Match)) and
