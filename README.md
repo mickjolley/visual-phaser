@@ -22,7 +22,7 @@
            Build 37 files only.
            V1.3.1 checks DNA file build and warns when SNPs are outside the Genetic Map.
    - Chromosomes:
-           V1.3.2 skips siblings and cousins when they lack a chromosome.
+           V1.3.2 skips siblings and cousins when their DNA files is missing a chromosome.
 
   Project Structure
    - Visual_Phaser.V1.3.2.py: The main execution engine.
